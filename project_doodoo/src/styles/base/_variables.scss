@@ -1,11 +1,10 @@
 // 컬러, 폰트 공통 변수 정의
 
 // primary color
-$primary-color: #C4FF53;
-$primary-color-text: #8ED800;
-$gradient-color: linear-gradient(to bottom right, #AFFF4F, 60%, #FFF187);
-$primary-color-opacity: #edffd0;
-$primary-hover: #94d619;
+$primary-color: #FFD2F0;
+$sub-color: #2219D1;
+$sub-color: #2219D1;
+$sub-hover: #3A30E5;
 
 
 // 색상
@@ -48,5 +47,5 @@ $spacing-xl: 32px;
 $title-font-size: vw-font(14px, 24px);
 $sub-title-font-size: vw-font(8px, 14px);
 
-$gray-color: #999;
 $font-base: 'Pretendard', sans-serif;
+$font-display: 'Paperozi', sans-serif;

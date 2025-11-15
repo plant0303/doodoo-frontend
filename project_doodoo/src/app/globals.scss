@@ -1,9 +1,11 @@
 @import "../styles/base/reset";
 @import "../styles/base/variables";
 @import "../styles/base/mixins";
+@import "../styles/base/font";
+
 
 body {
-  font-family: 'Noto Sans', sans-serif;
+  font-family: $font-base;
   background-color: $bg-color;
   color: $text-color;
   margin: 0;

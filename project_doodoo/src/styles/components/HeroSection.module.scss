@@ -1,6 +1,142 @@
+@use '../../styles/base/variables' as *;
 
-.container{
-  width: 100%;
+.container {
+  width: 100vw;
   height: 100vh;
-  border: 1px solid red;
+
+  .mainVisual {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; // 위 아래 간격 균등하게
+    gap: 50px;
+    width: 88vw;
+    height: calc(60% - 88px);
+    min-height: 550px;
+    padding: 40px 70px;
+    background-color: $primary-color;
+    border-radius: 30px;
+    opacity: 0.8;
+
+    // 가운데 배치
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden; // 내부 콘텐츠가 삐져나오지 않게
+  }
+
+  .topCont {
+    display: flex;
+    flex: 2; // 3대1 중 3
+    justify-content: space-between;
+    align-items: flex-end;
+    border-radius: 30px;
+    gap: 100px;
+
+    .title {
+      display: flex;
+      flex-direction: column;
+      color: $sub-color;
+      letter-spacing: -2px;
+      font-size: 60px;
+
+      p {
+        margin-bottom: 10px;
+      }
+
+      span {
+        font-weight: 800;
+      }
+    }
+
+    .searchCont {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+
+      .gnb {
+        padding: 30px 0;
+
+        ul {
+          display: flex;
+          margin: 0 70px;
+          justify-content: space-between;
+
+          li{
+            a{
+              font-size: $font-lg;
+              color: $sub-color;
+              font-weight: bold;
+            }
+            :hover{
+              color: $sub-hover;
+            }
+          }
+        }
+      }
+
+
+      .searchInputContainer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff;
+        border-radius: 50px;
+        height: 50px;
+
+        input {
+          margin: 0 20px;
+          width: 100%;
+          border: none;
+          background: none;
+          outline: none;
+          font-size: $font-md;
+        }
+
+        button {
+          margin: 0 20px;
+          width: 25px;
+          height: 25px;
+
+          svg {
+            color: $sub-color;
+          }
+        }
+      }
+    }
+  }
+
+
+  .gallery {
+    flex: 1; // 3대1 중 1
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    ul {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+      height: 100%;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .galleryImg {
+      width: 100%;
+      height: 100%; // aspect-ratio 대신 높이를 꽉 채움
+      border-radius: 15px;
+      background-color: #fff;
+    }
+  }
 }
