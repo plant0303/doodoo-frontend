@@ -1,5 +1,8 @@
 "use client";
 import React, { useRef, useEffect } from 'react';
+// gld load
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
 import {
   Clock,
   PerspectiveCamera,
@@ -687,19 +690,45 @@ class Z extends InstancedMesh {
   ambientLight: AmbientLight | undefined;
   light: PointLight | undefined;
 
-  constructor(renderer: WebGLRenderer, params: Partial<typeof XConfig> = {}) {
+  constructor(renderer: WebGLRenderer, params: Partial<typeof XConfig> = {}, onReady?: (mesh: Z) => void) {
     const config = { ...XConfig, ...params };
     const roomEnv = new RoomEnvironment();
     const pmrem = new PMREMGenerator(renderer);
     const envTexture = pmrem.fromScene(roomEnv).texture;
-    const geometry = new SphereGeometry();
-    const material = new Y({ envMap: envTexture, ...config.materialParams });
-    material.envMapRotation.x = -Math.PI / 2;
-    super(geometry, material, config.count);
+
+    // 여기서 loader 생성
+    const loader = new GLTFLoader();
+
+    // InstancedMesh는 임시 geometry/material로 먼저 생성 (1x1 구체 등)
+    const tempGeometry = new SphereGeometry(0.01); // 임시
+    const tempMaterial = new Y({ envMap: envTexture, ...config.materialParams });
+    tempMaterial.envMapRotation.x = -Math.PI / 2;
+
+    super(tempGeometry, tempMaterial, config.count);
+
     this.config = config;
     this.physics = new W(config);
     this.#setupLights();
     this.setColors(config.colors);
+
+    // 모델 로드
+    loader.load(
+      '/glb/final01.glb',
+      (gltf) => {
+        const modelMesh = gltf.scene.children[0]; // 첫 번째 Mesh 사용
+        if (modelMesh && (modelMesh as any).isMesh) {
+          // InstancedMesh의 geometry와 material 교체
+          this.geometry = (modelMesh as any).geometry;
+          this.material = (modelMesh as any).material;
+          this.instanceMatrix.needsUpdate = true;
+
+          // 모델 준비 완료 콜백
+          if (onReady) onReady(this);
+        }
+      },
+      undefined,
+      (err) => console.error('GLB 로드 실패', err)
+    );
   }
 
   #setupLights() {
