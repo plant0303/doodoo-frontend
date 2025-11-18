@@ -19,7 +19,7 @@ function HeroSection() {
                 <img
                   src="/logo/doodoo_logo.png"  // public/logo/doodoo_logo.png
                   alt="DooDoo Logo"
-                  height={80}
+                  height={50}
                 />
               </a>
             </div>

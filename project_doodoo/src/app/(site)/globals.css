@@ -2,3 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 @import "tailwindcss";
+
+:root {
+  --primary-color: #2219D1;
+  --primary-hover: #9ea6ff;
+  --sub-color: #FFD2F0;
+}
