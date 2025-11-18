@@ -32,12 +32,3 @@ button {
   width: 100%;
 
 }
-
-:global {
-  .CustomOverlay {
-    padding: 2px 8px;
-    background-color: white;
-    border: 1px solid $color-gray-300;
-    border-radius: 10px 0 10px 0;
-  }
-}
