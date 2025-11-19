@@ -6,5 +6,13 @@
 :root {
   --primary-color: #2219D1;
   --primary-hover: #9ea6ff;
-  --sub-color: #FFD2F0;
+  --sub-color: #f8b4e1;
+}
+
+.container {
+  width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }

@@ -3,6 +3,8 @@ import Header from '@/components/common/Header'
 import React from 'react'
 import "./globals.css";
 import "./globals.scss";
+import dynamic from 'next/dynamic';
+
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (

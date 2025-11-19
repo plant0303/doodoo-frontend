@@ -1,12 +1,39 @@
-import React from 'react'
+"use client";
+import Pagination from '@/components/common/Pagination';
+import React, { useEffect, useState } from 'react'
+import ListClient from './ListClient';
 
-function page() {
+// CSR 렌더링
+
+const ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
+
+export default function Page() {
+  const [images, setImages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchImages() {
+      try {
+        const res = await fetch(
+          `https://api.unsplash.com/photos?page=1&per_page=30&client_id=${ACCESS_KEY}`
+        );
+        const data = await res.json();
+        setImages(data);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchImages();
+  }, []);
+
+
   return (
-    <div>
-      list
-      <div className="w-20 h-20 bg-blue-500"></div>
-    </div>
-  )
-}
+    <div className="container mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold mb-6">Collage Gallery</h1>
 
-export default page
+      {/* Masonry Grid */}
+      <ListClient/>
+    </div>
+  );
+}

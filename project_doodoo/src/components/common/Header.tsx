@@ -1,4 +1,4 @@
-"use client";
+
 
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,16 +8,16 @@ export default function Header() {
   const gnbItems = ["Photo", "Illustration", "Template", "Icon", "Sticker"];
 
   return (
-    <header className={`w-full border-b border-gray-200 bg-white`}>
-      <div className="max-w-[1200px] mx-auto px-4 py-4 flex flex-col gap-4">
+    <header className="w-full border-b border-gray-200 bg-white">
+      <div className="container py-4 flex flex-col gap-4">
 
         {/* 로고 */}
-        <h1 className="flex justify-center leading-none  text-center">
+        <h1 className="flex justify-center leading-none text-center">
           <Link href="/">
             <img
-              src="/logo/doodoo_logo.png"  // public/logo/doodoo_logo.png
+              src="/logo/doodoo_logo.png"
               alt="DooDoo Logo"
-              className="h-10 text-center"
+              className="h-8 sm:h-10 mx-auto"
             />
           </Link>
         </h1>
@@ -26,16 +26,18 @@ export default function Header() {
         <form
           role="search"
           aria-label="search"
-          className="flex items-center w-full bg-white px-4 py-2 border-2 border-[var(--sub-color)] rounded-full"
-        >
+          defaultValue=""
+          autoComplete="off"
+          className="flex items-center w-full bg-white px-3 sm:px-4 py-2 
+          border-2 border-[var(--sub-color)] rounded-full
+          text-sm sm:text-base"
+          >
           {/* 필터 선택 */}
-          <label htmlFor="search-filter" className="sr-only">
-            검색 카테고리 선택
-          </label>
           <select
             id="search-filter"
-            className="mr-3 bg-transparent text-gray-700 outline-none"
-          >
+            defaultValue="all"
+            className="mr-2 sm:mr-3 bg-transparent text-gray-700 outline-none"
+            >
             <option value="all">All</option>
             <option value="photo">Photo</option>
             <option value="illustration">Illustration</option>
@@ -45,12 +47,11 @@ export default function Header() {
           </select>
 
           {/* 검색 입력창 */}
-          <label htmlFor="header-search" className="sr-only">
-            검색어 입력
-          </label>
           <input
             id="header-search"
             type="search"
+            defaultValue=""
+            autoComplete="off"
             placeholder="검색어를 입력하세요"
             className="flex-1 bg-transparent outline-none"
           />
@@ -58,7 +59,7 @@ export default function Header() {
           {/* 돋보기 버튼 */}
           <button
             type="submit"
-            className="ml-3 text-gray-700 hover:text-black"
+            className="ml-2 sm:ml-3 text-gray-700 hover:text-black"
             aria-label="검색"
           >
             <FontAwesomeIcon icon={faSearch} />
@@ -67,15 +68,26 @@ export default function Header() {
 
         {/* GNB */}
         <nav aria-label="global" className="w-full bg-white">
-          <ul className="flex items-center justify-between max-w-7xl mx-auto py-2">
+          <ul
+            className="
+            flex items-center justify-between 
+            max-w-7xl mx-auto py-2 
+            text-xs sm:text-sm md:text-base
+          "
+          >
             {gnbItems.map((item, idx) => (
               <li
                 key={item}
-                className={`w-full border-r border-[var(--primary-color)] ${idx === gnbItems.length - 1 ? "border-r-0" : ""}`}
+                className={`w-full border-r border-[var(--primary-color)] ${idx === gnbItems.length - 1 ? "border-r-0" : ""
+                  }`}
               >
                 <Link
                   href={`/${item.toLowerCase()}`}
-                  className="flex items-center justify-center w-full text-[var(--primary-color)] hover:text-[var(--primary-hover)] transition-colors duration-200 py-1 text-lg"
+                  className="
+                  flex items-center justify-center w-full 
+                  text-[var(--primary-color)] 
+                  hover:text-[var(--primary-hover)] transition-colors py-1
+                "
                 >
                   {item}
                 </Link>
@@ -84,26 +96,39 @@ export default function Header() {
           </ul>
         </nav>
 
+        {/* ▼ Search Filter Bar ▼ */}
         <div
           aria-label="search filter bar"
-          className="w-full flex items-center justify-between mx-auto py-2"
+          className="
+          w-full flex flex-col sm:flex-row
+          items-start sm:items-center justify-between 
+          gap-2 sm:gap-0
+          mx-auto py-2
+        "
         >
           {/* 왼쪽: Filter 버튼 */}
           <button
             type="button"
-            className="flex items-center text-[#3C4DF8] font-bold font-sm transition-colors duration-200 px-5 py-0.5 border-2 border-[#3C4DF8] rounded-full"
+            className="
+            flex items-center text-[#3C4DF8] font-bold text-sm 
+            transition-colors px-5 py-1 border-2 border-[#3C4DF8] rounded-full
+            w-max
+          "
           >
             Filter &gt;
           </button>
 
           {/* 오른쪽: Sort By */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-sm sm:text-base">
             <span className="font-bold">Sort by</span>
             {["New", "Popular", "Download"].map((item) => (
               <button
                 key={item}
                 type="button"
-                className="px-1 py-1 rounded-md text-gray-400 hover:text-[#3C4DF8] transition-colors duration-200"
+                className="
+                px-1 py-1 rounded-md 
+                text-gray-400 hover:text-[#3C4DF8] transition-colors
+              "
               >
                 {item}
               </button>
@@ -114,4 +139,5 @@ export default function Header() {
       </div>
     </header>
   );
+
 }
