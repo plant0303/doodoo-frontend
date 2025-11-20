@@ -8,36 +8,5 @@ body {
   font-family: $font-base;
   background-color: $bg-color;
   color: $text-color;
-  margin: 0;
-  padding: 0;
-
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-button {
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 0; // 양쪽 여백
-  width: 100%;
-
-}
-
-:global {
-  .CustomOverlay {
-    padding: 2px 8px;
-    background-color: white;
-    border: 1px solid $color-gray-300;
-    border-radius: 10px 0 10px 0;
-  }
-}
