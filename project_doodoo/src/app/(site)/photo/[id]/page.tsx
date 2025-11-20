@@ -5,6 +5,27 @@ import DownloadDropdown from './DownloadDropdown';
 import Link from 'next/link';
 import ListClient from '../../list/ListClient';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '무제한 무료 이미지 - 두두 doodoo',
+  description: '무제한 무료 이미지 스톡 사이트. 상업적으로 사용 가능한 고화질 사진을 지금 다운로드하세요.',
+  openGraph: {
+    title: '고화질 무료 이미지 - 두두 doodoo',
+    description: '📸 두두(doodoo)에서 영감을 주는 무료 이미지를 발견하고 프로젝트를 빛내세요!',
+    // url: 'https://your-domain.com',
+    type: 'website',
+    // og:image 등 추가 가능
+  },
+  keywords: [
+    '무료 이미지',
+    '스톡 이미지',
+    '상업적 이용 가능',
+    '고화질 사진',
+    '두두',
+  ],
+};
+
 export default function page(props: { params: Promise<{ id: string }> }) {
   const [items, setItems] = useState<UnsplashItem[]>([]);
   return (
