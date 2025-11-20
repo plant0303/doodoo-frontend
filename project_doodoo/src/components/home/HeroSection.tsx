@@ -14,7 +14,7 @@ export default function HeroSection() {
         rounded-3xl shadow-lg bg-[var(--sub-color)]/90
         backdrop-blur-xl
         border border-white/20
-        p-10 sm:p-18
+        px-6 py-10 sm:px-14 sm:py-18
         "
       >
 
@@ -23,10 +23,10 @@ export default function HeroSection() {
 
           {/* LEFT TITLE */}
           <div className="flex-[1] text-center sm:text-left">
-            <p className="text-5xl opacity-80 tracking-tight mb-2 animate-slideDown font-light">
+            <p className="text-5xl opacity-80 tracking-tight mb-2 animate-slideDown font-light hidden sm:block">
               You can get
             </p>
-            <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight animate-slideDown delay-100 tracking-tighter">
+            <h1 className="text-5xl sm:text-6xl font-extrabold leading-tight animate-slideDown delay-100 tracking-tighter hidden sm:block">
               Unlimited<br />Free sources
             </h1>
           </div>
@@ -40,7 +40,7 @@ export default function HeroSection() {
                 src="/logo/doodoo_logo.png"
                 alt="DooDoo Logo"
                 className="
-                  w-[110px] sm:w-[130px]
+                  w-[110px] sm:w-[120px]
                 "
               />
             </a>
@@ -85,7 +85,7 @@ export default function HeroSection() {
                 "
               />
               <button type="submit">
-                <FontAwesomeIcon icon={faSearch} className="w-5 y-5 text-[var(--primary-color)]" />
+                <FontAwesomeIcon icon={faSearch} className="w-5 y-5 text-[var(--primary-color)] cursor-pointer" />
               </button>
             </form>
 
@@ -93,14 +93,14 @@ export default function HeroSection() {
         </header>
 
         {/* GALLERY GRID */}
-        <div className="mt-14">
-          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <div className="mt-8">
+          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[1, 2, 3, 4].map((i) => (
               <li key={i}>
                 <div
                   className="
                     w-full h-[120px] sm:h-[150px]
-                    rounded-xl bg-white/30 backdrop-blur-lg
+                    rounded-xl bg-white backdrop-blur-lg
                     shadow-inner
                     animate-fadeInUp
                     hover:bg-white/50 transition duration-300
