@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useEffect } from 'react';
 // gld load
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 import {
   Clock,
@@ -26,12 +26,13 @@ import {
   Raycaster,
   Plane
 } from 'three';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment';
 import { Observer } from 'gsap/Observer';
 import { gsap } from 'gsap';
 
 gsap.registerPlugin(Observer);
 
+// 렌더링 엔진(Class X) 에 전달할 설정값
 interface XConfig {
   canvas?: HTMLCanvasElement;
   id?: string;
@@ -39,6 +40,7 @@ interface XConfig {
   size?: 'parent' | { width: number; height: number };
 }
 
+// 렌더링 엔진(Class X) 에 전달할 설정값
 interface SizeData {
   width: number;
   height: number;
@@ -48,6 +50,7 @@ interface SizeData {
   pixelRatio: number;
 }
 
+// Three.js 전용 엔진 클래스(카메라, 씬, 렌더러, 리사이즈, 애니메이션 관리)
 class X {
   #config: XConfig;
   #postprocessing: any;
@@ -79,9 +82,9 @@ class X {
   };
 
   render: () => void = this.#render.bind(this);
-  onBeforeRender: (state: { elapsed: number; delta: number }) => void = () => {};
-  onAfterRender: (state: { elapsed: number; delta: number }) => void = () => {};
-  onAfterResize: (size: SizeData) => void = () => {};
+  onBeforeRender: (state: { elapsed: number; delta: number }) => void = () => { };
+  onAfterRender: (state: { elapsed: number; delta: number }) => void = () => { };
+  onAfterResize: (size: SizeData) => void = () => { };
   isDisposed: boolean = false;
 
   constructor(config: XConfig) {
@@ -93,15 +96,18 @@ class X {
     this.#initObservers();
   }
 
+  // 카메라 초기화
   #initCamera() {
     this.camera = new PerspectiveCamera();
     this.cameraFov = this.camera.fov;
   }
 
+  // 씬 초기화
   #initScene() {
     this.scene = new Scene();
   }
 
+  // 렌더러 초기화 및 canvas 적용
   #initRenderer() {
     if (this.#config.canvas) {
       this.canvas = this.#config.canvas;
@@ -292,6 +298,7 @@ class X {
   }
 }
 
+// 물리엔진(Class W) 설정값
 interface WConfig {
   count: number;
   maxX: number;
@@ -308,6 +315,7 @@ interface WConfig {
   followCursor?: boolean;
 }
 
+// 물리 엔진 시뮬레이션(ball 위치 속도 충돌 계산)
 class W {
   config: WConfig;
   positionData: Float32Array;
@@ -325,6 +333,7 @@ class W {
     this.setSizes();
   }
 
+  // 초기 위치 랜덤
   #initializePositions() {
     const { config, positionData } = this;
     this.center.toArray(positionData, 0);
@@ -336,6 +345,7 @@ class W {
     }
   }
 
+  // Ball 크기 랜덤
   setSizes() {
     const { config, sizeData } = this;
     sizeData[0] = config.size0;
@@ -344,6 +354,7 @@ class W {
     }
   }
 
+  // 매 프레임 물리 업데이트
   update(deltaInfo: { delta: number }) {
     const { config, center, positionData, sizeData, velocityData } = this;
     let startIdx = 0;
@@ -425,6 +436,7 @@ class W {
   }
 }
 
+// 커스텀 Shading Material(구슬 빛 산란효과()
 class Y extends MeshPhysicalMaterial {
   uniforms: { [key: string]: { value: any } } = {
     thicknessDistortion: { value: 0.1 },
@@ -480,15 +492,13 @@ class Y extends MeshPhysicalMaterial {
 
 const XConfig = {
   count: 200,
-  colors: [0, 0, 0],
+  colors: [0xFFF18D, 0xFFA578, 0xFFD2D2],
   ambientColor: 0xffffff,
-  ambientIntensity: 1,
-  lightIntensity: 200,
+  ambientIntensity: 0, // AmbientLight의 강도
+  lightIntensity: 0, // idx=0 의 주변광 강도 
   materialParams: {
-    metalness: 0.5,
-    roughness: 0.5,
-    clearcoat: 1,
-    clearcoatRoughness: 0.15
+    roughness: 1.0, //매우거칠게
+    clearcoatRoughness: 0,
   },
   minSize: 0.5,
   maxSize: 1,
@@ -509,6 +519,7 @@ const U = new Object3D();
 let globalPointerActive = false;
 const pointerPosition = new Vector2();
 
+// 커서/터치 추적 시스템
 interface PointerData {
   position: Vector2;
   nPosition: Vector2;
@@ -529,10 +540,10 @@ function createPointerData(options: Partial<PointerData> & { domElement: HTMLEle
     nPosition: new Vector2(),
     hover: false,
     touching: false,
-    onEnter: () => {},
-    onMove: () => {},
-    onClick: () => {},
-    onLeave: () => {},
+    onEnter: () => { },
+    onMove: () => { },
+    onClick: () => { },
+    onLeave: () => { },
     ...options
   };
   if (!pointerMap.has(options.domElement)) {
@@ -684,6 +695,7 @@ const j = new Vector3();
 const H = new Vector3();
 const T = new Vector3();
 
+// InstancedMesh 기반 Ballpit Mesh(Z)
 class Z extends InstancedMesh {
   config: typeof XConfig;
   physics: W;
@@ -701,8 +713,11 @@ class Z extends InstancedMesh {
 
     // InstancedMesh는 임시 geometry/material로 먼저 생성 (1x1 구체 등)
     const tempGeometry = new SphereGeometry(0.01); // 임시
-    const tempMaterial = new Y({ envMap: envTexture, ...config.materialParams });
-    tempMaterial.envMapRotation.x = -Math.PI / 2;
+    const tempMaterial = new Y({
+      color: new Color(0xfff000), // 원하는 노란색 (예시: #fff000)
+      envMap: envTexture,
+      ...config.materialParams
+    });
 
     super(tempGeometry, tempMaterial, config.count);
 
@@ -713,21 +728,27 @@ class Z extends InstancedMesh {
 
     // 모델 로드
     loader.load(
-      '/glb/final01.glb',
+      '/glb/sphere.glb',
       (gltf) => {
         const modelMesh = gltf.scene.children[0]; // 첫 번째 Mesh 사용
         if (modelMesh && (modelMesh as any).isMesh) {
-          // InstancedMesh의 geometry와 material 교체
+          // **InstancedMesh의 geometry만 로드된 모델의 것으로 교체**
           this.geometry = (modelMesh as any).geometry;
-          this.material = (modelMesh as any).material;
+
+
+          const loadedMaterial = (modelMesh as any).material;
+          if (loadedMaterial) {
+
+          }
+
           this.instanceMatrix.needsUpdate = true;
+          this.instanceColor.needsUpdate = true; // 색상 데이터 업데이트 보장
 
           // 모델 준비 완료 콜백
           if (onReady) onReady(this);
         }
       },
-      undefined,
-      (err) => console.error('GLB 로드 실패', err)
+      // ...
     );
   }
 
