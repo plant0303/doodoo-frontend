@@ -1,36 +1,32 @@
-"use client";
+// src/app/list/page.tsx (SSR 렌더)
 import Pagination from '@/components/common/Pagination';
 import React, { useEffect, useState } from 'react'
 import ListClient from './ListClient';
+import { searchImages } from '@/lib/api';
 
-// CSR 렌더링
+interface ImageItem {
+  id: string;
+  thumb_url: string;
+  title: string;
+}
+const PER_PAGE = 30; // 한 페이지당 로드할 이미지 수
 
-const ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
+// API의 total count 정보가 없으므로, total page 계산을 위한 목업 전체 개수입니다.
+const MOCK_TOTAL_COUNT = 1000;
+export default async function Page({ searchParams }: { searchParams: { q?: string, p?: string } }) {
+  // 1. 검색어 및 페이지 번호 추출 (SSR을 위한 초기 상태)
+  const query = searchParams.q || '가을';
+  const currentPage = parseInt(searchParams.p || '1', 10);
 
-export default function Page() {
-  const [images, setImages] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  // 2. 서버 컴포넌트에서 API 호출 및 초기 데이터 로드 (SSR)
+  const initialImages = await searchImages(query, currentPage, PER_PAGE);
 
-  useEffect(() => {
-    async function fetchImages() {
-      try {
-        const res = await fetch(
-          `https://api.unsplash.com/photos?page=1&per_page=30&client_id=${ACCESS_KEY}`
-        );
-        const data = await res.json();
-        setImages(data);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchImages();
-  }, []);
-
-
+  console.log(query);
+  
+  // 3. 총 페이지 수 계산
+  const initialTotalPages = Math.ceil(MOCK_TOTAL_COUNT / PER_PAGE);
   return (
     <>
-
       <div className="container mx-auto px-4 py-4">
         {/* ▼ Search Filter Bar ▼ */}
         <div
@@ -73,8 +69,12 @@ export default function Page() {
         </div>
         <h1 className="text-2xl font-bold mb-6">Collage Gallery</h1>
 
-        {/* Masonry Grid */}
-        <ListClient />
+        <ListClient
+          initialImages={initialImages}
+          initialQuery={query}
+          initialPage={currentPage}
+          initialTotalPages={initialTotalPages}
+        />
       </div>
     </>
   );
