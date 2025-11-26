@@ -1,69 +1,80 @@
-// app/page.js
-
+// src/app/list/page.tsx (SSR 렌더)
+import Pagination from '@/components/common/Pagination';
+import React, { useEffect, useState } from 'react'
 import ListClient from './ListClient';
-import type { Metadata } from 'next';
+import { searchImages } from '@/lib/api';
 
-//  메타데이터는 서버 컴포넌트에서 export (SEO 핵심)
-// 이 데이터는 페이지를 렌더링하기 전에 서버에서 <head> 태그에 삽입됩니다.
-export const metadata: Metadata = {
-  title: '무제한 무료 이미지 - 두두 doodoo',
-  description: '무제한 무료 이미지 스톡 사이트. 상업적으로 사용 가능한 고화질 사진을 지금 다운로드하세요.',
-  openGraph: {
-    title: '두두 doodoo | 고화질 무료 이미지',
-    description: '📸 두두(doodoo)에서 영감을 주는 무료 이미지를 발견하고 프로젝트를 빛내세요!',
-    url: 'https://your-domain.com', // ⚠️ 실제 도메인으로 변경하세요.
-    type: 'website',
-    // og:image 등 추가 가능
-  },
-  keywords: [
-    '무료 이미지',
-    '스톡 이미지',
-    '상업적 이용 가능',
-    '고화질 사진',
-    '두두',
-  ],
-};
-
-const ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
-
-// 데이터 페칭 SSR 
-async function fetchInitialImages() {
-  try {
-    console.log("--- 🚀 Unsplash API를 호출합니다 (캐시 재검증) ---");
-    const res = await fetch(
-      `https://api.unsplash.com/photos?page=1&per_page=30&client_id=${ACCESS_KEY}`,
-      {
-        // 5분(300초) 동안 캐시를 유지하도록 설정
-        next: { revalidate: 300 }
-      }
-    );
-
-    if (!res.ok) {
-      // 에러 처리
-      throw new Error('Failed to fetch images');
-    }
-
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error("Image fetch error:", error);
-    return [];
-  }
+interface ImageItem {
+  id: string;
+  thumb_url: string;
+  title: string;
 }
+const PER_PAGE = 30; // 한 페이지당 로드할 이미지 수
 
-// 💡 4. Page 컴포넌트는 서버에서 실행되므로 "use client"가 필요 없습니다.
-export default async function ImageGalleryPage() {
+// API의 total count 정보가 없으므로, total page 계산을 위한 목업 전체 개수입니다.
+const MOCK_TOTAL_COUNT = 1000;
+export default async function Page({ searchParams }: { searchParams: { q?: string, p?: string } }) {
+  // 1. 검색어 및 페이지 번호 추출 (SSR을 위한 초기 상태)
+  const query = searchParams.q || '가을';
+  const currentPage = parseInt(searchParams.p || '1', 10);
 
-  // 서버에서 초기 데이터를 비동기로 가져옵니다.
-  const initialImages = await fetchInitialImages();
+  // 2. 서버 컴포넌트에서 API 호출 및 초기 데이터 로드 (SSR)
+  const initialImages = await searchImages(query, currentPage, PER_PAGE);
 
+  
+  // 3. 총 페이지 수 계산
+  const initialTotalPages = Math.ceil(MOCK_TOTAL_COUNT / PER_PAGE);
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold mb-6">Collage Gallery</h1>
+    <>
+      <div className="container mx-auto px-4 py-4">
+        {/* ▼ Search Filter Bar ▼ */}
+        <div
+          aria-label="search filter bar"
+          className="
+          flex flex-col sm:flex-row
+          items-start sm:items-center justify-between 
+          gap-2 sm:gap-0
+          mx-auto py-2
+        "
+        >
+          {/* 왼쪽: Filter 버튼 */}
+          <button
+            type="button"
+            className="
+            flex items-center text-[#3C4DF8] font-bold text-sm 
+            transition-colors px-5 py-1 border-2 border-[#3C4DF8] rounded-full
+            w-max
+          "
+          >
+            Filter &gt;
+          </button>
 
-      {/* 💡 5. 클라이언트 컴포넌트에 초기 데이터를 props로 전달 */}
-      {/* ListClient는 이제 초기 데이터 렌더링과 추가 로딩을 담당합니다. */}
-      <ListClient initialImages={initialImages} />
-    </div>
+          {/* 오른쪽: Sort By */}
+          <div className="flex items-center gap-2 text-sm sm:text-base">
+            <span className="font-bold">Sort by</span>
+            {["New", "Popular", "Download"].map((item) => (
+              <button
+                key={item}
+                type="button"
+                className="
+                px-1 py-1 rounded-md 
+                text-gray-400 hover:text-[#3C4DF8] transition-colors
+              "
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+        <h1 className="text-2xl font-bold mb-6">Collage Gallery</h1>
+
+        <ListClient
+          initialImages={initialImages}
+          initialQuery={query}
+          initialPage={currentPage}
+          initialTotalPages={initialTotalPages}
+        />
+      </div>
+    </>
   );
 }

@@ -1,10 +1,27 @@
-// mainpage, SSG
-import React from 'react'
+"use client";
+// mainpage
+import React, { useState } from 'react'
 import styles from '@/styles/components/HeroSection.module.scss';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from 'next/navigation';
 
 function HeroSection() {
+  const [query, setQuery] = useState('');
+  const router = useRouter(); // useRouter 초기화
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    // 1. URLSearchParams를 사용하여 쿼리 문자열 생성
+    const params = new URLSearchParams();
+    params.set('q', query.trim()); // q=검색어 형태로 쿼리 추가
+
+    // 2. 문자열 형태의 경로로 push 호출
+    router.push(`/list?${params.toString()}`);
+  };
+
   return (
     <div className={styles.container}>
       <section className={styles.mainVisual}>
@@ -35,10 +52,18 @@ function HeroSection() {
             <form
               role="search"
               className={styles.searchInputContainer}
-              action="/search"  // 실제 검색 페이지 경로 지정
+              action="/list" // 실제 검색 페이지 경로 지정
               method="get"
+              onSubmit={handleSearch} // 라우팅 함수 연결
             >
-              <input type="text" placeholder="Search..." aria-label="search" name="q" />
+              <input
+                type="text"
+                placeholder="Search..."
+                aria-label="search"
+                name="q"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
               <button type="submit" aria-label="검색">
                 <FontAwesomeIcon icon={faSearch} />
               </button>
