@@ -3,27 +3,36 @@ import Pagination from '@/components/common/Pagination';
 import React, { useEffect, useState } from 'react'
 import ListClient from './ListClient';
 import { searchImages } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 interface ImageItem {
   id: string;
   thumb_url: string;
   title: string;
 }
-const PER_PAGE = 30; // 한 페이지당 로드할 이미지 수
 
-// API의 total count 정보가 없으므로, total page 계산을 위한 목업 전체 개수입니다.
-const MOCK_TOTAL_COUNT = 1000;
+// 한 페이지당 30장씩 로드
+const PER_PAGE = 30;
+const TOTAL_COUNT = 1000;
+
 export default async function Page({ searchParams }: { searchParams: { q?: string, p?: string } }) {
-  // 1. 검색어 및 페이지 번호 추출 (SSR을 위한 초기 상태)
-  const query = searchParams.q || '가을';
-  const currentPage = parseInt(searchParams.p || '1', 10);
+  // 검색어 추출
+  // 비동기적으로 처리해야하기 때문에 await으로 런타임 문제 해결
+  const finalSearchParams = await (searchParams as any);
+  const query = finalSearchParams.q || '';
 
-  // 2. 서버 컴포넌트에서 API 호출 및 초기 데이터 로드 (SSR)
-  const initialImages = await searchImages(query, currentPage, PER_PAGE);
+  // 검색어가 있을 때만 API 호출 (SSR)
+  let initialImages: ImageItem[] = [];
+  let initialPage = 1;
+  let initialTotalPages = Math.ceil(TOTAL_COUNT / PER_PAGE);
 
-  
-  // 3. 총 페이지 수 계산
-  const initialTotalPages = Math.ceil(MOCK_TOTAL_COUNT / PER_PAGE);
+  if (query) {
+    initialPage = parseInt(finalSearchParams.p || '1', 10);
+    initialImages = await searchImages(query, initialPage, PER_PAGE);
+    initialTotalPages = Math.ceil(TOTAL_COUNT / PER_PAGE);
+  }
+
+
   return (
     <>
       <div className="container mx-auto px-4 py-4">
@@ -66,13 +75,13 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
             ))}
           </div>
         </div>
-        <h1 className="text-2xl font-bold mb-6">Collage Gallery</h1>
 
         <ListClient
           initialImages={initialImages}
           initialQuery={query}
-          initialPage={currentPage}
+          initialPage={initialPage}
           initialTotalPages={initialTotalPages}
+          perPage={PER_PAGE}
         />
       </div>
     </>

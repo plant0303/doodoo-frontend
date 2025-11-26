@@ -8,17 +8,15 @@ import { useRouter } from 'next/navigation';
 
 function HeroSection() {
   const [query, setQuery] = useState('');
-  const router = useRouter(); // useRouter 초기화
+  const router = useRouter();
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (!query.trim()) return;
 
-    // 1. URLSearchParams를 사용하여 쿼리 문자열 생성
     const params = new URLSearchParams();
-    params.set('q', query.trim()); // q=검색어 형태로 쿼리 추가
+    params.set('q', query.trim());
 
-    // 2. 문자열 형태의 경로로 push 호출
     router.push(`/list?${params.toString()}`);
   };
 
