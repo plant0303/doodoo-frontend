@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ImageItem, searchImages } from '@/lib/api';
 import Pagination from '@/components/common/Pagination';
+import { useRouter } from 'next/navigation'; 
 
 // Workers API
 interface ListClientProps {
@@ -16,6 +17,7 @@ interface ListClientProps {
 }
 
 export default function ListClient({ initialImages, initialQuery, initialPage, initialTotalPages, perPage }: ListClientProps) {
+  const router = useRouter();
   // 클라이언트 상태 관리
   const [images, setImages] = useState(initialImages);
   const [page, setPage] = useState(initialPage);
@@ -49,9 +51,19 @@ export default function ListClient({ initialImages, initialQuery, initialPage, i
 
   const handleSetPage = useCallback((newPage: number) => {
     if (newPage !== page) {
+      // 1. 새로운 데이터를 CSR로 가져옵니다.
       fetchImages(newPage, query);
+
+      // 2. URL 쿼리 파라미터를 업데이트합니다. (URLSearchParams 사용)
+      const params = new URLSearchParams();
+      params.set('q', query);
+      params.set('p', newPage.toString());
+
+      // 3. 브라우저의 URL 주소를 업데이트합니다. (페이지 전환 효과 없이)
+      router.push(`/list?${params.toString()}`);
     }
-  }, [page, query, fetchImages]);
+  }, [page, query, fetchImages, router]);
+
 
 
   // 검색 결과가 없는 경우 처리
@@ -120,7 +132,7 @@ export default function ListClient({ initialImages, initialQuery, initialPage, i
         <Pagination
           page={page}
           totalPages={initialTotalPages}
-          setPage={handleSetPage} // CSR 로직을 트리거
+          setPage={handleSetPage}
         />
       )}
     </>
