@@ -5,7 +5,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ImageItem, searchImages } from '@/lib/api';
 import Pagination from '@/components/common/Pagination';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
+
+// 클라이언트 측 인메모리 캐시 저장소
+const imagesCache: { [key: string]: ImageItem[] } = {};
 
 // Workers API
 interface ListClientProps {
@@ -24,27 +27,71 @@ export default function ListClient({ initialImages, initialQuery, initialPage, i
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState(initialQuery);
 
-  // 페이지 변경 시 CSR로 데이터를 가져오는 함수
-  const fetchImages = useCallback(async (newPage: number, currentQuery: string) => {
-    setLoading(true);
-    // CSR API 호출
-    const newImages = await searchImages(currentQuery, newPage, perPage);
 
-    setImages(newImages);
-    setPage(newPage);
-    setLoading(false);
+  // 서버에서 받은 초기 데이터를 캐시에 저장하여 재요청 막기
+  useEffect(() => {
+    const initialKey = `q=${initialQuery}&p=${initialPage}`;
+    if (initialImages.length > 0 && !imagesCache[initialKey]) {
+      imagesCache[initialKey] = initialImages;
+    }
+  }, [initialImages, initialPage, initialQuery]);
+
+  /**
+   * 페이지 변경 시 CSR로 데이터를 가져오는 함수
+   * 캐시를 먼저 확인하고, 없으면 API를 호출한 뒤 캐시에 저장
+   */
+  const fetchImages = useCallback(async (newPage: number, currentQuery: string) => {
+    const cacheKey = `q=${currentQuery}&p=${newPage}`;
+
+    // 1. 캐시 확인
+    if (imagesCache[cacheKey]) {
+      console.log(`[Cache Hit] Data loaded from cache for ${cacheKey}`);
+      // 캐시된 데이터로 상태를 즉시 업데이트
+      setImages(imagesCache[cacheKey]);
+      setPage(newPage);
+      setLoading(false);
+      return;
+    }
+
+    // 캐시 Miss
+    console.log(`[Cache Miss] Calling API for ${cacheKey}`);
+    setLoading(true);
+
+    try {
+      const newImages = await searchImages(currentQuery, newPage, perPage);
+
+      // 3. 캐시 저장
+      imagesCache[cacheKey] = newImages;
+
+      setImages(newImages);
+      setPage(newPage);
+    } catch (error) {
+      console.error("Failed to fetch and cache images:", error);
+      // 오류 발생 시 이미지 목록을 비우거나 오류 상태 표시
+      setImages([]);
+    } finally {
+      setLoading(false);
+    }
 
   }, [perPage]);
+
 
 
   // SSR Props 변경 감지 및 상태 동기화 (새 검색이나 URL 변경 발생 시)
   useEffect(() => {
     // initialQuery 또는 initialPage가 변경되면 (SSR 재실행으로 인한 Props 업데이트)
+    // 쿼리 변경 시에만 전체 상태를 동기화하고, 페이지 변경은 handleSetPage에서 처리하는 것이 효율적입니다.
     if (initialQuery !== query || initialPage !== page || initialImages !== images) {
       setImages(initialImages);
       setPage(initialPage);
       setQuery(initialQuery);
       setLoading(false);
+      
+      // 새로운 SSR 데이터가 들어왔을 때도 캐시에 저장
+      const newKey = `q=${initialQuery}&p=${initialPage}`;
+      if (initialImages.length > 0) {
+        imagesCache[newKey] = initialImages;
+      }
     }
   }, [initialQuery, initialPage, initialImages, query, page]);
 
