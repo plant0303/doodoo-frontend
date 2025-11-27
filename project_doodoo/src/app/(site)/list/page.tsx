@@ -1,4 +1,6 @@
 // src/app/list/page.tsx (SSR 렌더)
+export const revalidate = 300; // 캐시 만료시간  5분 (300초)
+
 import Pagination from '@/components/common/Pagination';
 import React, { useEffect, useState } from 'react'
 import ListClient from './ListClient';
