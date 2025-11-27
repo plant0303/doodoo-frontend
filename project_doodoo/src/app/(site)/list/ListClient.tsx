@@ -7,34 +7,45 @@ import { ImageItem, searchImages } from '@/lib/api';
 import Pagination from '@/components/common/Pagination';
 import { useRouter } from 'next/navigation';
 
-// 클라이언트 측 인메모리 캐시 저장소
 const imagesCache: { [key: string]: ImageItem[] } = {};
 
-// Workers API
 interface ListClientProps {
-  initialImages: ImageItem[];
+  initialImages: ImageItem[] | { images: ImageItem[], total_count: number, page: number, limit: number };
   initialQuery: string;
   initialPage: number;
   initialTotalPages: number;
   perPage: number;
 }
 
-export default function ListClient({ initialImages, initialQuery, initialPage, initialTotalPages, perPage }: ListClientProps) {
+const extractImages = (data: ListClientProps['initialImages']): ImageItem[] => {
+  if (Array.isArray(data)) {
+    return data;
+  }
+  // SSR에서 Workers API 응답 전체가 들어올 경우를 대비
+  if (typeof data === 'object' && data !== null && 'images' in data && Array.isArray(data.images)) {
+    return data.images;
+  }
+  return [];
+};
+
+export default function ListClient({ initialImages: rawInitialImages, initialQuery, initialPage, initialTotalPages, perPage }: ListClientProps) {
   const router = useRouter();
+
+  const safeInitialImages = extractImages(rawInitialImages);
+
   // 클라이언트 상태 관리
-  const [images, setImages] = useState(initialImages);
+  const [images, setImages] = useState(safeInitialImages);
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState(initialQuery);
 
-
   // 서버에서 받은 초기 데이터를 캐시에 저장하여 재요청 막기
   useEffect(() => {
     const initialKey = `q=${initialQuery}&p=${initialPage}`;
-    if (initialImages.length > 0 && !imagesCache[initialKey]) {
-      imagesCache[initialKey] = initialImages;
+    if (safeInitialImages.length > 0 && !imagesCache[initialKey]) {
+      imagesCache[initialKey] = safeInitialImages;
     }
-  }, [initialImages, initialPage, initialQuery]);
+  }, [safeInitialImages, initialPage, initialQuery]);
 
   /**
    * 페이지 변경 시 CSR로 데이터를 가져오는 함수
@@ -43,10 +54,8 @@ export default function ListClient({ initialImages, initialQuery, initialPage, i
   const fetchImages = useCallback(async (newPage: number, currentQuery: string) => {
     const cacheKey = `q=${currentQuery}&p=${newPage}`;
 
-    // 1. 캐시 확인
     if (imagesCache[cacheKey]) {
       console.log(`[Cache Hit] Data loaded from cache for ${cacheKey}`);
-      // 캐시된 데이터로 상태를 즉시 업데이트
       setImages(imagesCache[cacheKey]);
       setPage(newPage);
       setLoading(false);
@@ -60,14 +69,12 @@ export default function ListClient({ initialImages, initialQuery, initialPage, i
     try {
       const newImages = await searchImages(currentQuery, newPage, perPage);
 
-      // 3. 캐시 저장
       imagesCache[cacheKey] = newImages;
 
       setImages(newImages);
       setPage(newPage);
     } catch (error) {
       console.error("Failed to fetch and cache images:", error);
-      // 오류 발생 시 이미지 목록을 비우거나 오류 상태 표시
       setImages([]);
     } finally {
       setLoading(false);
@@ -79,34 +86,33 @@ export default function ListClient({ initialImages, initialQuery, initialPage, i
 
   // SSR Props 변경 감지 및 상태 동기화 (새 검색이나 URL 변경 발생 시)
   useEffect(() => {
+
+    const newImages = extractImages(rawInitialImages);
+
     // initialQuery 또는 initialPage가 변경되면 (SSR 재실행으로 인한 Props 업데이트)
-    // 쿼리 변경 시에만 전체 상태를 동기화하고, 페이지 변경은 handleSetPage에서 처리하는 것이 효율적입니다.
-    if (initialQuery !== query || initialPage !== page || initialImages !== images) {
-      setImages(initialImages);
+    if (initialQuery !== query || initialPage !== page) {
+      setImages(newImages);
       setPage(initialPage);
       setQuery(initialQuery);
       setLoading(false);
-      
+
       // 새로운 SSR 데이터가 들어왔을 때도 캐시에 저장
       const newKey = `q=${initialQuery}&p=${initialPage}`;
-      if (initialImages.length > 0) {
-        imagesCache[newKey] = initialImages;
+      if (newImages.length > 0) {
+        imagesCache[newKey] = newImages;
       }
     }
-  }, [initialQuery, initialPage, initialImages, query, page]);
+  }, [initialQuery, initialPage, rawInitialImages, query, page]);
 
 
   const handleSetPage = useCallback((newPage: number) => {
     if (newPage !== page) {
-      // 1. 새로운 데이터를 CSR로 가져옵니다.
       fetchImages(newPage, query);
 
-      // 2. URL 쿼리 파라미터를 업데이트합니다. (URLSearchParams 사용)
       const params = new URLSearchParams();
       params.set('q', query);
       params.set('p', newPage.toString());
 
-      // 3. 브라우저의 URL 주소를 업데이트합니다. (페이지 전환 효과 없이)
       router.push(`/list?${params.toString()}`);
     }
   }, [page, query, fetchImages, router]);
@@ -115,7 +121,6 @@ export default function ListClient({ initialImages, initialQuery, initialPage, i
 
   // 검색 결과가 없는 경우 처리
   const showNoResults = images.length === 0 && !loading;
-
 
   return (
     <>

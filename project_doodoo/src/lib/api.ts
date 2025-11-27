@@ -1,15 +1,30 @@
-// API에서 반환되는 이미지 항목의 타입 정의 (모든 속성 포함)
-export interface ImageItem {
-  id: string;
-  title: string;
-  thumb_url: string;
-  preview_url: string; 
-  width: number;       
-  height: number;      
-  category: string;    
-}
+import 'server-only'; 
 
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
+
+export interface ImageItem {
+  id: string;
+  thumb_url: string;
+  title: string;
+}
+
+export interface UnsplashItem extends ImageItem {
+  full_url: string;
+  width: number;
+  height: number;
+  description: string;
+  license: string;
+  dpi: number;
+  size_mb: number;
+}
+
+interface SearchResponse {
+    images: ImageItem[];
+    total_count: number;
+    page: number;
+    limit: number;
+}
+
 
 /**
  * @param q 검색어
@@ -17,7 +32,7 @@ const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
  * @param perPage 한 페이지당 항목 수
  * @returns ImageItem 배열
  */
-export async function searchImages(q: string, page: number = 1, perPage: number): Promise<ImageItem[]> {
+async function searchImages(q: string, page: number = 1, perPage: number): Promise<ImageItem[]> {
   if (!WORKERS_API_URL) {
     console.error("NEXT_PUBLIC_WORKERS_API_URL is not set.");
     return [];
@@ -27,17 +42,44 @@ export async function searchImages(q: string, page: number = 1, perPage: number)
 
   try {
     const response = await fetch(url, {
-      // cache: 'no-store', 
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data: ImageItem[] = await response.json();
-    return data;
+    const result: SearchResponse = await response.json();
+    return result.images;
   } catch (error) {
     console.error("Error fetching images:", error);
     return [];
   }
 }
+
+async function getImageById(id: string): Promise<UnsplashItem | null> {
+    if (!WORKERS_API_URL) {
+      console.error("NEXT_PUBLIC_WORKERS_API_URL is not set.");
+      return null;
+    }
+
+    const url = `${WORKERS_API_URL}/api/photo/${id}`;
+
+    try {
+        const response = await fetch(url, {
+            next: { revalidate: 60 * 60 * 24 } // 24시간 캐시 유지
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to fetch image detail for ID ${id}. Status: ${response.status}`);
+            return null;
+        }
+
+        const data: UnsplashItem = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`Error fetching image detail for ID ${id}:`, error);
+        return null;
+    }
+}
+
+export { searchImages, getImageById };
