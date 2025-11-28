@@ -1,4 +1,3 @@
-import 'server-only'; 
 
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
 
