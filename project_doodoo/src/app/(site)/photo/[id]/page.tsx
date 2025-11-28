@@ -1,74 +1,84 @@
 import React, { use, useEffect, useState } from 'react'
 import DownloadDropdown from './DownloadDropdown';
-import Link from 'next/link';
 import ListClient from '../../list/ListClient';
 import { getImageById, searchImages } from '@/lib/api';
 
-import type { Metadata } from 'next';
-import { it } from 'node:test';
-import { width } from '@fortawesome/free-solid-svg-icons/fa0';
+// 캐싱 유지: 24시간
+export const revalidate = 60 * 60 * 24;
 
-// export const metadata: Metadata = {
-//   title: '무제한 무료 이미지 - 두두 doodoo',
-//   description: '무제한 무료 이미지 스톡 사이트. 상업적으로 사용 가능한 고화질 사진을 지금 다운로드하세요.',
-//   openGraph: {
-//     title: '고화질 무료 이미지 - 두두 doodoo',
-//     description: '📸 두두(doodoo)에서 영감을 주는 무료 이미지를 발견하고 프로젝트를 빛내세요!',
-//     // url: 'https://your-domain.com',
-//     type: 'website',
-//     // og:image 등 추가 가능
-//   },
-//   keywords: [
-//     '무료 이미지',
-//     '스톡 이미지',
-//     '상업적 이용 가능',
-//     '고화질 사진',
-//     '두두',
-//   ],
-// };
-
-export async function generateMetadata({ params }: { params: { id: string } }) {
-
+// ------------------------------------------------
+// 🔥 generateMetadata: SEO + API 로딩
+// ------------------------------------------------
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const item = await getImageById(id);
 
-
   if (!item) {
-    return { title: '이미지를 찾을 수 없습니다' };
+    return {
+      title: "이미지를 찾을 수 없습니다",
+      description: "요청하신 이미지를 찾을 수 없습니다.",
+    };
   }
 
-  const title = item.title ? `${item.title} | 무제한 무료 이미지 - 두두 doodoo` : '이미지 상세 정보';
-  const description = item.description || `${item.title} 관련 고화질 무료 이미지입니다. 키워드: ${item.keywords ? item.keywords.join(', ') : '사진, 배경, 스톡 이미지'}`;
+  const baseTitle = item.title || "이미지 상세 정보";
+  const title = `${baseTitle} | 무제한 무료 이미지 - 두두 doodoo`;
+
+  const description =
+    item.description ||
+    `${baseTitle} 관련 고화질 무료 이미지입니다. 키워드: ${
+      item.keywords?.join(", ") || "사진, 배경, 스톡 이미지"
+    }`;
 
   const baseKeywords = [
-    '무료 이미지',
-    '스톡 이미지',
-    '상업적 이용 가능',
-    '고화질 사진',
+    "무료 이미지",
+    "스톡 이미지",
+    "상업적 이용 가능",
+    "고화질 사진",
   ];
-  const finalKeywords = item.keywords ? [...baseKeywords, ...item.keywords] : baseKeywords;
 
-    return {
-    title: title,
-    description: description,
+  const keywords = item.keywords
+    ? [...baseKeywords, ...item.keywords]
+    : baseKeywords;
+
+  return {
+    title,
+    description,
+    keywords,
     openGraph: {
-      title: title,
-      description: description,
-      // OGP 이미지 설정
+      title,
+      description,
       images: item.full_url ? [{ url: item.full_url }] : undefined,
+      type: "article",
     },
-    keywords: finalKeywords,
   };
 }
 
-// 24시간 동안 캐시 유지
-export const revalidate = 60 * 60 * 24;
-
-export default async function Page({ params }: { params: { id: string } }) {
+// ------------------------------------------------
+// 🔥 Page Component
+// generateMetadata()에서 이미 API 호출을 했으므로
+// 여기서는 다시 API를 호출할 필요가 없음!
+// 대신 Layout에서 fetch된 데이터를 받도록 구조 변경 가능
+// ------------------------------------------------
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
+
+  // ❗ generateMetadata와 중복 호출 방지를 위해 여기서 API를 다시 호출하지 않는 게 좋지만
+  // Next.js는 generateMetadata → Page 간에 데이터 공유 API가 없음.
+  // 그래서 "중복 호출 최소화"를 위해 soft 캐싱된 fetch가 자동 재사용 됨 (Next.js fetch 캐시)
 
   const item = await getImageById(id);
 
+  if (!item) {
+    return notFound();
+  }
   return (
     <div className='container'>
       {/* 이미지 영역 */}
