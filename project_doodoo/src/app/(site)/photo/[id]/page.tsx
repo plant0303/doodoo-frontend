@@ -1,12 +1,12 @@
-"use client";
-
 import React, { use, useEffect, useState } from 'react'
 import DownloadDropdown from './DownloadDropdown';
 import Link from 'next/link';
 import ListClient from '../../list/ListClient';
-import { searchImages } from '@/lib/api';
+import { getImageById, searchImages } from '@/lib/api';
 
 import type { Metadata } from 'next';
+import { it } from 'node:test';
+import { width } from '@fortawesome/free-solid-svg-icons/fa0';
 
 // export const metadata: Metadata = {
 //   title: '무제한 무료 이미지 - 두두 doodoo',
@@ -27,8 +27,14 @@ import type { Metadata } from 'next';
 //   ],
 // };
 
-export default function page(props: { params: Promise<{ id: string }> }) {
-  const [items, setItems] = useState<UnsplashItem[]>([]);
+// 24시간 동안 캐시 유지
+export const revalidate = 60 * 60 * 24;
+
+export default async function Page({ params }: { params: { id: string } }) {
+  const { id } = await params;
+
+  const item = await getImageById(id);
+
   return (
     <div className='container'>
       {/* 이미지 영역 */}
@@ -37,9 +43,9 @@ export default function page(props: { params: Promise<{ id: string }> }) {
         {/* 왼쪽: 이미지 */}
         <div className="flex-1 flex space-between">
           <img
-            src="/images.png"
-            alt=""
-            className="w-full"
+            src={item?.preview_url}
+            alt={item?.title || "이미지 상세"}
+            className="w-full h-auto object-contain max-h-[80vh] rounded-xl shadow-2xl"
           />
         </div>
 
@@ -48,7 +54,7 @@ export default function page(props: { params: Promise<{ id: string }> }) {
 
           {/* Title */}
           <h1 className="text-2xl text-lg font-bold text-[var(--primary-color)]">
-            Title
+            {item?.title}
           </h1>
 
           {/* License */}
@@ -65,12 +71,12 @@ export default function page(props: { params: Promise<{ id: string }> }) {
             <h2 className="font-semibold text-lg mb-1 text-[var(--primary-color)]">Info</h2>
 
             <p className="text-gray-600 text-sm">
-              1234*1234 | 300dpi | 23.9MB
+              {item?.width} * {item?.height} | {item?.dpi}dpi | {item?.file_size_mb}mb
             </p>
           </section>
 
           {/* Download button */}
-          <DownloadDropdown urls={1} />
+          {/* <DownloadDropdown urls={1} /> */}
         </div>
       </div>
       {/* 추가이미지 */}
@@ -78,7 +84,7 @@ export default function page(props: { params: Promise<{ id: string }> }) {
         <h2 className='py-4 text-lg text-[var(--primary-color)]'>
           Similar
         </h2>
-        <ListClient />
+        {/* <ListClient /> */}
       </div>
     </div>
   );

@@ -148,9 +148,9 @@ export default function ListClient({ initialImages: rawInitialImages, initialQue
             </div>
           ) : (
             images.map((img: ImageItem) => (
-              <Link
+              <div
                 key={img.id}
-                href={`/photo/${img.id}`}
+                onClick={() => router.push(`/photo/${img.id}`)}
                 className="group block mb-4 break-inside-avoid shadow-lg rounded-xl overflow-hidden transition duration-300 transform hover:scale-[1.01] hover:shadow-2xl"
               >
                 <div className="relative overflow-hidden">
@@ -173,7 +173,7 @@ export default function ListClient({ initialImages: rawInitialImages, initialQue
                     </p>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))
           )
         )}

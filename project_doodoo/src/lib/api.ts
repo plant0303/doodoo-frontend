@@ -14,7 +14,9 @@ export interface UnsplashItem extends ImageItem {
   description: string;
   license: string;
   dpi: number;
-  size_mb: number;
+  preview_url:string;
+  file_size_mb: number;
+  keywords: string[];
 }
 
 interface SearchResponse {
@@ -56,12 +58,13 @@ async function searchImages(q: string, page: number = 1, perPage: number): Promi
 }
 
 async function getImageById(id: string): Promise<UnsplashItem | null> {
+  
     if (!WORKERS_API_URL) {
       console.error("NEXT_PUBLIC_WORKERS_API_URL is not set.");
       return null;
     }
 
-    const url = `${WORKERS_API_URL}/api/photo/${id}`;
+    const url = `${WORKERS_API_URL}/api/photo?id=${id}`;
 
     try {
         const response = await fetch(url, {
