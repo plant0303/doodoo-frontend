@@ -27,6 +27,40 @@ import { width } from '@fortawesome/free-solid-svg-icons/fa0';
 //   ],
 // };
 
+export async function generateMetadata({ params }: { params: { id: string } }) {
+
+  const { id } = await params;
+  const item = await getImageById(id);
+
+
+  if (!item) {
+    return { title: '이미지를 찾을 수 없습니다' };
+  }
+
+  const title = item.title ? `${item.title} | 무제한 무료 이미지 - 두두 doodoo` : '이미지 상세 정보';
+  const description = item.description || `${item.title} 관련 고화질 무료 이미지입니다. 키워드: ${item.keywords ? item.keywords.join(', ') : '사진, 배경, 스톡 이미지'}`;
+
+  const baseKeywords = [
+    '무료 이미지',
+    '스톡 이미지',
+    '상업적 이용 가능',
+    '고화질 사진',
+  ];
+  const finalKeywords = item.keywords ? [...baseKeywords, ...item.keywords] : baseKeywords;
+
+    return {
+    title: title,
+    description: description,
+    openGraph: {
+      title: title,
+      description: description,
+      // OGP 이미지 설정
+      images: item.full_url ? [{ url: item.full_url }] : undefined,
+    },
+    keywords: finalKeywords,
+  };
+}
+
 // 24시간 동안 캐시 유지
 export const revalidate = 60 * 60 * 24;
 
