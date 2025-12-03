@@ -1,6 +1,7 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import Ballpit from './Ballpit';
 
 export default function HeroSection() {
   return (
@@ -11,7 +12,7 @@ export default function HeroSection() {
         className="
         absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
         w-[90vw] max-w-[1400px]
-        rounded-3xl shadow-lg bg-[var(--sub-color)]/90
+        rounded-3xl shadow-lg bg-[var(--sub-color)]/60
         backdrop-blur-xl
         border border-white/20
         px-6 py-10 sm:px-14 sm:py-18
@@ -114,6 +115,23 @@ export default function HeroSection() {
         </div>
 
       </section>
+      <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', maxHeight: '100%', zIndex: '-999' }}>
+        <Ballpit
+          count={7}
+          gravity={0.01}
+          friction={0.9975}
+          wallBounce={0.95}
+          followCursor={true}
+
+          // ball design
+          // colors={['#FFF18D', '#FFA578', '#FFD2D2']}
+          // ambientColor={16777215} //주변광 색
+          // ambientIntensity={0} //주변광 정도
+          minSize={0.5} // 최소사이즈
+          maxSize={2} // 최대사이즈
+        >
+        </Ballpit>
+      </div>
     </div>
   );
 }
