@@ -1,8 +1,28 @@
-import React from "react";
+
+"use client";
+// mainpage
+import React, { useState } from 'react'
+import styles from '@/styles/components/HeroSection.module.scss';
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from 'next/navigation';
 
-export default function HeroSection() {
+
+function HeroSection() {
+  const [query, setQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    const params = new URLSearchParams();
+    params.set('q', query.trim());
+
+    router.push(`/list?${params.toString()}`);
+  };
+
   return (
     <div className="w-screen h-screen relative overflow-hidden">
 
@@ -30,6 +50,7 @@ export default function HeroSection() {
               Unlimited<br />Free sources
             </h1>
           </div>
+
 
           {/* RIGHT SEARCH & LOGO 그룹 */}
           <div className="flex flex-col items-center w-full sm:w-1/2 gap-6 flex-[1.5]">
@@ -59,12 +80,14 @@ export default function HeroSection() {
                     {item}
                   </li>
                 ))}
+
               </ul>
             </nav>
 
             {/* 검색창 */}
             <form
               role="search"
+
               action="/search"
               method="get"
               className="
@@ -117,3 +140,5 @@ export default function HeroSection() {
     </div>
   );
 }
+
+export default HeroSection;
