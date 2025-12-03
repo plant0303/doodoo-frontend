@@ -1,34 +1,74 @@
-"use client";
-
 import React, { use, useEffect, useState } from 'react'
 import DownloadDropdown from './DownloadDropdown';
-import Link from 'next/link';
 import ListClient from '../../list/ListClient';
-import { searchImages } from '@/lib/api';
+import { getImageById, searchImages } from '@/lib/api';
+import { notFound } from 'next/navigation';
 
-import type { Metadata } from 'next';
+// 캐싱 유지: 24시간
+export const revalidate = 60 * 60 * 24;
 
-// export const metadata: Metadata = {
-//   title: '무제한 무료 이미지 - 두두 doodoo',
-//   description: '무제한 무료 이미지 스톡 사이트. 상업적으로 사용 가능한 고화질 사진을 지금 다운로드하세요.',
-//   openGraph: {
-//     title: '고화질 무료 이미지 - 두두 doodoo',
-//     description: '📸 두두(doodoo)에서 영감을 주는 무료 이미지를 발견하고 프로젝트를 빛내세요!',
-//     // url: 'https://your-domain.com',
-//     type: 'website',
-//     // og:image 등 추가 가능
-//   },
-//   keywords: [
-//     '무료 이미지',
-//     '스톡 이미지',
-//     '상업적 이용 가능',
-//     '고화질 사진',
-//     '두두',
-//   ],
-// };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const item = await getImageById(id);
 
-export default function page(props: { params: Promise<{ id: string }> }) {
-  const [items, setItems] = useState<UnsplashItem[]>([]);
+  if (!item) {
+    return {
+      title: "이미지를 찾을 수 없습니다",
+      description: "요청하신 이미지를 찾을 수 없습니다.",
+    };
+  }
+
+  const baseTitle = item.title || "이미지 상세 정보";
+  const title = `${baseTitle} | 무제한 무료 이미지 - 두두 doodoo`;
+
+  const description =
+    item.description ||
+    `${baseTitle} 관련 고화질 무료 이미지입니다. 키워드: ${item.keywords?.join(", ") || "사진, 배경, 스톡 이미지"
+    }`;
+
+  const baseKeywords = [
+    "무료 이미지",
+    "스톡 이미지",
+    "상업적 이용 가능",
+    "고화질 사진",
+  ];
+
+  const keywords = item.keywords
+    ? [...baseKeywords, ...item.keywords]
+    : baseKeywords;
+
+  return {
+    title,
+    description,
+    keywords,
+    openGraph: {
+      title,
+      description,
+      images: item.full_url ? [{ url: item.full_url }] : undefined,
+      type: "article",
+    },
+  };
+}
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const item = await getImageById(id);
+
+  if (!item) {
+    return notFound();
+  }
+
+  const baseInfo = item.download_options?.[0];
+
   return (
     <div className='container'>
       {/* 이미지 영역 */}
@@ -37,9 +77,9 @@ export default function page(props: { params: Promise<{ id: string }> }) {
         {/* 왼쪽: 이미지 */}
         <div className="flex-1 flex space-between">
           <img
-            src="/images.png"
-            alt=""
-            className="w-full"
+            src={item?.preview_url}
+            alt={item?.title || "이미지 상세"}
+            className="w-full h-auto object-contain max-h-[80vh] rounded-xl shadow-2xl"
           />
         </div>
 
@@ -48,7 +88,7 @@ export default function page(props: { params: Promise<{ id: string }> }) {
 
           {/* Title */}
           <h1 className="text-2xl text-lg font-bold text-[var(--primary-color)]">
-            Title
+            {item?.title}
           </h1>
 
           {/* License */}
@@ -64,13 +104,22 @@ export default function page(props: { params: Promise<{ id: string }> }) {
           <section>
             <h2 className="font-semibold text-lg mb-1 text-[var(--primary-color)]">Info</h2>
 
-            <p className="text-gray-600 text-sm">
-              1234*1234 | 300dpi | 23.9MB
-            </p>
+            {item.download_options.map((i, index) => (
+              <p key={`extension${index}`} className="text-gray-600 text-sm">
+                {i.extension} | {i.width} * {i.height} | {i.dpi}dpi | {i.file_size_mb}MB
+              </p>
+            ))}
+            {/* {item?.download_options[0].width} * {item?.height} | {item?.dpi}dpi | {item?.file_size_mb}mb */}
           </section>
 
           {/* Download button */}
-          <DownloadDropdown urls={1} />
+          {item.download_options.length > 0 && (
+            <DownloadDropdown
+              imageId={item.id}
+              options={item.download_options}
+              defaultLabel={baseInfo?.label || 'Download'}
+            />
+          )}
         </div>
       </div>
       {/* 추가이미지 */}
@@ -78,7 +127,7 @@ export default function page(props: { params: Promise<{ id: string }> }) {
         <h2 className='py-4 text-lg text-[var(--primary-color)]'>
           Similar
         </h2>
-        <ListClient />
+        {/* <ListClient /> */}
       </div>
     </div>
   );
