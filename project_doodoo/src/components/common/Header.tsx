@@ -1,9 +1,25 @@
+"use client";
+
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
   const gnbItems = ["Photo", "Illustration", "Template", "Icon", "Sticker"];
+  const [query, setQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    const params = new URLSearchParams();
+    params.set('q', query.trim());
+
+    router.push(`/list?${params.toString()}`);
+  };
 
   return (
     <header className="w-full border-b border-gray-200 bg-white">
@@ -26,16 +42,17 @@ export default function Header() {
           aria-label="search"
           defaultValue=""
           autoComplete="off"
-          className="flex items-center w-full bg-white px-3 sm:px-4 py-2 
-          border-2 border-[var(--sub-color)] rounded-full
-          text-sm sm:text-base"
-          >
+          method="get"
+          action="/list"
+          onSubmit={handleSearch}
+          className="flex items-center w-full sm:flex-1 bg-white px-3 sm:px-4 py-2 border-2 border-[var(--sub-color)] rounded-full text-sm sm:text-base shadow-sm sm:bg-blue-50"
+        >
           {/* 필터 선택 */}
           <select
             id="search-filter"
             defaultValue="all"
             className="mr-2 sm:mr-3 bg-transparent text-gray-700 outline-none"
-            >
+          >
             <option value="all">All</option>
             <option value="photo">Photo</option>
             <option value="illustration">Illustration</option>
@@ -52,6 +69,7 @@ export default function Header() {
             autoComplete="off"
             placeholder="검색어를 입력하세요"
             className="flex-1 bg-transparent outline-none"
+            onChange={(e) => setQuery(e.target.value)}
           />
 
           {/* 돋보기 버튼 */}
@@ -67,11 +85,7 @@ export default function Header() {
         {/* GNB */}
         <nav aria-label="global" className="w-full bg-white hidden sm:block">
           <ul
-            className="
-            flex items-center justify-between 
-            max-w-7xl mx-auto py-2 
-            text-xs sm:text-sm md:text-base
-          "
+            className="flex items-center justify-between text-xs sm:text-sm md:text-base"
           >
             {gnbItems.map((item, idx) => (
               <li
@@ -81,11 +95,8 @@ export default function Header() {
               >
                 <Link
                   href={`/${item.toLowerCase()}`}
-                  className="
-                  flex items-center justify-center w-full 
-                  text-[var(--primary-color)] 
-                  hover:text-[var(--primary-hover)] transition-colors py-1
-                "
+                  // 클래스 이름을 단일 라인으로 정리하여 Hydration Mismatch 해결
+                  className="flex items-center justify-center w-full text-gray-700 hover:text-blue-600 transition-colors py-1"
                 >
                   {item}
                 </Link>
