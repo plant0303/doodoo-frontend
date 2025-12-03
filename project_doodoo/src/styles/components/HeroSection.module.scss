@@ -23,7 +23,6 @@
     left: 50%;
     transform: translate(-50%, -50%);
     overflow: hidden; // 내부 콘텐츠가 삐져나오지 않게
-    z-index: 999px;
   }
 
   .topCont {
@@ -139,11 +138,5 @@
       border-radius: 15px;
       background-color: #fff;
     }
-  }
-
-  .balls{
-    width: 300px;
-    height: 300px;
-    background-color: red;
   }
 }
