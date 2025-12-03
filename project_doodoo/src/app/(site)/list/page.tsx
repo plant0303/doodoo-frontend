@@ -8,15 +8,27 @@ import { searchImages } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { Metadata } from 'next';
 
+const DEFAULT_PER_PAGE = 30;
+
 interface ImageItem {
   id: string;
   thumb_url: string;
   title: string;
 }
 
-// 한 페이지당 30장씩 로드
-const PER_PAGE = 30;
-const TOTAL_COUNT = 1000;
+interface SearchResponse {
+  images: ImageItem[];
+  total_count: number;
+  // API 응답 예시가 'limit'을 사용하므로 'limit'을 사용합니다.
+  limit: number;
+}
+
+async function fetchImages(query: string, page: number, perPage: number): Promise<SearchResponse> {
+  // searchImages가 SearchResponse를 반환하도록 가정
+  // 실제 searchImages 함수를 호출할 때는 perPage를 limit 파라미터로 사용합니다.
+  const response = await searchImages(query, page, perPage) as SearchResponse;
+  return response;
+}
 
 
 
@@ -66,15 +78,33 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
   const finalSearchParams = await (searchParams as any);
   const query = finalSearchParams.q || '';
 
-  // 검색어가 있을 때만 API 호출 (SSR)
   let initialImages: ImageItem[] = [];
   let initialPage = 1;
-  let initialTotalPages = Math.ceil(TOTAL_COUNT / PER_PAGE);
+  let initialTotalPages = 1;
+  let perPage = DEFAULT_PER_PAGE;
+  let totalCount = 0;
 
+  // 검색어가 있을 때만 API 호출 (SSR)
   if (query) {
     initialPage = parseInt(finalSearchParams.p || '1', 10);
-    initialImages = await searchImages(query, initialPage, PER_PAGE);
-    initialTotalPages = Math.ceil(TOTAL_COUNT / PER_PAGE);
+
+    try {
+      // 단 한 번의 API 호출로 이미지 목록과 메타데이터(totalCount, perPage)를 모두 가져옵니다.
+      const response = await fetchImages(query, initialPage, DEFAULT_PER_PAGE);
+
+      initialImages = response.images;
+      totalCount = response.total_count;
+      // API 응답의 'limit' 필드를 사용하여 perPage 값을 설정합니다.
+      perPage = response.limit;
+
+      // 전체 페이지 수 계산: API 응답 데이터 사용
+      // totalCount나 perPage가 0이면 페이지 수를 1로 설정하여 0으로 나누는 오류 방지
+      initialTotalPages = Math.ceil(totalCount / (perPage || 1));
+
+    } catch (error) {
+      console.error("Error fetching images: ", error);
+      // 에러 발생 시 초기값 유지 (빈 배열, 1페이지)
+    }
   }
 
 
@@ -124,7 +154,7 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
           initialQuery={query}
           initialPage={initialPage}
           initialTotalPages={initialTotalPages}
-          perPage={PER_PAGE}
+          perPage={perPage}
         />
       </div>
     </>
