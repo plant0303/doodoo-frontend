@@ -129,54 +129,59 @@ export default function ListClient({ initialImages: rawInitialImages, initialQue
         <h2 className="text-2xl font-bold mb-6">
           "{initialQuery}"에 대한 검색 결과
         </h2>
-        <p className="text-sm text-gray-500 mt-1">
-          현재 페이지: {initialPage} / {initialTotalPages}
-        </p>
+        {
+          loading && showNoResults && (
+            <p className="text-sm text-gray-500 mt-1">
+              현재 페이지: {initialPage} / {initialTotalPages}
+            </p>
+          )
+        }
       </div>
 
+
+      {!loading && showNoResults && (
+        <div className="block w-full text-center">
+          "{query}"에 대한 검색 결과가 없습니다.
+        </div>
+      )}
       <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4">
         {loading && (
           <div className="text-center w-full col-span-full py-16 text-lg text-blue-500 animate-pulse">
-            데이터 로딩 중... (CSR)
+            데이터 로딩 중...
           </div>
         )}
 
-        {!loading && (
-          showNoResults ? (
-            <div className="text-center w-full col-span-full py-16 text-lg text-gray-500">
-              "{query}"에 대한 검색 결과가 없습니다.
-            </div>
-          ) : (
-            images.map((img: ImageItem) => (
-              <Link
-                key={img.id}
-                href={`/photo/${img.id}`}
-                className="group block mb-4 break-inside-avoid shadow-lg rounded-xl overflow-hidden transition duration-300 transform hover:scale-[1.01] hover:shadow-2xl"
-              >
-                <div className="relative overflow-hidden">
-                  {/* 이미지 표시 */}
-                  <img
-                    src={img.thumb_url}
-                    alt={img.title || `Image ${img.id}`}
-                    className="w-full h-auto object-cover transition duration-300 group-hover:opacity-80"
-                    loading="lazy"
-                    // 이미지 로드 실패 시 대체 이미지
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = `https://placehold.co/400x300/e5e7eb/7f7f7f?text=No+Image`;
-                    }}
-                  />
-                  {/* 이미지 위에 제목 오버레이 */}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent pt-8 pb-2 px-3 opacity-0 group-hover:opacity-100 transition duration-300">
-                    <p className="text-white text-xs font-semibold truncate">
-                      {img.title}
-                    </p>
-                  </div>
+        {!loading && !showNoResults && (
+          images.map((img: ImageItem) => (
+            <Link
+              key={img.id}
+              href={`/photo/${img.id}`}
+              className="group block mb-4 break-inside-avoid shadow-lg rounded-xl overflow-hidden transition duration-300 transform hover:scale-[1.01] hover:shadow-2xl"
+            >
+              <div className="relative overflow-hidden">
+                {/* 이미지 표시 */}
+                <img
+                  src={img.thumb_url}
+                  alt={img.title || `Image ${img.id}`}
+                  className="w-full h-auto object-cover transition duration-300 group-hover:opacity-80"
+                  loading="lazy"
+                  // 이미지 로드 실패 시 대체 이미지
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = `https://placehold.co/400x300/e5e7eb/7f7f7f?text=No+Image`;
+                  }}
+                />
+                {/* 이미지 위에 제목 오버레이 */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent pt-8 pb-2 px-3 opacity-0 group-hover:opacity-100 transition duration-300">
+                  <p className="text-white text-xs font-semibold truncate">
+                    {img.title}
+                  </p>
                 </div>
-              </Link>
-            ))
-          )
-        )}
+              </div>
+            </Link>
+          ))
+        )
+        }
       </div>
 
       {/* Pagination은 검색 결과가 있고 로딩 중이 아닐 때만 표시 */}

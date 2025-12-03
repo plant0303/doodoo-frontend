@@ -80,9 +80,9 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
 
   return (
     <>
-      <div className="container mx-auto px-4 py-4">
+      <div className="container xl:max-w-[1200px] h-screen mx-auto px-4 py-4">
         {/* ▼ Search Filter Bar ▼ */}
-        <div
+        {/* <div
           aria-label="search filter bar"
           className="
           flex flex-col sm:flex-row
@@ -91,7 +91,6 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
           mx-auto py-2
         "
         >
-          {/* 왼쪽: Filter 버튼 */}
           <button
             type="button"
             className="
@@ -103,7 +102,6 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
             Filter &gt;
           </button>
 
-          {/* 오른쪽: Sort By */}
           <div className="flex items-center gap-2 text-sm sm:text-base">
             <span className="font-bold">Sort by</span>
             {["New", "Popular", "Download"].map((item) => (
@@ -119,7 +117,7 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
               </button>
             ))}
           </div>
-        </div>
+        </div> */}
 
         <ListClient
           initialImages={initialImages}
