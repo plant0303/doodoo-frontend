@@ -7,7 +7,7 @@ export default function Header() {
 
   return (
     <header className="w-full border-b border-gray-200 bg-white">
-      <div className="container py-4 flex flex-col gap-4">
+      <div className="container lx:w-[1200px] py-4 flex flex-col gap-4">
 
         {/* 로고 */}
         <h1 className="flex justify-center leading-none text-center">
@@ -65,7 +65,7 @@ export default function Header() {
         </form>
 
         {/* GNB */}
-        <nav aria-label="global" className="w-full bg-white">
+        <nav aria-label="global" className="w-full bg-white hidden sm:block">
           <ul
             className="
             flex items-center justify-between 

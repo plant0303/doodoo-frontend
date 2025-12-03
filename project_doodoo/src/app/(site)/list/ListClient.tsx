@@ -134,7 +134,7 @@ export default function ListClient({ initialImages: rawInitialImages, initialQue
         </p>
       </div>
 
-      <div className="columns-1 sm:columns-3 md:columns-4 gap-4">
+      <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4">
         {loading && (
           <div className="text-center w-full col-span-full py-16 text-lg text-blue-500 animate-pulse">
             데이터 로딩 중... (CSR)
