@@ -50,8 +50,6 @@ function HeroSection() {
               Unlimited<br />Free sources
             </h1>
           </div>
-
-
           {/* RIGHT SEARCH & LOGO 그룹 */}
           <div className="flex flex-col items-center w-full sm:w-1/2 gap-6 flex-[1.5]">
 
@@ -80,15 +78,12 @@ function HeroSection() {
                     {item}
                   </li>
                 ))}
-
               </ul>
             </nav>
 
             {/* 검색창 */}
             <form
               role="search"
-
-              action="/search"
               method="get"
               className="
                 flex items-center w-full
@@ -97,17 +92,22 @@ function HeroSection() {
                 inset-shadow-xs
                 focus-within:border-[var(--sub-hover)]
               "
+              action="/list" // 실제 검색 페이지 경로 지정
+              onSubmit={handleSearch} // 라우팅 함수 연결
             >
               <input
                 type="text"
                 name="q"
                 placeholder="Search..."
+                aria-label="search"
                 className="
                   w-full px-2 border-none outline-none
                   placeholder-white/60 text-gray-800
                 "
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
-              <button type="submit">
+              <button type="submit" aria-label="검색">
                 <FontAwesomeIcon icon={faSearch} className="w-5 y-5 text-[var(--primary-color)] cursor-pointer" />
               </button>
             </form>
