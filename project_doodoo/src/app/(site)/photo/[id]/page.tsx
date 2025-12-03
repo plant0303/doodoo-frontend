@@ -2,13 +2,11 @@ import React, { use, useEffect, useState } from 'react'
 import DownloadDropdown from './DownloadDropdown';
 import ListClient from '../../list/ListClient';
 import { getImageById, searchImages } from '@/lib/api';
+import { notFound } from 'next/navigation';
 
 // 캐싱 유지: 24시간
 export const revalidate = 60 * 60 * 24;
 
-// ------------------------------------------------
-// 🔥 generateMetadata: SEO + API 로딩
-// ------------------------------------------------
 export async function generateMetadata({
   params,
 }: {
@@ -29,8 +27,7 @@ export async function generateMetadata({
 
   const description =
     item.description ||
-    `${baseTitle} 관련 고화질 무료 이미지입니다. 키워드: ${
-      item.keywords?.join(", ") || "사진, 배경, 스톡 이미지"
+    `${baseTitle} 관련 고화질 무료 이미지입니다. 키워드: ${item.keywords?.join(", ") || "사진, 배경, 스톡 이미지"
     }`;
 
   const baseKeywords = [
@@ -57,12 +54,6 @@ export async function generateMetadata({
   };
 }
 
-// ------------------------------------------------
-// 🔥 Page Component
-// generateMetadata()에서 이미 API 호출을 했으므로
-// 여기서는 다시 API를 호출할 필요가 없음!
-// 대신 Layout에서 fetch된 데이터를 받도록 구조 변경 가능
-// ------------------------------------------------
 export default async function Page({
   params,
 }: {
@@ -70,15 +61,14 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  // ❗ generateMetadata와 중복 호출 방지를 위해 여기서 API를 다시 호출하지 않는 게 좋지만
-  // Next.js는 generateMetadata → Page 간에 데이터 공유 API가 없음.
-  // 그래서 "중복 호출 최소화"를 위해 soft 캐싱된 fetch가 자동 재사용 됨 (Next.js fetch 캐시)
-
   const item = await getImageById(id);
 
   if (!item) {
     return notFound();
   }
+
+  const baseInfo = item.download_options?.[0];
+
   return (
     <div className='container'>
       {/* 이미지 영역 */}
@@ -114,13 +104,22 @@ export default async function Page({
           <section>
             <h2 className="font-semibold text-lg mb-1 text-[var(--primary-color)]">Info</h2>
 
-            <p className="text-gray-600 text-sm">
-              {item?.width} * {item?.height} | {item?.dpi}dpi | {item?.file_size_mb}mb
-            </p>
+            {item.download_options.map((i) => (
+              <p className="text-gray-600 text-sm">
+                {i.extension} | {i.width} * {i.height} | {i.dpi}dpi | {i.file_size_mb}MB
+              </p>
+            ))}
+            {/* {item?.download_options[0].width} * {item?.height} | {item?.dpi}dpi | {item?.file_size_mb}mb */}
           </section>
 
           {/* Download button */}
-          {/* <DownloadDropdown urls={1} /> */}
+          {item.download_options.length > 0 && (
+            <DownloadDropdown
+              imageId={item.id}
+              options={item.download_options}
+              defaultLabel={baseInfo?.label || 'Download'}
+            />
+          )}
         </div>
       </div>
       {/* 추가이미지 */}
