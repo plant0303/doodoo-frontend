@@ -13,6 +13,8 @@ function HeroSection() {
   const [query, setQuery] = useState('');
   const router = useRouter();
 
+  const categories = ["Photo", "Illustration", "Template", "Icon", "Sticker"];
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -20,6 +22,14 @@ function HeroSection() {
     const params = new URLSearchParams();
     params.set('q', query.trim());
 
+    router.push(`/list?${params.toString()}`);
+  };
+
+  const handleCategoryClick = (categoryName) => {
+    const categoryParam = categoryName.toLowerCase();
+
+    const params = new URLSearchParams();
+    params.set('category', categoryParam);
     router.push(`/list?${params.toString()}`);
   };
 
@@ -67,13 +77,15 @@ function HeroSection() {
             {/* 메뉴 */}
             <nav className="w-full">
               <ul className="flex justify-between text-lg font-semibold tracking-tight px-6">
-                {["Photo", "Illustration", "Template", "Icon", "Sticker"].map((item, i) => (
+                {categories.map((item, i) => (
                   <li
                     key={i}
+                    // ✅ 클릭 이벤트 핸들러 연결
+                    onClick={() => handleCategoryClick(item)}
                     className="
-                      cursor-pointer hover:text-[var(--primary-hover)]
-                      transition-colors duration-200
-                    "
+                              cursor-pointer hover:text-[var(--primary-hover)]
+                              transition-colors duration-200
+                            "
                   >
                     {item}
                   </li>

@@ -41,37 +41,53 @@ export interface DetailedImageItem extends ImageItem {
   category: string;
   preview_url: string;
   keywords: string[];
-  // 💡 개별 필드 제거됨 (가장 큰/기본 옵션에서 추출 예정)
-  // width: number;
-  // height: number;
-  // dpi: number;
-  // file_size_mb: number;
-
-  // ✅ 새로운 필드: 지원하는 모든 파일 형식 목록
   download_options: FileDownloadOption[];
 }
 
 /**
- * @param q 검색어
- * @param page 페이지 번호 (기본값 1)
- * @param perPage 한 페이지당 항목 수
- * @returns ImageItem 배열
+ * @param params 검색에 필요한 파라미터 객체
+ * @param params.query 검색어 (선택 사항)
+ * @param params.category 카테고리 이름 (선택 사항, query가 없으면 category로 검색)
+ * @param params.page 페이지 번호 (기본값 1)
+ * @param params.perPage 한 페이지당 항목 수
+ * @returns SearchResponse 객체
  */
-async function searchImages(query: string, page: number, perPage: number): Promise<SearchResponse> {
+async function searchImages({
+  query,
+  category,
+  page,
+  perPage,
+}: {
+  query?: string;
+  category?: string;
+  page: number;
+  perPage: number;
+}): Promise<SearchResponse> {
   if (!WORKERS_API_URL) {
     console.error("NEXT_PUBLIC_WORKERS_API_URL is not set.");
-    // 타입에 맞는 기본값 반환
     return { images: [], total_count: 0, page: page, limit: perPage };
   }
 
-  // q를 query로 변경하여 일관성을 유지하고, limit을 perPage로 사용합니다.
-  const url = `${WORKERS_API_URL}/api/search?q=${encodeURIComponent(query)}&p=${page}&limit=${perPage}`;
+  const params = new URLSearchParams();
+
+  if (query) {
+    params.set("q", query);
+  }
+  else if (category) {
+    params.set("category", category);
+  } else {
+    console.warn("No query or category provided.");
+    return { images: [], total_count: 0, page: page, limit: perPage };
+  }
+
+  params.set("p", page.toString());
+  params.set("limit", perPage.toString());
+
+  // 최종 URL 구성
+  const url = `${WORKERS_API_URL}/api/search?${params.toString()}`;
 
   try {
     const response = await fetch(url, {
-      // Next.js Server Component에서 SSR 시 캐시를 사용하지 않도록 no-store를 추가하는 것이 일반적입니다.
-      // revalidate = 300이 최상단에 있지만, fetch 옵션도 명시적으로 설정할 수 있습니다.
-      // cache: 'force-cache' // 상단의 revalidate = 300 설정이 이 값을 오버라이드합니다.
     });
 
     if (!response.ok) {
@@ -79,17 +95,12 @@ async function searchImages(query: string, page: number, perPage: number): Promi
     }
 
     const result: SearchResponse = await response.json();
-
-    // [수정] 이미지 배열이 아닌, SearchResponse 전체 객체를 반환합니다.
     return result;
-
   } catch (error) {
     console.error("Error fetching images:", error);
-    // 에러 발생 시 타입에 맞는 기본값 반환
     return { images: [], total_count: 0, page: page, limit: perPage };
   }
 }
-
 
 async function getImageById(id: string): Promise<DetailedImageItem | null> {
   if (!WORKERS_API_URL) {

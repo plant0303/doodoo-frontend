@@ -1,11 +1,56 @@
-// src/app/(site)/list/ListClient.tsx
 "use client";
 
 import React, { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ImageItem, searchImages } from '@/lib/api';
-import Pagination from '@/components/common/Pagination';
-import { useRouter } from 'next/navigation';
+interface ImageItem {
+  id: string;
+  title: string;
+  thumb_url: string;
+}
+interface SearchResponse {
+  images: ImageItem[];
+  total_count: number;
+  page: number;
+  limit: number;
+}
+const searchImages = async (params: any): Promise<SearchResponse> => {
+  console.log("Mock API Call with params:", params);
+  return {
+    images: [],
+    total_count: 0,
+    page: params.page,
+    limit: params.perPage,
+  };
+};
+
+const Pagination = ({ page, totalPages, setPage }: { page: number, totalPages: number, setPage: (p: number) => void }) => {
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex justify-center mt-8 space-x-2">
+      <button 
+        onClick={() => setPage(page - 1)} 
+        disabled={page === 1}
+        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg disabled:bg-gray-400"
+      >
+        이전
+      </button>
+      <span className="px-4 py-2 text-sm text-gray-700">페이지 {page} / {totalPages}</span>
+      <button 
+        onClick={() => setPage(page + 1)} 
+        disabled={page === totalPages}
+        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg disabled:bg-gray-400"
+      >
+        다음
+      </button>
+    </div>
+  );
+};
+
+const useRouter = () => ({
+  push: (url: string) => { console.log(`[Router Mock] Pushing to ${url}`); }
+});
+const Link = (props: any) => <a {...props} href={props.href}>{props.children}</a>;
+
 
 const imagesCache: { [key: string]: ImageItem[] } = {};
 
@@ -15,48 +60,54 @@ interface ListClientProps {
   initialPage: number;
   initialTotalPages: number;
   perPage: number;
+  isCategorySearch: boolean;
 }
 
 const extractImages = (data: ListClientProps['initialImages']): ImageItem[] => {
   if (Array.isArray(data)) {
     return data;
   }
-  // SSR에서 Workers API 응답 전체가 들어올 경우를 대비
   if (typeof data === 'object' && data !== null && 'images' in data && Array.isArray(data.images)) {
     return data.images;
   }
   return [];
 };
 
-export default function ListClient({ initialImages: rawInitialImages, initialQuery, initialPage, initialTotalPages, perPage }: ListClientProps) {
+export default function ListClient({
+  initialImages: rawInitialImages,
+  initialQuery,
+  initialPage,
+  initialTotalPages,
+  perPage,
+  isCategorySearch,
+}: ListClientProps) {
   const router = useRouter();
 
   const safeInitialImages = extractImages(rawInitialImages);
 
   // 클라이언트 상태 관리
-  const [images, setImages] = useState(safeInitialImages);
+  const [images, setImages] = useState<ImageItem[]>(safeInitialImages); 
+  const [currentTerm, setCurrentTerm] = useState(initialQuery);
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
-  const [query, setQuery] = useState(initialQuery);
+  const [isCategory, setIsCategory] = useState(isCategorySearch);
 
   // 서버에서 받은 초기 데이터를 캐시에 저장하여 재요청 막기
   useEffect(() => {
-    const initialKey = `q=${initialQuery}&p=${initialPage}`;
+    const keyPrefix = isCategorySearch ? 'category' : 'q';
+    const initialKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
     if (safeInitialImages.length > 0 && !imagesCache[initialKey]) {
       imagesCache[initialKey] = safeInitialImages;
     }
-  }, [safeInitialImages, initialPage, initialQuery]);
+  }, [safeInitialImages, initialPage, initialQuery, isCategorySearch]);
 
-  /**
-   * 페이지 변경 시 CSR로 데이터를 가져오는 함수
-   * 캐시를 먼저 확인하고, 없으면 API를 호출한 뒤 캐시에 저장
-   */
-  const fetchImages = useCallback(async (newPage: number, currentQuery: string) => {
-    const cacheKey = `q=${currentQuery}&p=${newPage}`;
+  const fetchImages = useCallback(async (newPage: number, term: string, isCategorySearch: boolean) => {
+    const keyPrefix = isCategorySearch ? 'category' : 'q';
+    const cacheKey = `${keyPrefix}=${term}&p=${newPage}`;
 
     if (imagesCache[cacheKey]) {
       console.log(`[Cache Hit] Data loaded from cache for ${cacheKey}`);
-      setImages(imagesCache[cacheKey]);
+      setImages(imagesCache[cacheKey]!);
       setPage(newPage);
       setLoading(false);
       return;
@@ -67,12 +118,24 @@ export default function ListClient({ initialImages: rawInitialImages, initialQue
     setLoading(true);
 
     try {
-      const newImages = await searchImages(currentQuery, newPage, perPage);
+      const apiParams: { page: number, perPage: number, category?: string, query?: string } = {
+        page: newPage,
+        perPage: perPage
+      };
 
-      imagesCache[cacheKey] = newImages;
+      if (isCategorySearch) {
+        apiParams.category = term;
+      } else {
+        apiParams.query = term;
+      }
 
-      setImages(newImages);
+      const newImagesResponse = await searchImages(apiParams);
+
+      imagesCache[cacheKey] = newImagesResponse.images;
+
+      setImages(newImagesResponse.images);
       setPage(newPage);
+
     } catch (error) {
       console.error("Failed to fetch and cache images:", error);
       setImages([]);
@@ -83,54 +146,56 @@ export default function ListClient({ initialImages: rawInitialImages, initialQue
   }, [perPage]);
 
 
-
-  // SSR Props 변경 감지 및 상태 동기화 (새 검색이나 URL 변경 발생 시)
+  // SSR Props 변경 감지 및 상태 동기화
   useEffect(() => {
-
     const newImages = extractImages(rawInitialImages);
 
-    // initialQuery 또는 initialPage가 변경되면 (SSR 재실행으로 인한 Props 업데이트)
-    if (initialQuery !== query || initialPage !== page) {
+    if (initialQuery !== currentTerm || initialPage !== page || isCategorySearch !== isCategory) {
       setImages(newImages);
       setPage(initialPage);
-      setQuery(initialQuery);
+      setCurrentTerm(initialQuery);
+      setIsCategory(isCategorySearch);
       setLoading(false);
 
-      // 새로운 SSR 데이터가 들어왔을 때도 캐시에 저장
-      const newKey = `q=${initialQuery}&p=${initialPage}`;
+      const keyPrefix = isCategorySearch ? 'category' : 'q';
+      const newKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
       if (newImages.length > 0) {
         imagesCache[newKey] = newImages;
       }
     }
-  }, [initialQuery, initialPage, rawInitialImages, query, page]);
-
+  }, [initialQuery, initialPage, rawInitialImages, currentTerm, page, isCategorySearch, isCategory]);
 
   const handleSetPage = useCallback((newPage: number) => {
     if (newPage !== page) {
-      fetchImages(newPage, query);
+      fetchImages(newPage, currentTerm, isCategory);
 
       const params = new URLSearchParams();
-      params.set('q', query);
+      if (isCategory) {
+        params.set('category', currentTerm);
+      } else {
+        params.set('q', currentTerm);
+      }
+
       params.set('p', newPage.toString());
 
       router.push(`/list?${params.toString()}`);
     }
-  }, [page, query, fetchImages, router]);
+  }, [page, currentTerm, isCategory, fetchImages, router]);
 
 
-
-  // 검색 결과가 없는 경우 처리
+  // ✅ 검색 결과 없음 상태 계산
   const showNoResults = images.length === 0 && !loading;
+
 
   return (
     <>
       {/* 현재 검색어 및 페이지 정보 표시 */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-6">
-          "{initialQuery}"에 대한 검색 결과
+          "{initialQuery}"에 대한 {isCategory ? '카테고리' : '검색'} 결과
         </h2>
         {
-          loading && showNoResults && (
+          loading && (
             <p className="text-sm text-gray-500 mt-1">
               현재 페이지: {initialPage} / {initialTotalPages}
             </p>
@@ -140,8 +205,8 @@ export default function ListClient({ initialImages: rawInitialImages, initialQue
 
 
       {!loading && showNoResults && (
-        <div className="block w-full text-center">
-          "{query}"에 대한 검색 결과가 없습니다.
+        <div className="block w-full text-center py-16 text-lg text-gray-600">
+          "{currentTerm}"에 대한 검색 결과가 없습니다.
         </div>
       )}
       <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-4">
@@ -184,7 +249,6 @@ export default function ListClient({ initialImages: rawInitialImages, initialQue
         }
       </div>
 
-      {/* Pagination은 검색 결과가 있고 로딩 중이 아닐 때만 표시 */}
       {initialQuery && !loading && !showNoResults && (
         <Pagination
           page={page}

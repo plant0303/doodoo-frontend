@@ -19,64 +19,28 @@ interface ImageItem {
 interface SearchResponse {
   images: ImageItem[];
   total_count: number;
-  // API 응답 예시가 'limit'을 사용하므로 'limit'을 사용합니다.
   limit: number;
 }
 
-async function fetchImages(query: string, page: number, perPage: number): Promise<SearchResponse> {
-  // searchImages가 SearchResponse를 반환하도록 가정
-  // 실제 searchImages 함수를 호출할 때는 perPage를 limit 파라미터로 사용합니다.
-  const response = await searchImages(query, page, perPage) as SearchResponse;
+async function fetchImages({
+  query,
+  category,
+  page,
+  perPage
+}: {
+  query?: string,
+  category?: string,
+  page: number,
+  perPage: number
+}): Promise<SearchResponse> {
+  const response = await searchImages({ query, category, page, perPage }) as SearchResponse;
   return response;
 }
 
-
-
-export async function generateMetadata({ searchParams }: { searchParams: { q?: string, p?: string } }): Promise<Metadata> {
+export default async function Page({ searchParams }: { searchParams: { q?: string, category?: string, p?: string } }) {
   const finalSearchParams = await (searchParams as any);
   const query = finalSearchParams.q || '';
-  const page = searchParams.p || '1';
-  const siteName = "doodoo";
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://doodoo.com'; // 실제 도메인으로 변경 필요
-
-  // 검색어가 있을 경우와 없을 경우의 메타데이터 분기
-  const title = query
-    ? `${query} 관련 무료 이미지 검색 | ${siteName}`
-    : `고품질 무료 이미지 검색 및 다운로드 | ${siteName}`;
-
-
-  const description = query
-    ? `${query}에 대한 고화질 무료 이미지를 다운로드하세요. 상업적 사용 가능한 저작권 없는 사진 제공.`
-    : `doodoo에서 수백만 장의 고품질 이미지를 무료로 검색하고 다운로드하세요. 상업적 이용 가능.`;
-
-  const canonicalUrl = `${baseUrl}/list${query ? `?q=${encodeURIComponent(query)}&p=${page}` : ''}`;
-
-  return {
-    title: title,
-    description: description,
-    keywords: query ? [query, '무료 이미지', '고화질', '상업적 이용', siteName] : ['무료 이미지', '스톡 사진', '고화질', '상업적 이용', 'doodoo'],
-    openGraph: {
-      title: title,
-      description: description,
-      url: canonicalUrl,
-      siteName: siteName,
-      type: 'website',
-    },
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    robots: {
-      index: true,
-      follow: true,
-    }
-  };
-}
-
-export default async function Page({ searchParams }: { searchParams: { q?: string, p?: string } }) {
-  // 검색어 추출
-  // 비동기적으로 처리해야하기 때문에 await으로 런타임 문제 해결
-  const finalSearchParams = await (searchParams as any);
-  const query = finalSearchParams.q || '';
+  const category = finalSearchParams.category || '';
 
   let initialImages: ImageItem[] = [];
   let initialPage = 1;
@@ -84,29 +48,28 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
   let perPage = DEFAULT_PER_PAGE;
   let totalCount = 0;
 
-  // 검색어가 있을 때만 API 호출 (SSR)
-  if (query) {
+  if (query || category) {
     initialPage = parseInt(finalSearchParams.p || '1', 10);
-
     try {
-      // 단 한 번의 API 호출로 이미지 목록과 메타데이터(totalCount, perPage)를 모두 가져옵니다.
-      const response = await fetchImages(query, initialPage, DEFAULT_PER_PAGE);
+      const response = await fetchImages({
+        query,
+        category,
+        page: initialPage,
+        perPage: DEFAULT_PER_PAGE
+      });
 
       initialImages = response.images;
       totalCount = response.total_count;
-      // API 응답의 'limit' 필드를 사용하여 perPage 값을 설정합니다.
       perPage = response.limit;
-
-      // 전체 페이지 수 계산: API 응답 데이터 사용
-      // totalCount나 perPage가 0이면 페이지 수를 1로 설정하여 0으로 나누는 오류 방지
       initialTotalPages = Math.ceil(totalCount / (perPage || 1));
 
     } catch (error) {
       console.error("Error fetching images: ", error);
-      // 에러 발생 시 초기값 유지 (빈 배열, 1페이지)
     }
   }
 
+  const finalQueryOrCategory = query || category;
+  const isCategorySearch = !!category && !query;
 
   return (
     <>
@@ -151,12 +114,54 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
 
         <ListClient
           initialImages={initialImages}
-          initialQuery={query}
+          initialQuery={finalQueryOrCategory}
           initialPage={initialPage}
           initialTotalPages={initialTotalPages}
           perPage={perPage}
+          isCategorySearch={isCategorySearch} // ✅ 새로운 Prop 전달
         />
       </div>
     </>
   );
+}
+
+
+export async function generateMetadata({ searchParams }: { searchParams: { q?: string, p?: string } }): Promise<Metadata> {
+  const finalSearchParams = await (searchParams as any);
+  const query = finalSearchParams.q || '';
+  const page = searchParams.p || '1';
+  const siteName = "doodoo";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://doodoo.com'; // 실제 도메인으로 변경 필요
+
+  // 검색어가 있을 경우와 없을 경우의 메타데이터 분기
+  const title = query
+    ? `${query} 관련 무료 이미지 검색 | ${siteName}`
+    : `고품질 무료 이미지 검색 및 다운로드 | ${siteName}`;
+
+
+  const description = query
+    ? `${query}에 대한 고화질 무료 이미지를 다운로드하세요. 상업적 사용 가능한 저작권 없는 사진 제공.`
+    : `doodoo에서 수백만 장의 고품질 이미지를 무료로 검색하고 다운로드하세요. 상업적 이용 가능.`;
+
+  const canonicalUrl = `${baseUrl}/list${query ? `?q=${encodeURIComponent(query)}&p=${page}` : ''}`;
+
+  return {
+    title: title,
+    description: description,
+    keywords: query ? [query, '무료 이미지', '고화질', '상업적 이용', siteName] : ['무료 이미지', '스톡 사진', '고화질', '상업적 이용', 'doodoo'],
+    openGraph: {
+      title: title,
+      description: description,
+      url: canonicalUrl,
+      siteName: siteName,
+      type: 'website',
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    }
+  };
 }
