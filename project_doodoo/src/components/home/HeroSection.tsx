@@ -1,21 +1,44 @@
-import React from "react";
+
+"use client";
+// mainpage
+import React, { useState } from 'react'
+import styles from '@/styles/components/HeroSection.module.scss';
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from 'next/navigation';
 
-export default function HeroSection() {
+
+function HeroSection() {
+  const [query, setQuery] = useState('');
+  const router = useRouter();
+
+  const categories = ["Photo", "Illustration", "Template", "Icon", "Sticker"];
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    const params = new URLSearchParams();
+    params.set('q', query.trim());
+
+    router.push(`/list?${params.toString()}`);
+  };
+
+  const handleCategoryClick = (categoryName) => {
+    const categoryParam = categoryName.toLowerCase();
+
+    const params = new URLSearchParams();
+    params.set('category', categoryParam);
+    router.push(`/list?${params.toString()}`);
+  };
+
   return (
     <div className="w-screen h-screen relative overflow-hidden">
 
       {/* 메인 컨테이너 */}
       <section
-        className="
-        absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-        w-[90vw] max-w-[1400px]
-        rounded-3xl shadow-lg bg-[var(--sub-color)]/90
-        backdrop-blur-xl
-        border border-white/20
-        px-6 py-10 sm:px-14 sm:py-18
-        "
+        className=" absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[1400px] rounded-3xl shadow-lg bg-[var(--sub-color)]/90 backdrop-blur-xl border border-white/20 px-6 py-10 sm:px-14 sm:py-18 "
       >
 
         {/* TOP 영역 */}
@@ -30,32 +53,22 @@ export default function HeroSection() {
               Unlimited<br />Free sources
             </h1>
           </div>
-
           {/* RIGHT SEARCH & LOGO 그룹 */}
           <div className="flex flex-col items-center w-full sm:w-1/2 gap-6 flex-[1.5]">
 
             {/* 로고 */}
             <a href="/" aria-label="Home">
-              <img
-                src="/logo/doodoo_logo.png"
-                alt="DooDoo Logo"
-                className="
-                  w-[110px] sm:w-[120px]
-                "
-              />
+              <img src="/logo/doodoo_logo.png" alt="DooDoo Logo" className="w-[110px] sm:w-[120px]" />
             </a>
 
             {/* 메뉴 */}
             <nav className="w-full">
               <ul className="flex justify-between text-lg font-semibold tracking-tight px-6">
-                {["Photo", "Illustration", "Template", "Icon", "Sticker"].map((item, i) => (
+                {categories.map((item, i) => (
                   <li
                     key={i}
-                    className="
-                      cursor-pointer hover:text-[var(--primary-hover)]
-                      transition-colors duration-200
-                    "
-                  >
+                    onClick={() => handleCategoryClick(item)}
+                    className="cursor-pointer hover:text-[var(--primary-hover)]transition-colors duration-200" >
                     {item}
                   </li>
                 ))}
@@ -65,26 +78,21 @@ export default function HeroSection() {
             {/* 검색창 */}
             <form
               role="search"
-              action="/search"
               method="get"
-              className="
-                flex items-center w-full
-                bg-white border border-white/20 backdrop-blur-xl
-                rounded-full h-12 px-4
-                inset-shadow-xs
-                focus-within:border-[var(--sub-hover)]
-              "
+              className=" flex items-center w-full bg-white border border-white/20 backdrop-blur-xl rounded-full h-12 px-4 inset-shadow-xs focus-within:border-[var(--sub-hover)]"
+              action="/list" // 실제 검색 페이지 경로 지정
+              onSubmit={handleSearch} // 라우팅 함수 연결
             >
               <input
                 type="text"
                 name="q"
                 placeholder="Search..."
-                className="
-                  w-full px-2 border-none outline-none
-                  placeholder-white/60 text-gray-800
-                "
+                aria-label="search"
+                className="w-full px-2 border-none outline-none placeholder-white/60 text-gray-800"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
-              <button type="submit">
+              <button type="submit" aria-label="검색">
                 <FontAwesomeIcon icon={faSearch} className="w-5 y-5 text-[var(--primary-color)] cursor-pointer" />
               </button>
             </form>
@@ -98,15 +106,7 @@ export default function HeroSection() {
             {[1, 2, 3, 4].map((i) => (
               <li key={i}>
                 <div
-                  className="
-                    w-full h-[120px] sm:h-[150px]
-                    rounded-xl bg-white backdrop-blur-lg
-                    shadow-inner
-                    animate-fadeInUp
-                    hover:bg-white/50 transition duration-300
-                    cursor-pointer
-                  "
-                >
+                  className=" w-full h-[120px] sm:h-[150px] rounded-xl bg-white backdrop-blur-lg shadow-inner animate-fadeInUp hover:bg-white/50 transition duration-300 cursor-pointer">
                 </div>
               </li>
             ))}
@@ -117,3 +117,5 @@ export default function HeroSection() {
     </div>
   );
 }
+
+export default HeroSection;
