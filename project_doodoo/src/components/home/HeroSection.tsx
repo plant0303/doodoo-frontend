@@ -38,14 +38,7 @@ function HeroSection() {
 
       {/* 메인 컨테이너 */}
       <section
-        className="
-        absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-        w-[90vw] max-w-[1400px]
-        rounded-3xl shadow-lg bg-[var(--sub-color)]/90
-        backdrop-blur-xl
-        border border-white/20
-        px-6 py-10 sm:px-14 sm:py-18
-        "
+        className=" absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[1400px] rounded-3xl shadow-lg bg-[var(--sub-color)]/90 backdrop-blur-xl border border-white/20 px-6 py-10 sm:px-14 sm:py-18 "
       >
 
         {/* TOP 영역 */}
@@ -65,13 +58,7 @@ function HeroSection() {
 
             {/* 로고 */}
             <a href="/" aria-label="Home">
-              <img
-                src="/logo/doodoo_logo.png"
-                alt="DooDoo Logo"
-                className="
-                  w-[110px] sm:w-[120px]
-                "
-              />
+              <img src="/logo/doodoo_logo.png" alt="DooDoo Logo" className="w-[110px] sm:w-[120px]" />
             </a>
 
             {/* 메뉴 */}
@@ -80,13 +67,8 @@ function HeroSection() {
                 {categories.map((item, i) => (
                   <li
                     key={i}
-                    // ✅ 클릭 이벤트 핸들러 연결
                     onClick={() => handleCategoryClick(item)}
-                    className="
-                              cursor-pointer hover:text-[var(--primary-hover)]
-                              transition-colors duration-200
-                            "
-                  >
+                    className="cursor-pointer hover:text-[var(--primary-hover)]transition-colors duration-200" >
                     {item}
                   </li>
                 ))}
@@ -97,13 +79,7 @@ function HeroSection() {
             <form
               role="search"
               method="get"
-              className="
-                flex items-center w-full
-                bg-white border border-white/20 backdrop-blur-xl
-                rounded-full h-12 px-4
-                inset-shadow-xs
-                focus-within:border-[var(--sub-hover)]
-              "
+              className=" flex items-center w-full bg-white border border-white/20 backdrop-blur-xl rounded-full h-12 px-4 inset-shadow-xs focus-within:border-[var(--sub-hover)]"
               action="/list" // 실제 검색 페이지 경로 지정
               onSubmit={handleSearch} // 라우팅 함수 연결
             >
@@ -112,10 +88,7 @@ function HeroSection() {
                 name="q"
                 placeholder="Search..."
                 aria-label="search"
-                className="
-                  w-full px-2 border-none outline-none
-                  placeholder-white/60 text-gray-800
-                "
+                className="w-full px-2 border-none outline-none placeholder-white/60 text-gray-800"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -133,15 +106,7 @@ function HeroSection() {
             {[1, 2, 3, 4].map((i) => (
               <li key={i}>
                 <div
-                  className="
-                    w-full h-[120px] sm:h-[150px]
-                    rounded-xl bg-white backdrop-blur-lg
-                    shadow-inner
-                    animate-fadeInUp
-                    hover:bg-white/50 transition duration-300
-                    cursor-pointer
-                  "
-                >
+                  className=" w-full h-[120px] sm:h-[150px] rounded-xl bg-white backdrop-blur-lg shadow-inner animate-fadeInUp hover:bg-white/50 transition duration-300 cursor-pointer">
                 </div>
               </li>
             ))}
