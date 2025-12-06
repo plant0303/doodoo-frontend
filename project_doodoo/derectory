@@ -5,6 +5,10 @@ project-root/
 │
 ├── src/
 │   ├── app/                    # Next.js 라우팅의 시작점
+│   │   └── (site)/
+│   │       ├── list/
+│   │       │   └── page.tsx    # 검색 결과 목록 페이지
+│   │       └── photo/
 │   │   ├── layout.tsx          # 공통 레이아웃
 │   │   ├── page.tsx            # 메인 페이지
 │   │   └── globals.scss        # 전역 스타일

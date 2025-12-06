@@ -70,7 +70,7 @@ export default async function Page({
   const baseInfo = item.download_options?.[0];
 
   return (
-    <div className='container'>
+    <div className='container xl:w-[1200px]'>
       {/* 이미지 영역 */}
       <div className="mx-auto py-10 flex flex-col md:flex-row gap-10">
 
