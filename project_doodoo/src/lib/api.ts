@@ -73,22 +73,18 @@ async function searchImages({
   if (query) {
     params.set("q", query);
   }
-  else if (category) {
+
+  if (category && category !== "all") {
     params.set("category", category);
-  } else {
-    console.warn("No query or category provided.");
-    return { images: [], total_count: 0, page: page, limit: perPage };
   }
 
   params.set("p", page.toString());
   params.set("limit", perPage.toString());
 
-  // 최종 URL 구성
   const url = `${WORKERS_API_URL}/api/search?${params.toString()}`;
 
   try {
-    const response = await fetch(url, {
-    });
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

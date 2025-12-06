@@ -11,16 +11,23 @@ import { useRouter } from 'next/navigation';
 
 function HeroSection() {
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('all'); // 🔥 select 상태 관리
   const router = useRouter();
 
   const categories = ["Photo", "Illustration", "Template", "Icon", "Sticker"];
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!query.trim()) return;
 
     const params = new URLSearchParams();
-    params.set('q', query.trim());
+
+    if (query.trim()) {
+      params.set('q', query.trim());
+    }
+
+    if (category && category !== 'all') {
+      params.set('category', category);
+    }
 
     router.push(`/list?${params.toString()}`);
   };
@@ -30,6 +37,7 @@ function HeroSection() {
 
     const params = new URLSearchParams();
     params.set('category', categoryParam);
+
     router.push(`/list?${params.toString()}`);
   };
 
@@ -79,10 +87,26 @@ function HeroSection() {
             <form
               role="search"
               method="get"
-              className=" flex items-center w-full bg-white border border-white/20 backdrop-blur-xl rounded-full h-12 px-4 inset-shadow-xs focus-within:border-[var(--sub-hover)]"
-              action="/list" // 실제 검색 페이지 경로 지정
-              onSubmit={handleSearch} // 라우팅 함수 연결
+              className="flex items-center w-full bg-white border border-white/20 backdrop-blur-xl rounded-full h-12 px-4 inset-shadow-xs focus-within:border-[var(--sub-hover)]"
+              action="/list"
+              onSubmit={handleSearch}
             >
+              {/* 🔥 category 필터 (name 필수 추가) */}
+              <select
+                id="search-filter"
+                name="category"                      // ← 중요!!!!
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="mr-2 sm:mr-3 bg-transparent text-gray-700 outline-none"
+              >
+                <option value="all">All</option>
+                <option value="photo">Photo</option>
+                <option value="illustration">Illustration</option>
+                <option value="template">Template</option>
+                <option value="icon">Icon</option>
+                <option value="sticker">Sticker</option>
+              </select>
+
               <input
                 type="text"
                 name="q"
@@ -92,8 +116,12 @@ function HeroSection() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
+
               <button type="submit" aria-label="검색">
-                <FontAwesomeIcon icon={faSearch} className="w-5 y-5 text-[var(--primary-color)] cursor-pointer" />
+                <FontAwesomeIcon
+                  icon={faSearch}
+                  className="w-5 y-5 text-[var(--primary-color)] cursor-pointer"
+                />
               </button>
             </form>
 
