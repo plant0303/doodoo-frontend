@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
+import SearchBar from "./SearchBar";
 
 export default function Header() {
   const gnbItems = ["Photo", "Illustration", "Template", "Icon", "Sticker"];
@@ -47,50 +48,7 @@ export default function Header() {
         </h1>
 
         {/* 검색창 */}
-        <form
-          role="search"
-          aria-label="search"
-          defaultValue=""
-          autoComplete="off"
-          method="get"
-          action="/list"
-          onSubmit={handleSearch}
-          className="flex items-center w-full sm:flex-1 bg-white px-3 sm:px-4 py-2 border-2 border-[var(--sub-color)] rounded-full text-sm sm:text-base shadow-sm sm:bg-blue-50"
-        >
-          {/* 필터 선택 */}
-          <select
-            id="search-filter"
-            defaultValue="all"
-            className="mr-2 sm:mr-3 bg-transparent text-gray-700 outline-none"
-          >
-            <option value="all">All</option>
-            <option value="photo">Photo</option>
-            <option value="illustration">Illustration</option>
-            <option value="template">Template</option>
-            <option value="icon">Icon</option>
-            <option value="sticker">Sticker</option>
-          </select>
-
-          {/* 검색 입력창 */}
-          <input
-            id="header-search"
-            type="search"
-            defaultValue=""
-            autoComplete="off"
-            placeholder="검색어를 입력하세요"
-            className="flex-1 bg-transparent outline-none"
-            onChange={(e) => setQuery(e.target.value)}
-          />
-
-          {/* 돋보기 버튼 */}
-          <button
-            type="submit"
-            className="ml-2 sm:ml-3 text-gray-700 hover:text-black"
-            aria-label="검색"
-          >
-            <FontAwesomeIcon icon={faSearch} />
-          </button>
-        </form>
+        <SearchBar />
 
         {/* GNB */}
         <nav aria-label="global" className="w-full bg-white hidden sm:block">

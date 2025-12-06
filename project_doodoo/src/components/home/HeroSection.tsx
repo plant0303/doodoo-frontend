@@ -7,11 +7,12 @@ import styles from '@/styles/components/HeroSection.module.scss';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
+import SearchBar from '../common/SearchBar';
 
 
 function HeroSection() {
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('all'); // 🔥 select 상태 관리
+  const [category, setCategory] = useState('all');
   const router = useRouter();
 
   const categories = ["Photo", "Illustration", "Template", "Icon", "Sticker"];
@@ -84,47 +85,7 @@ function HeroSection() {
             </nav>
 
             {/* 검색창 */}
-            <form
-              role="search"
-              method="get"
-              className="flex items-center w-full bg-white border border-white/20 backdrop-blur-xl rounded-full h-12 px-4 inset-shadow-xs focus-within:border-[var(--sub-hover)]"
-              action="/list"
-              onSubmit={handleSearch}
-            >
-              {/* 🔥 category 필터 (name 필수 추가) */}
-              <select
-                id="search-filter"
-                name="category"                      // ← 중요!!!!
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mr-2 sm:mr-3 bg-transparent text-gray-700 outline-none"
-              >
-                <option value="all">All</option>
-                <option value="photo">Photo</option>
-                <option value="illustration">Illustration</option>
-                <option value="template">Template</option>
-                <option value="icon">Icon</option>
-                <option value="sticker">Sticker</option>
-              </select>
-
-              <input
-                type="text"
-                name="q"
-                placeholder="Search..."
-                aria-label="search"
-                className="w-full px-2 border-none outline-none placeholder-white/60 text-gray-800"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-
-              <button type="submit" aria-label="검색">
-                <FontAwesomeIcon
-                  icon={faSearch}
-                  className="w-5 y-5 text-[var(--primary-color)] cursor-pointer"
-                />
-              </button>
-            </form>
-
+            <SearchBar />
           </div>
         </header>
 
