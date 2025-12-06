@@ -125,5 +125,15 @@ async function getImageById(id: string): Promise<DetailedImageItem | null> {
   }
 }
 
+export async function getSimilarImages(id: string) {
+  console.log(id);
+  const url = `${WORKERS_API_URL}/api/similar?id=${id}`;
+
+  const res = await fetch(url, { cache: 'no-store' });
+
+  if (!res.ok) return null;
+
+  return res.json();
+}
 
 export { searchImages, getImageById };

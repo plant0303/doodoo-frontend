@@ -3,6 +3,7 @@ import DownloadDropdown from './DownloadDropdown';
 import ListClient from '../../list/ListClient';
 import { getImageById, searchImages } from '@/lib/api';
 import { notFound } from 'next/navigation';
+import SimilarImages from './SimilarImages';
 
 // 캐싱 유지: 24시간
 export const revalidate = 60 * 60 * 24;
@@ -127,7 +128,7 @@ export default async function Page({
         <h2 className='py-4 text-lg text-[var(--primary-color)]'>
           Similar
         </h2>
-        {/* <ListClient /> */}
+        <SimilarImages imageId={id} />
       </div>
     </div>
   );
