@@ -9,30 +9,37 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 import SearchBar from '../common/SearchBar';
 import Ballpit from './Ballpit';
+import Link from 'next/link';
 
 
 function HeroSection() {
-  const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('all');
   const router = useRouter();
 
   const categories = ["Photo", "Illustration", "Template", "Icon", "Sticker"];
 
-  const handleSearch = (e) => {
-    e.preventDefault();
+  const sampleImages = [
+    {
+      id: "df38850a-dde1-4a88-80dd-6fb0b7a7cdfb",
+      url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly19_thum.jpg",
+      title: "Pink Muhly Sample 1",
+    },
+    {
+      id: "a5ec89f3-5b23-418c-b830-1b2eb4a09b11",
+      url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly4_thum.jpg",
+      title: "Pink Muhly Sample 2",
+    },
+    {
+      id: "c75183cc-885f-49a0-b888-f13f091f23dd",
+      url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly3_thum.jpg",
+      title: "Pink Muhly Sample 3",
+    },
+    {
+      id: "0c57e1b9-9ba6-4b88-92b6-94adab6afc85",
+      url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly2_thum.jpg",
+      title: "Pink Muhly Sample 4",
+    },
+  ];
 
-    const params = new URLSearchParams();
-
-    if (query.trim()) {
-      params.set('q', query.trim());
-    }
-
-    if (category && category !== 'all') {
-      params.set('category', category);
-    }
-
-    router.push(`/list?${params.toString()}`);
-  };
 
   const handleCategoryClick = (categoryName) => {
     const categoryParam = categoryName.toLowerCase();
@@ -92,12 +99,32 @@ function HeroSection() {
 
         {/* GALLERY GRID */}
         <div className="mt-8">
-          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[1, 2, 3, 4].map((i) => (
-              <li key={i}>
-                <div
-                  className=" w-full h-[120px] sm:h-[150px] rounded-xl bg-white backdrop-blur-lg shadow-inner animate-fadeInUp hover:bg-white/50 transition duration-300 cursor-pointer">
-                </div>
+          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-3 overflow-hidden">
+            {sampleImages.map((img) => (
+              <li key={img.id}>
+                <Link
+                  href={`/photo/${img.id}`}
+                  className="group block mb-4 break-inside-avoid shadow-lg rounded-xl overflow-hidden transition duration-300 transform hover:scale-[1.01] hover:shadow-2xl"
+                >
+                  <div className="relative aspect-video overflow-hidden">
+                    <img
+                      src={img.url}
+                      alt={img.title}
+                      className="w-full h-auto object-cover transition duration-300 group-hover:opacity-80"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `https://placehold.co/400x300/e5e7eb/7f7f7f?text=No+Image`;
+                      }}
+                    />
+
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent pt-8 pb-2 px-3 opacity-0 group-hover:opacity-100 transition duration-300">
+                      <p className="text-white text-xs font-semibold truncate">
+                        {img.title}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>
