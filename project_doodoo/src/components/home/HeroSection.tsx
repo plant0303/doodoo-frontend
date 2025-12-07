@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 import SearchBar from '../common/SearchBar';
+import Ballpit from './Ballpit';
 
 
 function HeroSection() {
