@@ -162,6 +162,9 @@ export async function generateMetadata({ searchParams }: { searchParams: { q?: s
     robots: {
       index: true,
       follow: true,
-    }
+    },
+    icons: {
+      icon: '/favicon.ico', // public 폴더의 루트 경로
+    },
   };
 }
