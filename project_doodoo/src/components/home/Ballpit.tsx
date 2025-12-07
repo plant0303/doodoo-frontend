@@ -494,13 +494,14 @@ const XConfig = {
   count: 200,
   colors: [0xFFF18D, 0xFFA578, 0xFFD2D2],
   ambientColor: 0xffffff,
-  ambientIntensity: 0, // AmbientLight의 강도
-  lightIntensity: 0, // idx=0 의 주변광 강도 
+  ambientIntensity: 1,
+  lightIntensity: 200,
   materialParams: {
-    roughness: 1.0, //매우거칠게
-    clearcoatRoughness: 0,
+    metalness: 0.5,
+    roughness: 0.5,
+    clearcoat: 1,
+    clearcoatRoughness: 0.15
   },
-  minSize: 0.5,
   maxSize: 1,
   size0: 1,
   gravity: 0.5,
@@ -714,7 +715,7 @@ class Z extends InstancedMesh {
     // InstancedMesh는 임시 geometry/material로 먼저 생성 (1x1 구체 등)
     const tempGeometry = new SphereGeometry(0.01); // 임시
     const tempMaterial = new Y({
-      color: new Color(0xfff000), // 원하는 노란색 (예시: #fff000)
+      color: new Color(0xfff700ff), // 원하는 노란색 (예시: #fff700ff)
       envMap: envTexture,
       ...config.materialParams
     });

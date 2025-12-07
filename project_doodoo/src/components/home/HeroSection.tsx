@@ -55,14 +55,14 @@ function HeroSection() {
 
       {/* 메인 컨테이너 */}
       <section
-        className=" absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[1400px] rounded-3xl shadow-lg bg-[var(--sub-color)]/90 backdrop-blur-xl border border-white/20 px-6 py-10 sm:px-14 sm:py-18 "
+        className=" absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[1400px] rounded-3xl bg-[#fff]/20 backdrop-blur-xl border border-white/20 px-6 py-10 sm:px-14 sm:py-18 "
       >
 
         {/* TOP 영역 */}
         <header className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-10 text-[var(--primary-color)]">
 
           {/* LEFT TITLE */}
-          <div className="flex-[1] text-center sm:text-left">
+          <div className="hidden md:block flex-[1] text-center sm:text-left">
             <p className="text-5xl opacity-80 tracking-tight mb-2 animate-slideDown font-light hidden sm:block">
               You can get
             </p>
@@ -80,7 +80,7 @@ function HeroSection() {
 
             {/* 메뉴 */}
             <nav className="w-full">
-              <ul className="flex justify-between text-lg font-semibold tracking-tight px-6">
+              <ul className="flex justify-between text-lg font-semibold tracking-tight px-0 sm:px-6">
                 {categories.map((item, i) => (
                   <li
                     key={i}
