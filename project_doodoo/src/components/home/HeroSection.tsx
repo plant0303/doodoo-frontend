@@ -103,6 +103,23 @@ function HeroSection() {
         </div>
 
       </section>
+      <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', maxHeight: '100%', zIndex: '-999' }}>
+        <Ballpit
+          count={15}
+          gravity={0.01}
+          friction={0.9975}
+          wallBounce={0.95}
+          followCursor={true}
+
+          // ball design
+          // colors={['#FFF18D', '#FFA578', '#FFD2D2']}
+          // ambientColor={16777215} //주변광 색
+          // ambientIntensity={0} //주변광 정도
+          minSize={0.5} // 최소사이즈
+          maxSize={2} // 최대사이즈
+        >
+        </Ballpit>
+      </div>
     </div>
   );
 }
