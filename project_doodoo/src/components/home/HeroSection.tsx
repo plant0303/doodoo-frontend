@@ -117,7 +117,7 @@ export default function HeroSection() {
       </section>
       <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', maxHeight: '100%', zIndex: '-999' }}>
         <Ballpit
-          count={7}
+          count={15}
           gravity={0.01}
           friction={0.9975}
           wallBounce={0.95}
