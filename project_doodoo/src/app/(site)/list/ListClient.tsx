@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // <Link>도 Next.js에서 가져와야 합니다.
+
 interface ImageItem {
   id: string;
   title: string;
@@ -46,10 +49,10 @@ const Pagination = ({ page, totalPages, setPage }: { page: number, totalPages: n
   );
 };
 
-const useRouter = () => ({
-  push: (url: string) => { console.log(`[Router Mock] Pushing to ${url}`); }
-});
-const Link = (props: any) => <a {...props} href={props.href}>{props.children}</a>;
+// const useRouter = () => ({
+//   push: (url: string) => { console.log(`[Router Mock] Pushing to ${url}`); }
+// });
+// const Link = (props: any) => <a {...props} href={props.href}>{props.children}</a>;
 
 
 const imagesCache: { [key: string]: ImageItem[] } = {};
