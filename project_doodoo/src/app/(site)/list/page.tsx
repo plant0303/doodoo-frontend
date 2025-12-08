@@ -28,32 +28,27 @@ async function fetchImages({
     page,
     perPage
 }: {
-    query?: string,
-    category?: string,
-    page: number,
-    perPage: number
+    query?: string;
+    category?: string;
+    page: number;
+    perPage: number;
 }): Promise<SearchResponse> {
     const response = await searchImages({ query, category, page, perPage }) as SearchResponse;
     return response;
 }
 
-interface CustomPageProps {
-    searchParams: {
-        q?: string;
-        category?: string;
-        p?: string;
-    };
-}
+type SearchParamsType = {
+    q?: string;
+    category?: string;
+    p?: string;
+};
 
-// interface ListPageProps {
-//     searchParams: {
-//         q?: string;
-//         category?: string;
-//         p?: string;
-//     };
-// }
+type PageProps = {
+    searchParams: SearchParamsType | Promise<SearchParamsType>;
+};
 
-export default async function Page({ searchParams }: any) {
+export default async function Page(props: PageProps) {
+    const searchParams = await props.searchParams;
 
     const query = searchParams.q || '';
     const category = searchParams.category || '';
@@ -65,7 +60,7 @@ export default async function Page({ searchParams }: any) {
     let totalCount = 0;
 
     if (query || category) {
-        initialPage = parseInt(searchParams.p || '1', 10);
+        initialPage = parseInt(searchParams?.p || '1', 10);
         try {
             const response = await fetchImages({
                 query,
@@ -78,7 +73,6 @@ export default async function Page({ searchParams }: any) {
             totalCount = response.total_count;
             perPage = response.limit;
             initialTotalPages = Math.ceil(totalCount / (perPage || 1));
-
         } catch (error) {
             console.error("Error fetching images: ", error);
         }
@@ -86,6 +80,7 @@ export default async function Page({ searchParams }: any) {
 
     const finalQueryOrCategory = query || category;
     const isCategorySearch = !!category && !query;
+
 
     return (
         <>
@@ -108,10 +103,14 @@ export default async function Page({ searchParams }: any) {
 
 
 //  Metadata 생성
-export async function generateMetadata({ searchParams }: any): Promise<Metadata> {
-    const query = searchParams.q || '';
-    const page = searchParams.p || '1';
-    const category = searchParams.category || ''; // 카테고리 추가
+export async function generateMetadata({ searchParams }: { searchParams: SearchParamsType | Promise<SearchParamsType> }): Promise<Metadata> {
+
+    // searchParams를 await으로 언래핑
+    const params = await searchParams; // ✅ 이 부분이 핵심 수정
+    
+    const query = params?.q || '';
+    const page = params?.p || '1';
+    const category = params?.category || '';
 
     const siteName = "doodoo";
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://doodoo.com';

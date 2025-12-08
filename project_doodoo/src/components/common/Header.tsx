@@ -28,7 +28,6 @@ export default function Header() {
     const params = new URLSearchParams();
     params.set('category', categoryParam);
     router.push(`/list?${params.toString()}`);
-    console.log(1);
   };
 
 
