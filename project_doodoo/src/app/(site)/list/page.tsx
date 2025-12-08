@@ -11,43 +11,51 @@ const DEFAULT_PER_PAGE = 30;
 
 
 interface ImageItem {
-  id: string;
-  thumb_url: string;
-  title: string;
+    id: string;
+    thumb_url: string;
+    title: string;
 }
 
 interface SearchResponse {
-  images: ImageItem[];
-  total_count: number;
-  limit: number;
+    images: ImageItem[];
+    total_count: number;
+    limit: number;
 }
 
 async function fetchImages({
-  query,
-  category,
-  page,
-  perPage
+    query,
+    category,
+    page,
+    perPage
 }: {
-  query?: string,
-  category?: string,
-  page: number,
-  perPage: number
+    query?: string,
+    category?: string,
+    page: number,
+    perPage: number
 }): Promise<SearchResponse> {
-  const response = await searchImages({ query, category, page, perPage }) as SearchResponse;
-  return response;
+    const response = await searchImages({ query, category, page, perPage }) as SearchResponse;
+    return response;
 }
 
 
-interface ListPageProps {
+// interface ListPageProps {
+//     searchParams: {
+//         q?: string;
+//         category?: string;
+//         p?: string;
+//     };
+// }
+
+export default async function Page({
+    searchParams
+}: {
     searchParams: {
-        q?: string;
-        category?: string;
-        p?: string;
-    };
-}
+        q?: string,
+        category?: string,
+        p?: string
+    }
+}) {
 
-export default async function Page({ searchParams }: ListPageProps) {
-    
     const query = searchParams.q || '';
     const category = searchParams.category || '';
 
@@ -58,7 +66,7 @@ export default async function Page({ searchParams }: ListPageProps) {
     let totalCount = 0;
 
     if (query || category) {
-        initialPage = parseInt(searchParams.p || '1', 10); 
+        initialPage = parseInt(searchParams.p || '1', 10);
         try {
             const response = await fetchImages({
                 query,
@@ -90,7 +98,7 @@ export default async function Page({ searchParams }: ListPageProps) {
                     initialPage={initialPage}
                     initialTotalPages={initialTotalPages}
                     perPage={perPage}
-                    isCategorySearch={isCategorySearch} 
+                    isCategorySearch={isCategorySearch}
                 />
             </div>
         </>
@@ -100,11 +108,11 @@ export default async function Page({ searchParams }: ListPageProps) {
 
 //  Metadata 생성
 export async function generateMetadata({ searchParams }: { searchParams: { q?: string, category?: string, p?: string } }): Promise<Metadata> {
-    
+
     const query = searchParams.q || '';
     const page = searchParams.p || '1';
     const category = searchParams.category || ''; // 카테고리 추가
-    
+
     const siteName = "doodoo";
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://doodoo.com';
 
@@ -128,11 +136,11 @@ export async function generateMetadata({ searchParams }: { searchParams: { q?: s
         'commercial use',
         'doodoo'
     ];
-    
+
     const keywords = finalSearchTerm
         ? [finalSearchTerm, ...baseKeywords]
         : baseKeywords;
-    
+
     return {
         title: title,
         description: description,
