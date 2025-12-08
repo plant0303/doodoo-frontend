@@ -34,7 +34,7 @@ export default function SearchBar() {
     <form
       role="search"
       method="get"
-      className="flex items-center w-full sm:flex-1 bg-white px-3 sm:px-4 py-2 border-2 border-[var(--sub-color)] rounded-full text-sm sm:text-base sm:bg-blue-50"
+      className="flex items-center w-full sm:flex-1 bg-white px-3 sm:px-4 py-2 border-3 border-[var(--sub-color)] rounded-full text-sm sm:text-base"
       onSubmit={handleSearch}
     >
       <select
