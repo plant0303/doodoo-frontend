@@ -1,7 +1,7 @@
 
 "use client";
 // mainpage
-import React, { useState } from 'react'
+import React, { Suspense, useState } from 'react'
 import styles from '@/styles/components/HeroSection.module.scss';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -92,7 +92,9 @@ function HeroSection() {
             </nav>
 
             {/* 검색창 */}
-            <SearchBar />
+            <Suspense>
+              <SearchBar />
+            </Suspense>
           </div>
         </header>
 

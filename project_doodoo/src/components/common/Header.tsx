@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter } from 'next/navigation';
 import SearchBar from "./SearchBar";
 
@@ -48,7 +48,9 @@ export default function Header() {
         </h1>
 
         {/* 검색창 */}
-        <SearchBar />
+        <Suspense>
+          <SearchBar />
+        </Suspense>
 
         {/* GNB */}
         <nav aria-label="global" className="w-full bg-white hidden sm:block">
