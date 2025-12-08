@@ -131,24 +131,26 @@ export async function generateMetadata({ searchParams }: { searchParams: { q?: s
   const query = finalSearchParams.q || '';
   const page = searchParams.p || '1';
   const siteName = "doodoo";
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://doodoo.com'; // 실제 도메인으로 변경 필요
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://doodoo.com'; // **Change to your actual domain**
 
-  // 검색어가 있을 경우와 없을 경우의 메타데이터 분기
+  // Metadata branching based on the presence of a search query
   const title = query
-    ? `${query} 관련 무료 이미지 검색 | ${siteName}`
-    : `고품질 무료 이미지 검색 및 다운로드 | ${siteName}`;
+    ? `Free Image Search Results for ${query} | ${siteName}`
+    : `High-Quality Free Image Search and Download | ${siteName}`;
 
 
   const description = query
-    ? `${query}에 대한 고화질 무료 이미지를 다운로드하세요. 상업적 사용 가능한 저작권 없는 사진 제공.`
-    : `doodoo에서 수백만 장의 고품질 이미지를 무료로 검색하고 다운로드하세요. 상업적 이용 가능.`;
+    ? `Download high-resolution free images for "${query}". Providing copyright-free photos available for commercial use.`
+    : `Search and download millions of high-quality images for free on doodoo. Available for commercial use.`;
 
   const canonicalUrl = `${baseUrl}/list${query ? `?q=${encodeURIComponent(query)}&p=${page}` : ''}`;
 
   return {
     title: title,
     description: description,
-    keywords: query ? [query, '무료 이미지', '고화질', '상업적 이용', siteName] : ['무료 이미지', '스톡 사진', '고화질', '상업적 이용', 'doodoo'],
+    keywords: query 
+      ? [query, 'free images', 'high resolution', 'commercial use', siteName] 
+      : ['free images', 'stock photos', 'high resolution', 'commercial use', 'doodoo'],
     openGraph: {
       title: title,
       description: description,
@@ -164,7 +166,7 @@ export async function generateMetadata({ searchParams }: { searchParams: { q?: s
       follow: true,
     },
     icons: {
-      icon: '/favicon.ico', // public 폴더의 루트 경로
+      icon: '/favicon.ico', // Root path in the public folder
     },
   };
 }
