@@ -9,6 +9,8 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 import SearchBar from '../common/SearchBar';
 import Link from 'next/link';
+import { Ballet } from 'next/font/google';
+import Ballpit from './Ballpit';
 
 
 function HeroSection() {
@@ -133,6 +135,7 @@ function HeroSection() {
 
       </section>
       <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', maxHeight: '100%', zIndex: '-999' }}>
+        <Ballpit />
       </div>
     </div>
   );
