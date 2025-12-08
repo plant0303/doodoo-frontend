@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 import SearchBar from '../common/SearchBar';
-import Ballpit from './Ballpit';
 import Link from 'next/link';
 
 
@@ -41,7 +40,7 @@ function HeroSection() {
   ];
 
 
-  const handleCategoryClick = (categoryName) => {
+  const handleCategoryClick = (categoryName: string) => {
     const categoryParam = categoryName.toLowerCase();
 
     const params = new URLSearchParams();
