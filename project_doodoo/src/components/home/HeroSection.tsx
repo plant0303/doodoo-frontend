@@ -132,7 +132,7 @@ function HeroSection() {
 
       </section>
       <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', maxHeight: '100%', zIndex: '-999' }}>
-        <Ballpit
+        {/* <Ballpit
           count={15}
           gravity={0.01}
           friction={0.9975}
@@ -146,7 +146,7 @@ function HeroSection() {
           minSize={0.5} // 최소사이즈
           maxSize={2} // 최대사이즈
         >
-        </Ballpit>
+        </Ballpit> */}
       </div>
     </div>
   );
