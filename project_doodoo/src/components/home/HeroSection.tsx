@@ -19,24 +19,24 @@ function HeroSection() {
 
   const sampleImages = [
     {
+      id: "7ae37435-ad0a-4d91-a587-792ad8ae76cb",
+      url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly15_thum.jpg",
+      title: "Pink Muhly Grass Autumn Field",
+    },
+    {
       id: "df38850a-dde1-4a88-80dd-6fb0b7a7cdfb",
       url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly19_thum.jpg",
-      title: "Pink Muhly Sample 1",
+      title: "Pink Muhly Grass 19",
     },
     {
-      id: "a5ec89f3-5b23-418c-b830-1b2eb4a09b11",
-      url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly4_thum.jpg",
-      title: "Pink Muhly Sample 2",
+      id: "f8fff30b-1897-4d13-9522-3833dee6d671",
+      url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly1_thum.jpg",
+      title: "Pink Muhly Grass 1",
     },
     {
-      id: "c75183cc-885f-49a0-b888-f13f091f23dd",
-      url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly3_thum.jpg",
-      title: "Pink Muhly Sample 3",
-    },
-    {
-      id: "0c57e1b9-9ba6-4b88-92b6-94adab6afc85",
+      id: "5585b366-2dc6-48c2-98f3-1adef6d2d174",
       url: "https://pub-c23d57f0578646659d59cf9f1ba3e49c.r2.dev/photo/pinkmhuly2_thum.jpg",
-      title: "Pink Muhly Sample 4",
+      title: "Pink Muhly Grass 2",
     },
   ];
 
