@@ -6,6 +6,7 @@ import ListClient from './ListClient';
 import { searchImages } from '@/lib/api';
 // import { useRouter } from 'next/navigation'; 
 import { Metadata } from 'next';
+export const dynamic = 'force-dynamic';
 
 const DEFAULT_PER_PAGE = 30;
 
@@ -44,23 +45,23 @@ type SearchParamsType = {
 };
 
 type PageProps = {
-    searchParams: SearchParamsType | Promise<SearchParamsType>;
+    searchParams: Promise<SearchParamsType>;
 };
 
-export default async function Page(props: PageProps) {
-    const searchParams = await props.searchParams;
+export default async function Page({ searchParams }: PageProps) {
+    const params = await searchParams;
 
-    const query = searchParams.q || '';
-    const category = searchParams.category || '';
+    const query = params.q ?? "";
+    const category = params.category ?? "";
+    const page = parseInt(params.p ?? "1", 10);
 
     let initialImages: ImageItem[] = [];
-    let initialPage = 1;
+    let initialPage = page;
     let initialTotalPages = 1;
     let perPage = DEFAULT_PER_PAGE;
     let totalCount = 0;
 
     if (query || category) {
-        initialPage = parseInt(searchParams?.p || '1', 10);
         try {
             const response = await fetchImages({
                 query,
@@ -80,7 +81,6 @@ export default async function Page(props: PageProps) {
 
     const finalQueryOrCategory = query || category;
     const isCategorySearch = !!category && !query;
-
 
     return (
         <>
@@ -103,14 +103,16 @@ export default async function Page(props: PageProps) {
 
 
 //  Metadata 생성
-export async function generateMetadata({ searchParams }: { searchParams: SearchParamsType | Promise<SearchParamsType> }): Promise<Metadata> {
+export async function generateMetadata({
+    searchParams,
+}: {
+    searchParams: Promise<SearchParamsType>;
+}) {
+    const params = await searchParams;
 
-    // searchParams를 await으로 언래핑
-    const params = await searchParams; // ✅ 이 부분이 핵심 수정
-    
-    const query = params?.q || '';
-    const page = params?.p || '1';
-    const category = params?.category || '';
+    const query = params.q ?? "";
+    const page = params.p ?? "1";
+    const category = params.category ?? "";
 
     const siteName = "doodoo";
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://doodoo.com';
