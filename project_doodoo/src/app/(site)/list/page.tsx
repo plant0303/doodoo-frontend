@@ -1,7 +1,7 @@
 // src/app/list/page.tsx (SSR 렌더)
 export const revalidate = 300; // 캐시 만료시간 5분 (300초) 
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import ListClient from './ListClient';
 import { searchImages } from '@/lib/api';
 // import { useRouter } from 'next/navigation'; 
@@ -91,14 +91,16 @@ export default async function Page({ searchParams }: any) {
         <>
             <div className="container xl:max-w-[1200px] h-screen mx-auto px-4 py-4">
 
-                <ListClient
-                    initialImages={initialImages}
-                    initialQuery={finalQueryOrCategory}
-                    initialPage={initialPage}
-                    initialTotalPages={initialTotalPages}
-                    perPage={perPage}
-                    isCategorySearch={isCategorySearch}
-                />
+                <Suspense fallback={<div>검색 결과를 불러오는 중...</div>}>
+                    <ListClient
+                        initialImages={initialImages}
+                        initialQuery={finalQueryOrCategory}
+                        initialPage={initialPage}
+                        initialTotalPages={initialTotalPages}
+                        perPage={perPage}
+                        isCategorySearch={isCategorySearch}
+                    />
+                </Suspense>
             </div>
         </>
     );
@@ -106,7 +108,7 @@ export default async function Page({ searchParams }: any) {
 
 
 //  Metadata 생성
-export async function generateMetadata({ searchParams }: any): Promise<Metadata> { 
+export async function generateMetadata({ searchParams }: any): Promise<Metadata> {
     const query = searchParams.q || '';
     const page = searchParams.p || '1';
     const category = searchParams.category || ''; // 카테고리 추가
