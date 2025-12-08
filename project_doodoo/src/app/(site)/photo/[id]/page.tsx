@@ -14,30 +14,37 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  // NOTE: Assuming 'getImageById' is a function defined elsewhere that fetches image data.
   const item = await getImageById(id);
 
   if (!item) {
     return {
-      title: "이미지를 찾을 수 없습니다",
-      description: "요청하신 이미지를 찾을 수 없습니다.",
+      title: "Image Not Found",
+      description: "The image you requested could not be found.",
     };
   }
 
-  const baseTitle = item.title || "이미지 상세 정보";
-  const title = `${baseTitle} | 무제한 무료 이미지 - 두두 doodoo`;
+  // Set default title if item.title is missing
+  const baseTitle = item.title || "Image Details";
+  
+  // Format the title for the specific image page
+  const title = `${baseTitle} | Unlimited Free Images - doodoo`;
 
+  // Set the description, using keywords if available
   const description =
     item.description ||
-    `${baseTitle} 관련 고화질 무료 이미지입니다. 키워드: ${item.keywords?.join(", ") || "사진, 배경, 스톡 이미지"
+    `High-quality free image related to ${baseTitle}. Keywords: ${item.keywords?.join(", ") || "photo, background, stock image"
     }`;
 
+  // Base keywords for all image detail pages
   const baseKeywords = [
-    "무료 이미지",
-    "스톡 이미지",
-    "상업적 이용 가능",
-    "고화질 사진",
+    "free image",
+    "stock image",
+    "commercially usable",
+    "high quality photo",
   ];
 
+  // Combine base keywords with specific item keywords
   const keywords = item.keywords
     ? [...baseKeywords, ...item.keywords]
     : baseKeywords;
@@ -49,8 +56,9 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
+      // Use the full_url for the Open Graph image preview
       images: item.full_url ? [{ url: item.full_url }] : undefined,
-      type: "article",
+      type: "article", // 'article' is suitable for specific content pages
     },
   };
 }
@@ -179,7 +187,7 @@ export default async function Page({
         <SimilarImages imageId={id} />
       </div>
 
-      <section className="mt-12 mb-16 p-6 bg-gray-50 border border-gray-100 rounded-lg">
+      <section className="mt-12 mb-16 p-6 border border-gray-100 rounded-lg">
         <h2 className="text-lg font-bold mb-5 text-gray-600 flex items-center border-b border-gray-200 pb-3">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-2 text-gray-400">
             <path fillRule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06L18.44 12l-6.47-6.47a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />

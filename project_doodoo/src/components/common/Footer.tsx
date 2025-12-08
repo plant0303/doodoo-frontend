@@ -41,7 +41,7 @@ const SocialIcon = ({ href, children }: { href: string, children: React.ReactNod
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-300 border-t border-gray-800 mt-16">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container xl:w-[1200px] mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
 
           {/* 1. 브랜드 및 저작권 정보 */}
