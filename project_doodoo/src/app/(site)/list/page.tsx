@@ -37,6 +37,13 @@ async function fetchImages({
     return response;
 }
 
+interface CustomPageProps {
+    searchParams: {
+        q?: string;
+        category?: string;
+        p?: string;
+    };
+}
 
 // interface ListPageProps {
 //     searchParams: {
@@ -46,15 +53,7 @@ async function fetchImages({
 //     };
 // }
 
-export default async function Page({
-    searchParams
-}: {
-    searchParams: {
-        q?: string,
-        category?: string,
-        p?: string
-    }
-}) {
+export default async function Page({ searchParams }: any) {
 
     const query = searchParams.q || '';
     const category = searchParams.category || '';
@@ -107,8 +106,7 @@ export default async function Page({
 
 
 //  Metadata 생성
-export async function generateMetadata({ searchParams }: { searchParams: { q?: string, category?: string, p?: string } }): Promise<Metadata> {
-
+export async function generateMetadata({ searchParams }: any): Promise<Metadata> { 
     const query = searchParams.q || '';
     const page = searchParams.p || '1';
     const category = searchParams.category || ''; // 카테고리 추가
