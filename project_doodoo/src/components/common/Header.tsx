@@ -12,7 +12,7 @@ export default function Header() {
   const [query, setQuery] = useState('');
   const router = useRouter();
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
 
@@ -22,7 +22,7 @@ export default function Header() {
     router.push(`/list?${params.toString()}`);
   };
 
-  const handleCategoryClick = (categoryName) => {
+  const handleCategoryClick = (categoryName: string) => {
     const categoryParam = categoryName.toLowerCase();
 
     const params = new URLSearchParams();
@@ -63,7 +63,7 @@ export default function Header() {
                   }`}
               >
                 <Link
-                  href={`/${item.toLowerCase()}`}
+                  href={`/list?category=${item.toLowerCase()}`}
                   className="flex items-center justify-center w-full text-[var(--primary-color)] hover:text-blue-600 transition-colors py-1"
                 >
                   {item}
