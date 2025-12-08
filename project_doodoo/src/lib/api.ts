@@ -38,10 +38,12 @@ export interface FileDownloadOption {
 }
 
 export interface DetailedImageItem extends ImageItem {
+  full_url: any;
   category: string;
   preview_url: string;
   keywords: string[];
   download_options: FileDownloadOption[];
+  description: string;
 }
 
 /**
