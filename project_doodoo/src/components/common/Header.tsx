@@ -59,7 +59,6 @@ export default function Header() {
             {gnbItems.map((item, idx) => (
               <li
                 key={item}
-                onClick={() => handleCategoryClick(item)}
                 className={`w-full border-r border-[var(--primary-color)] ${idx === gnbItems.length - 1 ? "border-r-0" : ""
                   }`}
               >
