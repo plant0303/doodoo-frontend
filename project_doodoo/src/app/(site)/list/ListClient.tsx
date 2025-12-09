@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link'; 
+import { searchImages } from '@/lib/api';
 
 interface ImageItem {
   id: string;
@@ -15,15 +16,7 @@ interface SearchResponse {
   page: number;
   limit: number;
 }
-const searchImages = async (params: any): Promise<SearchResponse> => {
-  console.log("Mock API Call with params:", params);
-  return {
-    images: [],
-    total_count: 0,
-    page: params.page,
-    limit: params.perPage,
-  };
-};
+
 
 const Pagination = ({ page, totalPages, setPage }: { page: number, totalPages: number, setPage: (p: number) => void }) => {
   if (totalPages <= 1) return null;
