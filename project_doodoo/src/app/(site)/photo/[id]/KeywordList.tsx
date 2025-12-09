@@ -40,12 +40,12 @@ export default function KeywordList({ keywords }: { keywords: string[] }) {
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseUp}
         onMouseUp={onMouseUp}
-        className="flex flex-row flex-nowrap overflow-x-auto gap-2 pb-2 scrollbar-hide custom-scrollbar">
+        className="flex flex-row flex-nowrap overflow-x-auto gap-2 pb-2 scrollbar-hide custom-scrollbar scrollbar-auto-hide">
 
         {keywords && keywords.map((keyword, index) => (
           <button
             key={`keyword-${index}`}
-            className="flex-shrink-0 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 text-sm font-medium rounded-full transition duration-200 whitespace-nowrap"
+            className="cursor-pointer flex-shrink-0 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 text-sm font-medium rounded-full transition duration-200 whitespace-nowrap"
             onClick={() => console.log(`Searching for: ${keyword}`)}
           >
             {keyword}
