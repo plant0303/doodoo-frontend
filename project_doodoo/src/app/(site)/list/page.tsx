@@ -110,7 +110,7 @@ export default async function Page({ searchParams }: { searchParams: { q?: strin
 
   return (
     <>
-      <div className="container xl:max-w-[1200px] h-screen mx-auto px-4 py-4">
+      <div className="container xl:max-w-[1200px] min-h-screen mx-auto px-4 py-4">
         {/* ▼ Search Filter Bar ▼ */}
         {/* <div
           aria-label="search filter bar"
