@@ -110,7 +110,7 @@ async function getImageById(id: string): Promise<DetailedImageItem | null> {
 
   try {
     const response = await fetch(url, {
-      next: { revalidate: 60 * 60 * 24 } // 24시간 캐시 유지
+      next: { revalidate: 86400 } // 24시간 캐시 유지
     });
 
     if (!response.ok) {

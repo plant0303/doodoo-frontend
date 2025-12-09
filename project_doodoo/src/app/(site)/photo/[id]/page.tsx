@@ -4,6 +4,7 @@ import ListClient from '../../list/ListClient';
 import { getImageById, searchImages } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import SimilarImages from './SimilarImages';
+import KeywordList from './KeywordList';
 
 // 캐싱 유지: 24시간
 export const revalidate = 86400;
@@ -26,7 +27,7 @@ export async function generateMetadata({
 
   // Set default title if item.title is missing
   const baseTitle = item.title || "Image Details";
-  
+
   // Format the title for the specific image page
   const title = `${baseTitle} | Unlimited Free Images - doodoo`;
 
@@ -81,7 +82,7 @@ export default async function Page({
   return (
     <div className='container xl:w-[1200px]'>
       {/* 이미지 영역 */}
-      <div className="mx-auto py-10 flex flex-col md:flex-row gap-10">
+      <section className="mx-auto py-10 flex flex-col md:flex-row gap-10">
 
         {/* 왼쪽: 이미지 */}
         <div className="flex-1 flex space-between">
@@ -178,14 +179,15 @@ export default async function Page({
             />
           )}
         </div>
-      </div>
+      </section>
+      <KeywordList keywords={item.keywords ?? []} />
       {/* 추가이미지 */}
-      <div>
+      <section>
         <h2 className='py-4 text-lg text-[var(--primary-color)]'>
           Similar
         </h2>
         <SimilarImages imageId={id} />
-      </div>
+      </section>
 
       <section className="mt-12 mb-16 p-6 border border-gray-100 rounded-lg">
         <h2 className="text-lg font-bold mb-5 text-gray-600 flex items-center border-b border-gray-200 pb-3">
