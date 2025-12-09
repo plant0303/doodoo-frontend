@@ -244,11 +244,11 @@ export default async function Page({
           ))}
         </ul>
 
-        <div className="mt-8 pt-3 border-t border-gray-200">
+        {/* <div className="mt-8 pt-3 border-t border-gray-200">
           <p className="text-xs text-gray-400">
             For complete and detailed terms, please visit the official <a href="/license" className="text-gray-600 hover:text-gray-700 font-medium underline transition duration-150">DooDoo License Page</a>.
           </p>
-        </div>
+        </div> */}
       </section>
     </div>
   );
