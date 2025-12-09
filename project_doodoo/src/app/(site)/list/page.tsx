@@ -84,7 +84,7 @@ export default async function Page({ searchParams }: PageProps) {
 
     return (
         <>
-            <div className="container xl:max-w-[1200px] h-screen mx-auto px-4 py-4">
+            <div className="container xl:max-w-[1200px] min-h-screen mx-auto px-4 py-4">
 
                 <Suspense fallback={<div>검색 결과를 불러오는 중...</div>}>
                     <ListClient
