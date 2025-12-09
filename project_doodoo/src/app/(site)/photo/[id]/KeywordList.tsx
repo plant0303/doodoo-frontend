@@ -1,8 +1,9 @@
 "use client";
-
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function KeywordList({ keywords }: { keywords: string[] }) {
+  const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
   let isDown = false;
@@ -28,6 +29,11 @@ export default function KeywordList({ keywords }: { keywords: string[] }) {
   const onMouseUp = () => {
     isDown = false;
   };
+
+  const handleKeywordClick = (keyword: string) => {
+    router.push(`/list?q=${encodeURIComponent(keyword)}`);
+  };
+
   return (
     <section className="py-5">
       <h2 className="font-semibold text-xl mb-3 text-gray-700">
@@ -46,7 +52,7 @@ export default function KeywordList({ keywords }: { keywords: string[] }) {
           <button
             key={`keyword-${index}`}
             className="cursor-pointer flex-shrink-0 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 text-sm font-medium rounded-full transition duration-200 whitespace-nowrap"
-            onClick={() => console.log(`Searching for: ${keyword}`)}
+            onClick={() => handleKeywordClick(keyword)}
           >
             {keyword}
           </button>
