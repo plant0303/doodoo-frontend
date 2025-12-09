@@ -1,7 +1,6 @@
 import React, { use, useEffect, useState } from 'react'
 import DownloadDropdown from './DownloadDropdown';
-import ListClient from '../../list/ListClient';
-import { getImageById, searchImages } from '@/lib/api';
+import { getImageById } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import SimilarImages from './SimilarImages';
 import KeywordList from './KeywordList';
@@ -15,7 +14,6 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  // NOTE: Assuming 'getImageById' is a function defined elsewhere that fetches image data.
   const item = await getImageById(id);
 
   if (!item) {
@@ -25,19 +23,15 @@ export async function generateMetadata({
     };
   }
 
-  // Set default title if item.title is missing
   const baseTitle = item.title || "Image Details";
 
-  // Format the title for the specific image page
   const title = `${baseTitle} | Unlimited Free Images - doodoo`;
 
-  // Set the description, using keywords if available
   const description =
     item.description ||
     `High-quality free image related to ${baseTitle}. Keywords: ${item.keywords?.join(", ") || "photo, background, stock image"
     }`;
 
-  // Base keywords for all image detail pages
   const baseKeywords = [
     "free image",
     "stock image",
@@ -45,7 +39,6 @@ export async function generateMetadata({
     "high quality photo",
   ];
 
-  // Combine base keywords with specific item keywords
   const keywords = item.keywords
     ? [...baseKeywords, ...item.keywords]
     : baseKeywords;
@@ -57,9 +50,8 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      // Use the full_url for the Open Graph image preview
       images: item.full_url ? [{ url: item.full_url }] : undefined,
-      type: "article", // 'article' is suitable for specific content pages
+      type: "article",
     },
   };
 }

@@ -1,24 +1,18 @@
 // mainpage
 import HeroSection from "@/components/home/HeroSection";
-import Image from "next/image";
 import type { Metadata } from 'next'
 
 // metadate 정의하기
 export const metadata: Metadata = {
-  // Page title (Displayed in the browser tab and search results)
   title: 'Unlimited Free Images - doodoo',
 
-  // Description (Displayed in search results)
   description: 'Unlimited free stock image site. Download high-quality, commercially usable photos for free.',
 
   icons: {
-    // 1. Primary Favicon (Used by most browsers)
     icon: '/logo/favicon-32x32.png',
 
-    // 2. Apple touch icon (for iPhone, iPad, etc.)
     apple: '/apple-icon.png',
 
-    // 3. Optional: Defining various icon sizes
     other: [
       {
         rel: 'icon',

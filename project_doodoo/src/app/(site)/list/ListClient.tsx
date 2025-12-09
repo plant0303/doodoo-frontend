@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link'; // <Link>도 Next.js에서 가져와야 합니다.
+import Link from 'next/link'; 
 
 interface ImageItem {
   id: string;
@@ -48,12 +48,6 @@ const Pagination = ({ page, totalPages, setPage }: { page: number, totalPages: n
     </div>
   );
 };
-
-// const useRouter = () => ({
-//   push: (url: string) => { console.log(`[Router Mock] Pushing to ${url}`); }
-// });
-// const Link = (props: any) => <a {...props} href={props.href}>{props.children}</a>;
-
 
 const imagesCache: { [key: string]: ImageItem[] } = {};
 
@@ -186,7 +180,6 @@ export default function ListClient({
   }, [page, currentTerm, isCategory, fetchImages, router]);
 
 
-  // ✅ 검색 결과 없음 상태 계산
   const showNoResults = images.length === 0 && !loading;
 
 

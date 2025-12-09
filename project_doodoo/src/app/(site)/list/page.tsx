@@ -4,8 +4,6 @@ export const revalidate = 300; // 캐시 만료시간 5분 (300초)
 import React, { Suspense } from 'react';
 import ListClient from './ListClient';
 import { searchImages } from '@/lib/api';
-// import { useRouter } from 'next/navigation'; 
-import { Metadata } from 'next';
 
 const DEFAULT_PER_PAGE = 30;
 

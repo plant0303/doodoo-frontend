@@ -24,7 +24,6 @@ const FOOTER_LINKS = [
   },
 ];
 
-// 간단한 소셜 미디어 아이콘 SVG
 const SocialIcon = ({ href, children }: { href: string, children: React.ReactNode }) => (
   <a
     href={href}
