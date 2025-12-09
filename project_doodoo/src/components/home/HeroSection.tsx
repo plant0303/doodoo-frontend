@@ -56,7 +56,7 @@ function HeroSection() {
 
       {/* 메인 컨테이너 */}
       <section
-        className=" absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[1400px] rounded-3xl bg-[#fff]/20 backdrop-blur-xl border border-white/20 px-6 py-10 sm:px-14 sm:py-18 "
+        className=" absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[1400px] rounded-3xl bg-[#fff]/20 backdrop-blur-xl border border-white/20 px-6 py-20 sm:px-14 sm:py-18 "
       >
 
         {/* TOP 영역 */}
@@ -80,8 +80,8 @@ function HeroSection() {
             </a>
 
             {/* 메뉴 */}
-            <nav className="w-full">
-              <ul className="flex justify-between text-lg font-semibold tracking-tight px-0 sm:px-6">
+            <nav className="w-full overflow-x-auto py-2 custom-scrollbar">
+              <ul className="flex flex-nowrap justify-between text-lg font-semibold tracking-tight space-x-6 sm:space-x-0 gap-4 px-4">
                 {categories.map((item, i) => (
                   <li
                     key={i}
@@ -107,7 +107,7 @@ function HeroSection() {
               <li key={img.id}>
                 <Link
                   href={`/photo/${img.id}`}
-                  className="group block mb-4 break-inside-avoid shadow-lg rounded-xl overflow-hidden transition duration-300 transform hover:scale-[1.01] hover:shadow-2xl"
+                  className="group block break-inside-avoid shadow-lg rounded-xl overflow-hidden transition duration-300 transform hover:scale-[1.01] hover:shadow-2xl"
                 >
                   <div className="relative aspect-video overflow-hidden">
                     <img

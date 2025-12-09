@@ -22,3 +22,31 @@ body{
   padding-left: 2rem;
   padding-right: 2rem;
 }
+
+
+.hide-scrollbar::-webkit-scrollbar {
+    width: 0px; /* 세로 스크롤바 너비 */
+    height: 6px; /* 가로 스크롤바 높이 */
+}
+
+/* 스크롤바 트랙(배경) */
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* 배경을 투명하게 */
+}
+
+/* 스크롤바 핸들(움직이는 부분) */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2); /* 어두운 투명색 (부드러운 느낌) */
+    border-radius: 3px; /* 둥근 모서리 */
+}
+
+/* 스크롤바 핸들 호버 시 */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Firefox 스크롤바 스타일 */
+.custom-scrollbar {
+    scrollbar-width: thin; /* 얇게 설정 */
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* thumb 색상 track 색상 */
+}
