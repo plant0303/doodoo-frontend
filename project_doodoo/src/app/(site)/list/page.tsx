@@ -6,7 +6,6 @@ import ListClient from './ListClient';
 import { searchImages } from '@/lib/api';
 // import { useRouter } from 'next/navigation'; 
 import { Metadata } from 'next';
-export const dynamic = 'force-dynamic';
 
 const DEFAULT_PER_PAGE = 30;
 
