@@ -1,9 +1,9 @@
-import React, { use, useEffect, useState } from 'react'
 import DownloadDropdown from './DownloadDropdown';
 import { getImageById } from '@/lib/api';
 import { notFound } from 'next/navigation';
 import SimilarImages from './SimilarImages';
 import KeywordList from './KeywordList';
+import LicenseInfo from './LicenseInfo';
 
 // 캐싱 유지: 24시간
 export const revalidate = 86400;
@@ -14,6 +14,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  // NOTE: Assuming 'getImageById' is a function defined elsewhere that fetches image data.
   const item = await getImageById(id);
 
   if (!item) {
@@ -23,15 +24,19 @@ export async function generateMetadata({
     };
   }
 
+  // Set default title if item.title is missing
   const baseTitle = item.title || "Image Details";
 
+  // Format the title for the specific image page
   const title = `${baseTitle} | Unlimited Free Images - doodoo`;
 
+  // Set the description, using keywords if available
   const description =
     item.description ||
     `High-quality free image related to ${baseTitle}. Keywords: ${item.keywords?.join(", ") || "photo, background, stock image"
     }`;
 
+  // Base keywords for all image detail pages
   const baseKeywords = [
     "free image",
     "stock image",
@@ -39,6 +44,7 @@ export async function generateMetadata({
     "high quality photo",
   ];
 
+  // Combine base keywords with specific item keywords
   const keywords = item.keywords
     ? [...baseKeywords, ...item.keywords]
     : baseKeywords;
@@ -50,8 +56,9 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
+      // Use the full_url for the Open Graph image preview
       images: item.full_url ? [{ url: item.full_url }] : undefined,
-      type: "article",
+      type: "article", // 'article' is suitable for specific content pages
     },
   };
 }
@@ -181,67 +188,7 @@ export default async function Page({
         <SimilarImages imageId={id} />
       </section>
 
-      <section className="mt-12 mb-16 p-6 border border-gray-100 rounded-lg">
-        <h2 className="text-lg font-bold mb-5 text-gray-600 flex items-center border-b border-gray-200 pb-3">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-2 text-gray-400">
-            <path fillRule="evenodd" d="M12.97 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 1 1-1.06-1.06L18.44 12l-6.47-6.47a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-            <path fillRule="evenodd" d="M7.47 3.97a.75.75 0 0 1 1.06 0l7.5 7.5a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L12.94 12 6.47 5.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-          </svg>
-          DooDoo License Policy
-        </h2>
-
-        <p className="text-xs text-gray-500 mb-6 leading-relaxed">
-          All content downloaded from **DooDoo** may be used for commercial purposes under the terms below.
-          <span className="font-semibold text-gray-600">No attribution is required.</span>
-        </p>
-
-        {/* --- Allowed Uses --- */}
-        <h3 className="text-sm font-bold mb-3 text-gray-600 border-l-2 border-gray-300 pl-2">
-          Allowed Uses
-        </h3>
-
-        <ul className="list-none space-y-2 mb-8 pl-0">
-          {[
-            "Online content: ads, marketing, social media, blogs, websites",
-            "Video production: YouTube, shorts, broadcasts, corporate/agency promos",
-            "Printed materials: flyers, posters, banners, brochures",
-            "App, game, and UI/UX design",
-            "Product packaging & brand materials (※ cannot be registered as a trademark/logo)",
-            "Templates, thumbnails, presentations, and other derivative works",
-          ].map((item, index) => (
-            <li key={`allowed-${index}`} className="flex items-start text-xs text-gray-500">
-              <span className="text-gray-400 font-bold mr-2 mt-0.5">·</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-
-        {/* --- Not Allowed --- */}
-        <h3 className="text-sm font-bold mb-3 text-gray-600 border-l-2 border-gray-300 pl-2">
-          Not Allowed
-        </h3>
-
-        <ul className="list-none space-y-2 pl-0">
-          {[
-            "Reselling, redistributing, or uploading the content to other stock platforms",
-            "Using the content “as is” to create or register a trademark or logo",
-            "Use in pornographic, violent, defamatory, or illegal content",
-            "Using the content for AI training, model learning, or dataset creation",
-            "Uses that violate privacy or publicity rights for identifiable persons",
-          ].map((item, index) => (
-            <li key={`not-allowed-${index}`} className="flex items-start text-xs text-gray-500">
-              <span className="text-gray-400 font-bold mr-2 mt-0.5">·</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-
-        {/* <div className="mt-8 pt-3 border-t border-gray-200">
-          <p className="text-xs text-gray-400">
-            For complete and detailed terms, please visit the official <a href="/license" className="text-gray-600 hover:text-gray-700 font-medium underline transition duration-150">DooDoo License Page</a>.
-          </p>
-        </div> */}
-      </section>
+      <LicenseInfo />
     </div>
   );
 }
