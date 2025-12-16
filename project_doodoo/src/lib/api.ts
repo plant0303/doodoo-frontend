@@ -46,14 +46,7 @@ export interface DetailedImageItem extends ImageItem {
   description: string;
 }
 
-/**
- * @param params 검색에 필요한 파라미터 객체
- * @param params.query 검색어 (선택 사항)
- * @param params.category 카테고리 이름 (선택 사항, query가 없으면 category로 검색)
- * @param params.page 페이지 번호 (기본값 1)
- * @param params.perPage 한 페이지당 항목 수
- * @returns SearchResponse 객체
- */
+
 async function searchImages({
   query,
   category,
@@ -136,6 +129,35 @@ export async function getSimilarImages(id: string) {
   if (!res.ok) return null;
 
   return res.json();
+}
+
+export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean; error: string | null }> {
+  try {
+    const response = await fetch(`${WORKERS_API_URL}/api/admin/auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // 200 OK: 권한 확인 성공
+    if (response.status === 200) {
+      const data = await response.json();
+      return { isAdmin: data.isAdmin === true, error: null };
+    }
+
+    // 401, 403 등 오류 응답 처리
+    const errorData = await response.json();
+    const errorMessage = errorData.error || `권한 검증 실패: HTTP ${response.status}`;
+    
+    return { isAdmin: false, error: errorMessage };
+
+  } catch (e) {
+    // 네트워크 오류, CORS 오류 등이 발생했을 경우
+    console.error("Workers API 연결 오류:", e);
+    return { isAdmin: false, error: '서버 연결 오류가 발생했습니다. (Workers API)' };
+  }
 }
 
 export { searchImages, getImageById };

@@ -6,13 +6,24 @@ project-root/
 ├── src/
 │   ├── app/                    # Next.js 라우팅의 시작점
 │   │   └── (site)/
-│   │       ├── list/
-│   │       │   └── page.tsx    # 검색 결과 목록 페이지
-│   │       └── photo/
+│   │   │   ├── list/
+│   │   │   │   └── page.tsx    # 검색 결과 목록 페이지
+│   │   │   └── photo/
 │   │   ├── layout.tsx          # 공통 레이아웃
 │   │   ├── page.tsx            # 메인 페이지
 │   │   └── globals.scss        # 전역 스타일
-│   │
+│   │   └── (admin)/                    # [신규] 관리자 페이지 그룹
+│   │        ├── login/
+│   │        │   └── page.tsx            # /admin/login (관리자 로그인)
+│   │        ├── images/                 # /admin/images (이미지 목록, CRUD)
+│   │        │   ├── page.tsx            # 이미지 목록
+│   │        │   └── [id]/               # 동적 라우팅 (이미지 상세/수정)
+│   │        │       └── page.tsx
+│   │        ├── users/                  # (선택) 사용자 관리 페이지
+│   │        │   └── page.tsx
+│   │        ├── layout.tsx              # 관리자 전용 레이아웃 (Admin Sidebar, Header)
+│   │        └── page.tsx                # /admin (관리자 대시보드)
+│   └── middleware.ts
 │   ├── components/             # 재사용 가능한 UI 컴포넌트
 │   │   ├── common/             # 버튼, 모달 등 범용 컴포넌트
 │   │   └── home/               # 메인 페이지 전용 컴포넌트
