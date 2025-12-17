@@ -18,6 +18,7 @@ import {
   faDownload,    // 통계 카드 - 주간 다운로드 (⬇️)
   faClock,       // 통계 카드 - 미승인 대기 (⏳)
 } from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
 
 
 const MOCK_IMAGES = [
@@ -101,12 +102,12 @@ export default function Images() {
           <FontAwesomeIcon icon={faCog} className="w-6 h-6 mr-3 text-indigo-600" />
           이미지 관리
         </h1>
-        <button
+        <Link
+          href="/admin/Images/new"
           className="cursor-pointer flex items-center bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-md"
-          onClick={() => console.log('이미지 등록 페이지로 이동')}
         >
           <FontAwesomeIcon icon={faPlus} className="w-3 h-3 mr-2" /> 새 이미지 등록
-        </button>
+        </Link>
       </header>
 
       {/* 일괄 처리 및 검색 영역 */}
@@ -232,8 +233,8 @@ export default function Images() {
               key={index}
               onClick={() => handleGoToPage(index + 1)}
               className={`cursor-pointer w-9 h-9 text-sm font-medium rounded-lg transition-colors border ${currentPage === index + 1
-                  ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'
+                ? 'bg-indigo-600 text-white border-indigo-600'
+                : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'
                 }`}
             >
               {index + 1}

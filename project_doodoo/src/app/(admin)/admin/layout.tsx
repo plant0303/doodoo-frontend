@@ -6,8 +6,6 @@ import React from 'react'
 import "./globals.css";
 import AdminSidebar from '@/components/admin/AdminSidebar';
 
-// import { useSupabase } from '@/lib/supabase/hooks'; // 예시
-
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
 
   // 인증이 완료된 관리자에게만 관리자 UI 표시
