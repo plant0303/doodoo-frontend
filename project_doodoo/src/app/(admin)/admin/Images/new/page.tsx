@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { StockItem } from '../../../../../types/StockIte.ts';
+import { StockItem } from '../../../../../types/StockItem';
 import CategorySelector from './CategorySelector';
 import FileUploader from './FileUploader';
 import MetadataEditor from './MetadataEditor';
@@ -14,12 +14,12 @@ export default function BulkUploadPage() {
     setCategory(cat);
     setStep(2);
   };
-
+  
   const handleFilesUploaded = (newItems: StockItem[]) => {
     setItems(newItems);
     setStep(3);
   };
-
+  
   return (
     <div className="p-8 max-w-[1400px] mx-auto min-h-screen">
       {/* 단계 인디케이터 상단 고정 */}

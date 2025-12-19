@@ -1,5 +1,8 @@
+import { StockItem } from "@/types/StockItem";
+import { UploadResponse } from "@/types/UploadResponse";
 
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
+const R2_API_URL = process.env.NEXT_PUBLIC_R2_URL;
 
 export interface ImageItem {
   id: string;
@@ -150,7 +153,7 @@ export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean
     // 401, 403 등 오류 응답 처리
     const errorData = await response.json();
     const errorMessage = errorData.error || `권한 검증 실패: HTTP ${response.status}`;
-    
+
     return { isAdmin: false, error: errorMessage };
 
   } catch (e) {
@@ -160,4 +163,44 @@ export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean
   }
 }
 
+export const uploadBulkImages = async (category: string, items: StockItem[]) => {
+  const formData = new FormData();
+  formData.append('category', category);
+
+  // 전송용 데이터 구조화
+  const payload = items.map((item, index) => {
+    // 각 StockItem 내의 파일들을 FormData에 추가
+    item.sourceFiles.forEach((fileDetail, fileIdx) => {
+      formData.append(`file_${index}_${fileIdx}`, fileDetail.file);
+    });
+
+    // 메타데이터 구성
+    return {
+      title: item.title,
+      keywords: item.keywords,
+      previewUrl: `${R2_API_URL}/${category}/${item.title}_preview.jpg`,
+      thumbUrl: `${R2_API_URL}/${category}/${item.title}_thum.jpg`,
+      files: item.sourceFiles.map((f, fileIdx) => ({
+        formKey: `file_${index}_${fileIdx}`,
+        extension: f.extension,
+        fileSizeMb: f.fileSizeMb,
+        width: f.width,
+        height: f.height,
+        dpi: f.dpi,
+        r2Path: `doodoo-private-originals/${category}/${item.title}_original_${f.extension}.${f.extension}`,
+      }))
+    };
+  });
+
+  console.log(payload);
+
+  formData.append('metadata', JSON.stringify(payload));
+
+  const response = await fetch(`http://127.0.0.1:8787/api/images/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  return await response.json();
+};
 export { searchImages, getImageById };
