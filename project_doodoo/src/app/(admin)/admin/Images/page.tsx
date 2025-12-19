@@ -13,6 +13,7 @@ import {
   faChevronRight, // 오른쪽 화살표 (ChevronRight)
   faPlus,        // 등록 버튼용 (FileText 대신)
   faSquare,
+  faCheckSquare,
   faBox,         // 통계 카드 - 총 등록 이미지 (📦)
   faFire,        // 통계 카드 - 오늘 조회수 (🔥)
   faDownload,    // 통계 카드 - 주간 다운로드 (⬇️)

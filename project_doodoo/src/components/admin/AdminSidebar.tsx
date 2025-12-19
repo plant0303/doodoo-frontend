@@ -25,6 +25,13 @@ export default function AdminSidebar() {
           이미지 관리
         </Link>
         
+        <Link 
+          href="/admin/Images/new"
+          className="flex items-center p-3 text-base font-medium rounded-lg hover:bg-gray-700 transition-colors"
+        >
+          새 이미지 등록
+        </Link>
+        
         {/* 로그아웃 버튼 */}
         <button 
           onClick={() => console.log('로그아웃 기능 구현 필요')}
