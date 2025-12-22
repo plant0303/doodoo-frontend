@@ -8,6 +8,9 @@ export interface ImageItem {
   id: string;
   thumb_url: string;
   title: string;
+  category: string;
+  uploaded_at: string;
+  views: string;
 }
 
 export interface UnsplashItem extends ImageItem {
@@ -50,7 +53,7 @@ export interface DetailedImageItem extends ImageItem {
 }
 
 
-async function searchImages({
+export async function searchImages({
   query,
   category,
   page,
@@ -96,7 +99,7 @@ async function searchImages({
   }
 }
 
-async function getImageById(id: string): Promise<DetailedImageItem | null> {
+export async function getImageById(id: string): Promise<DetailedImageItem | null> {
   if (!WORKERS_API_URL) {
     console.error("NEXT_PUBLIC_WORKERS_API_URL is not set.");
     return null;
@@ -178,8 +181,8 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
     return {
       title: item.title,
       keywords: item.keywords,
-      previewUrl: `${R2_API_URL}/${category}/${item.title}_preview.jpg`,
-      thumbUrl: `${R2_API_URL}/${category}/${item.title}_thum.jpg`,
+      // previewUrl: `${R2_API_URL}/${category}/${item.title}_preview.jpg`,
+      // thumbUrl: `${R2_API_URL}/${category}/${item.title}_thum.jpg`,
       files: item.sourceFiles.map((f, fileIdx) => ({
         formKey: `file_${index}_${fileIdx}`,
         extension: f.extension,
@@ -187,7 +190,7 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
         width: f.width,
         height: f.height,
         dpi: f.dpi,
-        r2Path: `doodoo-private-originals/${category}/${item.title}_original_${f.extension}.${f.extension}`,
+        // r2Path: `doodoo-private-originals/${category}/${item.title}_original_${f.extension}.${f.extension}`,
       }))
     };
   });
@@ -196,11 +199,40 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
 
   formData.append('metadata', JSON.stringify(payload));
 
-  const response = await fetch(`http://127.0.0.1:8787/api/images/upload`, {
+  const response = await fetch(`https://doodoo.penitcontact.workers.dev/api/images/upload`, {
     method: 'POST',
     body: formData,
   });
 
   return await response.json();
 };
-export { searchImages, getImageById };
+
+export const fetchImages = async (): Promise<ImageItem[]> => {
+  const response = await fetch(`${WORKERS_API_URL}/api/images`, {
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    throw new Error('이미지 목록을 불러오는데 실패했습니다.');
+  }
+
+  const result = await response.json();
+
+  // result가 { data: [...] } 구조이므로 result.data를 반환합니다.
+  return result.data || [];
+};
+
+export const deleteImages = async (ids: string[]): Promise<void> => {
+  // 예시: 일괄 삭제 API가 있다면 다음과 같이 호출
+  const response = await fetch(`${WORKERS_API_URL}/images`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ ids }),
+  });
+
+  if (!response.ok) {
+    throw new Error('이미지 삭제에 실패했습니다.');
+  }
+};

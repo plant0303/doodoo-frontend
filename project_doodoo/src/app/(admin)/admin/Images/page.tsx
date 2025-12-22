@@ -1,97 +1,86 @@
-// src/app/(admin)/images/page.tsx
-
 'use client';
-import React, { useState, useMemo, useCallback } from 'react';
-
-// Font Awesome Import
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faCog,         // 설정 (Settings)
-  faTrashAlt,    // 삭제 (Trash2)
-  faEdit,        // 수정 (Edit)
-  faChevronLeft, // 왼쪽 화살표 (ChevronLeft)
-  faChevronRight, // 오른쪽 화살표 (ChevronRight)
-  faPlus,        // 등록 버튼용 (FileText 대신)
+  faCog,
+  faTrashAlt,
+  faEdit,
+  faChevronLeft,
+  faChevronRight,
+  faPlus,
   faSquare,
   faCheckSquare,
-  faBox,         // 통계 카드 - 총 등록 이미지 (📦)
-  faFire,        // 통계 카드 - 오늘 조회수 (🔥)
-  faDownload,    // 통계 카드 - 주간 다운로드 (⬇️)
-  faClock,       // 통계 카드 - 미승인 대기 (⏳)
+  faSpinner // 로딩 아이콘 추가
 } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
-
-
-const MOCK_IMAGES = [
-  ...Array(115).fill(0).map((_, i) => ({
-    id: `img-${i + 1}`,
-    uuid: `0f8a7e${(i + 1).toString().padStart(3, '0')}-4c9b-9a4d-c123d4e5f6g7`,
-    title: `Premium Stock Image Title ${i + 1}`,
-    thumbUrl: `/api/placeholder/48x48?text=T${i + 1}`, // 실제 썸네일 URL로 변경 필요
-    views: Math.floor(Math.random() * 5000) + 100,
-    uploadedAt: new Date(Date.now() - i * 86400000).toLocaleDateString(),
-    extensions: i % 3 === 0 ? ['PSD', 'JPG'] : i % 3 === 1 ? ['AI', 'EPS'] : ['PNG'],
-  })),
-];
+import { fetchImages, deleteImages, ImageItem } from '@/lib/api'; // API 함수 임포트
 
 const ITEMS_PER_PAGE = 10;
 
 export default function Images() {
+  const [images, setImages] = useState<ImageItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  // 선택된 이미지 ID 목록 (일괄 처리용)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
-  const totalPages = Math.ceil(MOCK_IMAGES.length / ITEMS_PER_PAGE);
+  // 데이터 로드 함수
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchImages();
+      setImages(data);
+    } catch (error) {
+      console.error(error);
+      alert('데이터를 불러오는 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
 
   const currentImages = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
-    return MOCK_IMAGES.slice(start, end);
-  }, [currentPage]);
+    return images.slice(start, end);
+  }, [currentPage, images]);
 
-  // 전체 선택/해제 핸들러
   const toggleSelectAll = useCallback(() => {
-    if (selectedItems.size === currentImages.length) {
-      setSelectedItems(new Set()); // 모두 해제
+    if (selectedItems.size === currentImages.length && currentImages.length > 0) {
+      setSelectedItems(new Set());
     } else {
       const allIds = new Set(currentImages.map(img => img.id));
-      setSelectedItems(allIds); // 모두 선택
+      setSelectedItems(allIds);
     }
   }, [selectedItems, currentImages]);
 
-  // 개별 항목 선택/해제 핸들러
   const toggleSelectItem = useCallback((id: string) => {
     setSelectedItems(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
       return newSet;
     });
   }, []);
 
-  // 일괄 수정/삭제 처리
-  const handleBulkEdit = () => {
+  const handleBulkDelete = async () => {
     if (selectedItems.size === 0) return alert('선택된 항목이 없습니다.');
-    console.log(`일괄 수정 대상: ${Array.from(selectedItems).join(', ')}`);
-    alert(`${selectedItems.size}개의 항목을 일괄 수정합니다. (실제 기능 구현 필요)`);
-    setSelectedItems(new Set()); // 처리 후 선택 초기화
+    if (!window.confirm(`선택된 ${selectedItems.size}개의 이미지를 삭제하시겠습니까?`)) return;
+
+    try {
+      await deleteImages(Array.from(selectedItems));
+      alert('성공적으로 삭제되었습니다.');
+      setSelectedItems(new Set());
+      loadData(); // 목록 새로고침
+    } catch (error) {
+      alert('삭제 작업 중 오류가 발생했습니다.');
+    }
   };
 
-  const handleBulkDelete = () => {
-    if (selectedItems.size === 0) return alert('선택된 항목이 없습니다.');
-    if (!window.confirm(`선택된 ${selectedItems.size}개의 이미지를 정말로 삭제하시겠습니까?`)) return;
-
-    console.log(`일괄 삭제 대상: ${Array.from(selectedItems).join(', ')}`);
-    alert(`${selectedItems.size}개의 항목을 일괄 삭제합니다. (실제 기능 구현 필요)`);
-    // 실제로는 MOCK_IMAGES를 업데이트하거나 API 호출 후 다시 로드해야 함
-    setSelectedItems(new Set()); // 처리 후 선택 초기화
-  };
-
-
-  // 페이지네이션 로직은 이전과 동일
   const handlePrev = () => setCurrentPage(prev => Math.max(prev - 1, 1));
   const handleNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
   const handleGoToPage = (page: number) => setCurrentPage(page);
@@ -111,20 +100,16 @@ export default function Images() {
         </Link>
       </header>
 
-      {/* 일괄 처리 및 검색 영역 */}
       <div className="flex justify-between items-center mb-4">
-        {/* 일괄 처리 버튼 */}
         <div className="flex space-x-3">
           <button
             onClick={handleBulkDelete}
-            disabled={selectedItems.size === 0}
-            className="flex items-center text-sm px-4 py-2 border border-red-400 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition-colors"
+            disabled={selectedItems.size === 0 || loading}
+            className="flex items-center text-sm px-4 py-2 border border-red-400 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition-colors cursor-pointer"
           >
             <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 mr-2" /> 일괄 삭제 ({selectedItems.size})
           </button>
         </div>
-
-        {/* 검색 필드 (추후 구현) */}
         <input
           type="text"
           placeholder="제목, 키워드, UUID 검색..."
@@ -132,14 +117,18 @@ export default function Images() {
         />
       </div>
 
-      {/* 이미지 목록 테이블 */}
-      <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
+      <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm bg-white relative">
+        {loading && (
+          <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
+            <FontAwesomeIcon icon={faSpinner} className="w-8 h-8 text-indigo-600 animate-spin" />
+          </div>
+        )}
+
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              {/* 전체 선택 체크박스 */}
               <th className="px-3 py-3 w-10">
-                <button onClick={toggleSelectAll} className="p-1 text-gray-500 hover:text-gray-800">
+                <button onClick={toggleSelectAll} className="p-1 text-gray-500 hover:text-gray-800 cursor-pointer">
                   <FontAwesomeIcon
                     icon={selectedItems.size === currentImages.length && currentImages.length > 0 ? faCheckSquare : faSquare}
                     className="w-4 h-4"
@@ -157,9 +146,8 @@ export default function Images() {
           <tbody className="bg-white divide-y divide-gray-200">
             {currentImages.map((image) => (
               <tr key={image.id} className={`hover:bg-indigo-50/20 ${selectedItems.has(image.id) ? 'bg-indigo-50' : ''}`}>
-                {/* 개별 선택 체크박스 */}
                 <td className="px-3 py-4 w-10">
-                  <button onClick={() => toggleSelectItem(image.id)} className="p-1 text-gray-700 hover:text-indigo-600">
+                  <button onClick={() => toggleSelectItem(image.id)} className="p-1 text-gray-700 hover:text-indigo-600 cursor-pointer">
                     <FontAwesomeIcon
                       icon={selectedItems.has(image.id) ? faCheckSquare : faSquare}
                       className="w-4 h-4"
@@ -168,29 +156,29 @@ export default function Images() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
-                    {/* Next/Image 미사용 상태이므로 <img /> 태그 사용 */}
                     <img
-                      src={image.thumbUrl}
+                      src={image.thumb_url} // thumbUrl -> thumb_url 로 수정
                       alt={image.title}
-                      width={48}
-                      height={48}
                       className="object-cover w-full h-full"
                     />
                   </div>
                 </td>
                 <td className="px-6 py-4">
                   <div className="text-sm font-semibold text-gray-900">{image.title}</div>
-                  <div className="text-xs text-gray-500 truncate w-48">{image.uuid}</div>
+                  <div className="text-xs text-gray-500 truncate w-48">{image.id}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {image.extensions.map(ext => (
-                    <span key={ext} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-2">
-                      {ext}
-                    </span>
-                  ))}
+                  {/* category 필드를 뱃지로 표시 */}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    {image.category}
+                  </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"></td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{image.uploadedAt}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {image.views.toLocaleString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(image.uploaded_at).toLocaleDateString()} {/* 날짜 포맷팅 */}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                   <button
                     className="cursor-pointer text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50 transition-colors"
@@ -213,69 +201,44 @@ export default function Images() {
         </table>
       </div>
 
-      {/* 페이지네이션 */}
-      <div className="mt-6 flex justify-between items-center">
-        <div className="text-sm text-gray-600">
-          총 {MOCK_IMAGES.length}개의 이미지 중 {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, MOCK_IMAGES.length)}개 표시
-        </div>
-        <div className="flex items-center space-x-1">
-          {/* 이전 버튼 */}
-          <button
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-            className="cursor-pointer p-2 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
-          </button>
-
-          {/* 페이지 번호 목록 */}
-          {Array(totalPages).fill(0).map((_, index) => (
+      {/* 페이지네이션 (images.length 기반으로 자동 계산) */}
+      {!loading && images.length > 0 && (
+        <div className="mt-6 flex justify-between items-center">
+          <div className="text-sm text-gray-600">
+            총 {images.length}개의 이미지 중 {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, images.length)}개 표시
+          </div>
+          <div className="flex items-center space-x-1">
             <button
-              key={index}
-              onClick={() => handleGoToPage(index + 1)}
-              className={`cursor-pointer w-9 h-9 text-sm font-medium rounded-lg transition-colors border ${currentPage === index + 1
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'
-                }`}
+              onClick={handlePrev}
+              disabled={currentPage === 1}
+              className="cursor-pointer p-2 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {index + 1}
+              <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
             </button>
-          ))}
 
-          {/* 다음 버튼 */}
-          <button
-            onClick={handleNext}
-            disabled={currentPage === totalPages}
-            className="cursor-pointer p-2 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <FontAwesomeIcon icon={faChevronRight} className="w-4 h-4" />
-          </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handleGoToPage(page)}
+                className={`cursor-pointer w-9 h-9 text-sm font-medium rounded-lg transition-colors border ${currentPage === page
+                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-300'
+                  }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              onClick={handleNext}
+              disabled={currentPage === totalPages}
+              className="cursor-pointer p-2 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FontAwesomeIcon icon={faChevronRight} className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
-
-// 간단한 통계 카드 컴포넌트
-interface StatCardProps {
-  title: string;
-  value: number;
-  unit: string;
-  icon: any; // Font Awesome Icon definition type
-  color: string;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ title, value, unit, icon, color }) => (
-  <div className={`p-4 rounded-xl shadow-md ${color}`}>
-    <div className="flex justify-between items-center">
-      {/* Font Awesome 아이콘 표시 */}
-      <FontAwesomeIcon icon={icon} className="text-2xl" />
-      <div className="text-right">
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-2xl font-bold mt-1">
-          {value.toLocaleString()} <span className="text-sm font-normal">{unit}</span>
-        </p>
-      </div>
-    </div>
-  </div>
-);
