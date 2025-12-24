@@ -13,7 +13,7 @@ import {
   faSpinner // 로딩 아이콘 추가
 } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
-import { fetchImages, ImageItem, deleteFullStock } from '@/lib/api'; // API 함수 임포트
+import { fetchImages, ImageItem, deleteImages } from '@/lib/api'; // API 함수 임포트
 import { useRouter } from 'next/navigation';
 import { StockItem } from '@/types/StockItem';
 
@@ -71,19 +71,33 @@ export default function Images() {
     });
   }, []);
 
-  // const handleBulkDelete = async () => {
-  //   if (selectedItems.size === 0) return alert('선택된 항목이 없습니다.');
-  //   if (!window.confirm(`선택된 ${selectedItems.size}개의 이미지를 삭제하시겠습니까?`)) return;
+  const handleBulkDelete = async () => {
+    const selectedIds = Array.from(selectedItems);
+    if (selectedIds.length === 0) return alert('선택된 항목이 없습니다.');
 
-  //   try {
-  //     await deleteImages(Array.from(selectedItems));
-  //     alert('성공적으로 삭제되었습니다.');
-  //     setSelectedItems(new Set());
-  //     loadData(); // 목록 새로고침
-  //   } catch (error) {
-  //     alert('삭제 작업 중 오류가 발생했습니다.');
-  //   }
-  // };
+    if (!window.confirm(`선택된 ${selectedIds.length}개의 이미지를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+
+    setLoading(true); // 로딩 표시 시작
+    try {
+      await deleteImages(selectedIds);
+
+      alert('성공적으로 삭제되었습니다.');
+
+      setImages(prev => prev.filter(img => !selectedItems.has(img.id)));
+
+      setSelectedItems(new Set());
+
+      if (currentImages.length === selectedIds.length && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert('삭제 작업 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false); // 로딩 종료
+    }
+  };
 
   const handlePrev = () => setCurrentPage(prev => Math.max(prev - 1, 1));
   const handleNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
@@ -97,7 +111,7 @@ export default function Images() {
     if (!confirm(`[${title}] 스톡을 삭제하시겠습니까?\n연결된 모든 원본 파일과 DB 정보가 영구 삭제됩니다.`)) return;
 
     try {
-      await deleteFullStock(id);
+      await deleteImages([id]);
       alert('삭제되었습니다.');
       // 현재 목록에서 삭제된 아이템 제외 (상태 업데이트)
       setStocks(prev => prev.filter(item => item.id !== id));
@@ -124,7 +138,7 @@ export default function Images() {
       <div className="flex justify-between items-center mb-4">
         <div className="flex space-x-3">
           <button
-            // onClick={handleBulkDelete}
+            onClick={handleBulkDelete}
             disabled={selectedItems.size === 0 || loading}
             className="flex items-center text-sm px-4 py-2 border border-red-400 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition-colors cursor-pointer"
           >

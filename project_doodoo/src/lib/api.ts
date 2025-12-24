@@ -270,21 +270,17 @@ export const addStockFile = async (stockId: string, formData: FormData) => {
 // 
 
 // admin 스톡 개별삭제
-export const deleteFullStock = async (stockId: string) => {
-  const res = await fetch(`http://127.0.0.1:8787/api/images/delete?stockId=${stockId}`, {
-    method: 'DELETE',
-  });
-  if (!res.ok) throw new Error('스톡 완전 삭제 실패');
-  return res.json();
-};
-
-// admin 스톡 일괄삭제
-export const deleteBulkImages = async (ids: string[]) => {
-  const res = await fetch(`http://127.0.0.1:8787/api/images/bulk-delete`, {
-    method: 'POST', // DELETE 요청도 body를 가질 수 있으나 안전하게 POST 사용 권장
+export const deleteImages = async (ids: string[]) => {
+  const res = await fetch(`${WORKERS_API_URL}/api/images/delete`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ids }),
   });
-  if (!res.ok) throw new Error('일괄 삭제 실패');
+  
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.error || '삭제 작업에 실패했습니다.');
+  }
+  
   return res.json();
 };

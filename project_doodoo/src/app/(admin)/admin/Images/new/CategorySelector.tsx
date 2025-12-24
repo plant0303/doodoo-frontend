@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faPenNib, faImage, faIcons, faStickyNote } from '@fortawesome/free-solid-svg-icons';
 
 const CATEGORIES = [
-  { id: 'Photo', name: 'Photo', icon: faCamera, color: 'bg-blue-500' },
+  { id: 'photo', name: 'Photo', icon: faCamera, color: 'bg-blue-500' },
   { id: 'illustration', name: 'Illustration', icon: faPenNib, color: 'bg-purple-500' },
   { id: 'template', name: 'Template', icon: faImage, color: 'bg-green-500' },
   { id: 'icon', name: 'Icon', icon: faIcons, color: 'bg-yellow-500' },
