@@ -21,6 +21,7 @@ const ITEMS_PER_PAGE = 10;
 
 export default function Images() {
   const [images, setImages] = useState<ImageItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -44,13 +45,28 @@ export default function Images() {
     loadData();
   }, [loadData]);
 
-  const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
+  const filteredImages = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return images; // 검색어가 없으면 전체 목록 반환
+
+    return images.filter(img =>
+      img.title.toLowerCase().includes(term) ||
+      img.id.toLowerCase().includes(term)
+    );
+  }, [searchTerm, images]);
+
+  const totalPages = Math.ceil(filteredImages.length / ITEMS_PER_PAGE);
 
   const currentImages = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     const end = start + ITEMS_PER_PAGE;
-    return images.slice(start, end);
-  }, [currentPage, images]);
+    return filteredImages.slice(start, end);
+  }, [currentPage, filteredImages]);
+
+  // 4. 검색어가 변경되면 페이지를 1페이지로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const toggleSelectAll = useCallback(() => {
     if (selectedItems.size === currentImages.length && currentImages.length > 0) {
@@ -103,6 +119,7 @@ export default function Images() {
   const handleNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
   const handleGoToPage = (page: number) => setCurrentPage(page);
 
+  // 수정페이지 이동
   const handleEditClick = (id: string) => {
     router.push(`/admin/Images/edit/${id}`);
   };
@@ -134,6 +151,8 @@ export default function Images() {
     }
   };
 
+
+
   return (
     <div className="min-h-full rounded-xl p-6 md:p-8">
       <header className="mb-6 flex justify-between items-center border-b pb-4">
@@ -161,7 +180,9 @@ export default function Images() {
         </div>
         <input
           type="text"
-          placeholder="제목, 키워드, UUID 검색..."
+          placeholder="제목 또는 UUID 검색..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="w-80 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
         />
       </div>
