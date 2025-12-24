@@ -53,6 +53,7 @@ export interface DetailedImageItem extends ImageItem {
 }
 
 
+// 검색
 export async function searchImages({
   query,
   category,
@@ -99,6 +100,7 @@ export async function searchImages({
   }
 }
 
+// 상세 이미지 보기
 export async function getImageById(id: string): Promise<DetailedImageItem | null> {
   if (!WORKERS_API_URL) {
     console.error("NEXT_PUBLIC_WORKERS_API_URL is not set.");
@@ -126,6 +128,7 @@ export async function getImageById(id: string): Promise<DetailedImageItem | null
   }
 }
 
+// 유사이미지 출력
 export async function getSimilarImages(id: string) {
   console.log(id);
   const url = `${WORKERS_API_URL}/api/similar?id=${id}`;
@@ -137,6 +140,7 @@ export async function getSimilarImages(id: string) {
   return res.json();
 }
 
+// 관리자 인증
 export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean; error: string | null }> {
   try {
     const response = await fetch(`${WORKERS_API_URL}/api/admin/auth`, {
@@ -166,6 +170,7 @@ export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean
   }
 }
 
+// 관리자 이미지 업로드
 export const uploadBulkImages = async (category: string, items: StockItem[]) => {
   const formData = new FormData();
   formData.append('category', category);
@@ -207,6 +212,7 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
   return await response.json();
 };
 
+
 export const fetchImages = async (): Promise<ImageItem[]> => {
   const response = await fetch(`${WORKERS_API_URL}/api/images`, {
     cache: 'no-store',
@@ -222,17 +228,36 @@ export const fetchImages = async (): Promise<ImageItem[]> => {
   return result.data || [];
 };
 
-export const deleteImages = async (ids: string[]): Promise<void> => {
-  // 예시: 일괄 삭제 API가 있다면 다음과 같이 호출
-  const response = await fetch(`${WORKERS_API_URL}/images`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ ids }),
-  });
+// 데이터 불러오기
+export const getStockDetail = async (id: string) => {
 
-  if (!response.ok) {
-    throw new Error('이미지 삭제에 실패했습니다.');
-  }
+  const res = await fetch(`${WORKERS_API_URL}/api/images/edit/${id}`);
+  return res.json();
+};
+
+// 메타데이터(제목, 키워드) 저장
+export const updateStockMetadata = async (id: string, title: string, keywords: string[]) => {
+  const res = await fetch(`${WORKERS_API_URL}/api/images/edit/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, keywords }),
+  });
+  return res.json();
+};
+
+// 파일 삭제
+export const deleteStockFile = async (stockId: string, fileId: string, r2Path: string, file_type_id: string) => {
+  const res = await fetch(`${WORKERS_API_URL}/api/images/edit/${stockId}?fileId=${fileId}&r2Path=${encodeURIComponent(r2Path)}&fileType=${file_type_id}`, {
+    method: 'DELETE',
+  });
+  return res.json();
+};
+
+// 새 파일 추가
+export const addStockFile = async (stockId: string, formData: FormData) => {
+  const res = await fetch(`${WORKERS_API_URL}/api/images/edit/${stockId}`, {
+    method: 'POST',
+    body: formData,
+  });
+  return res.json();
 };

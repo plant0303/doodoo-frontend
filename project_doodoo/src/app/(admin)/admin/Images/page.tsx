@@ -14,6 +14,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import { fetchImages, deleteImages, ImageItem } from '@/lib/api'; // API 함수 임포트
+import { useRouter } from 'next/navigation';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -22,6 +23,7 @@ export default function Images() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const router = useRouter();
 
   // 데이터 로드 함수
   const loadData = useCallback(async () => {
@@ -84,6 +86,10 @@ export default function Images() {
   const handlePrev = () => setCurrentPage(prev => Math.max(prev - 1, 1));
   const handleNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
   const handleGoToPage = (page: number) => setCurrentPage(page);
+
+  const handleEditClick = (id: string) => {
+    router.push(`/admin/Images/edit/${id}`);
+  };
 
   return (
     <div className="min-h-full rounded-xl p-6 md:p-8">
@@ -182,7 +188,7 @@ export default function Images() {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                   <button
                     className="cursor-pointer text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-indigo-50 transition-colors"
-                    onClick={() => console.log(`수정: ${image.id}`)}
+                    onClick={() => handleEditClick(image.id)}
                     title="개별 수정"
                   >
                     <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
