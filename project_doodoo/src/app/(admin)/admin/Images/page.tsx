@@ -24,7 +24,6 @@ export default function Images() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [stocks, setStocks] = useState<StockItem[]>([]);
   const router = useRouter();
 
   // 데이터 로드 함수
@@ -71,6 +70,7 @@ export default function Images() {
     });
   }, []);
 
+  // 일괄 삭제
   const handleBulkDelete = async () => {
     const selectedIds = Array.from(selectedItems);
     if (selectedIds.length === 0) return alert('선택된 항목이 없습니다.');
@@ -107,14 +107,28 @@ export default function Images() {
     router.push(`/admin/Images/edit/${id}`);
   };
 
+  // 단일 삭제
   const handleDeleteClick = async (id: string, title: string) => {
     if (!confirm(`[${title}] 스톡을 삭제하시겠습니까?\n연결된 모든 원본 파일과 DB 정보가 영구 삭제됩니다.`)) return;
 
     try {
       await deleteImages([id]);
       alert('삭제되었습니다.');
-      // 현재 목록에서 삭제된 아이템 제외 (상태 업데이트)
-      setStocks(prev => prev.filter(item => item.id !== id));
+      // 현재 목록에서 삭제된 아이템 제외
+      setImages(prev => prev.filter(img => img.id !== id));
+
+
+      // 선택 목록에서 제거
+      setSelectedItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+
+      // 페이지네이션 보정
+      if (currentImages.length === 1 && currentPage > 1) {
+        setCurrentPage(prev => prev - 1);
+      }
     } catch (err) {
       alert('삭제 처리 중 오류가 발생했습니다.');
     }
@@ -172,7 +186,7 @@ export default function Images() {
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">썸네일</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제목 (UUID)</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">파일 확장자</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">조회수</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">등록일</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
