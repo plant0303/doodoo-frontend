@@ -41,8 +41,8 @@ export default function MetadataEditor({ items, setItems, category, onBack }: Pr
     ));
   };
 
+  // 유효성 검사
   const handleSave = async () => {
-    // 간단한 유효성 검사
     const isAnyEmptyTitle = items.some(item => !item.title.trim());
     if (isAnyEmptyTitle) return alert('모든 이미지의 제목을 입력해주세요.');
 
@@ -91,93 +91,121 @@ export default function MetadataEditor({ items, setItems, category, onBack }: Pr
           </thead>
 
           <tbody className="bg-white divide-y divide-gray-200">
-            {items.map((item, idx) => (
-              <tr key={item.id} className="hover:bg-gray-50/50">
-                <td className="p-4">
-                  <div className="w-24 h-24 rounded-lg overflow-hidden border bg-gray-100 flex items-center justify-center">
-                    {item.previewUrl ? (
-                      <img src={item.previewUrl} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs text-gray-400">No Preview</span>
-                    )}
-                  </div>
-                </td>
-                <td className="p-4">
-                  <input
-                    type="text"
-                    value={item.title}
-                    onChange={(e) => setItems(prev => prev.map((it, i) => i === idx ? { ...it, title: e.target.value } : it))}
-                    className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                  />
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {item.sourceFiles.map((f, fi) => (
-                      <span key={fi} className="px-2 py-0.5 bg-gray-200 rounded text-[10px] font-bold uppercase">
-                        {f.extension}
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                {/* 키워드 영역은 기존과 동일 */}
-                <td className="p-4">
-                  <div className="text-xs space-y-2">
-                    {item.sourceFiles.map((file, fi) => (
-                      <div key={fi} className="border-b pb-1 last:border-0">
-                        <span className="font-bold text-indigo-600 uppercase">{file.extension}:</span> {file.fileSizeMb}MB
-                        {file.width && ` (${file.width}x${file.height})`}
-                      </div>
-                    ))}
-                  </div>
-                </td>
-                <td className="p-4">
-                  <label className="block border border-gray-200 rounded-lg p-2 bg-white min-h-[100px] cursor-text focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all">
-                    {/* 태그(키워드) 목록 */}
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {item.keywords.map((tag, ti) => (
-                        <span
-                          key={ti}
-                          className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-xs border border-indigo-100 flex items-center font-medium"
-                          // 태그 자체를 클릭했을 때 input으로 포커스가 튀지 않게 하려면 클릭 이벤트 전파 방지 가능 (선택 사항)
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {tag}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault(); // label 클릭 이벤트 방지
-                              e.stopPropagation(); // 버블링 방지
-                              setItems(prev => prev.map((it, i) =>
-                                i === idx ? { ...it, keywords: it.keywords.filter((_, tIdx) => tIdx !== ti) } : it
-                              ));
-                            }}
-                            className="ml-1 text-[10px] hover:text-red-500 transition-colors"
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </button>
+            {items.map((item, idx) => {
+              // 우선순위: _preview 파일이 있다면 사용, 없으면 일반 이미지 소스 중 첫 번째 사용
+              const displayUrl = item.previewUrl || item.thumbUrl;
+
+              return (
+                <tr key={item.id} className="hover:bg-gray-50/50">
+                  <td className="p-4">
+                    <div className="w-24 h-24 rounded-lg overflow-hidden border bg-gray-100 flex items-center justify-center">
+                      {displayUrl ? (
+                        <img src={displayUrl} className="w-full h-full object-cover" alt="preview" />
+                      ) : (
+                        <div className="text-center">
+                          <span className="text-[10px] text-gray-400 block">No Image</span>
+                        </div>
+                      )}
+                      {/* 이미지 위에 어떤 종류인지 라벨 표시 (선택 사항) */}
+                      {item.previewUrl && (
+                        <span className="absolute bottom-0 right-0 bg-indigo-600 text-white text-[8px] px-1">PREVIEW</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex gap-2 mb-1">
+                      <StatusBadge label="PREVIEW" exists={!!item.previewUrl} color="bg-blue-500" />
+                      <StatusBadge label="THUM" exists={!!item.thumbUrl} color="bg-emerald-500" />
+                      <StatusBadge label="SOURCE" exists={item.sourceFiles.length > 0} color="bg-amber-500" />
+                    </div>
+                    <input
+                      type="text"
+                      value={item.title}
+                      onChange={(e) => setItems(prev => prev.map((it, i) => i === idx ? { ...it, title: e.target.value } : it))}
+                      className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {item.sourceFiles.map((f, fi) => (
+                        <span key={fi} className="px-2 py-0.5 bg-gray-200 rounded text-[10px] font-bold uppercase">
+                          {f.extension}
                         </span>
                       ))}
                     </div>
+                  </td>
+                  {/* 키워드 영역 */}
+                  <td className="p-4">
+                    <div className="text-xs space-y-2">
+                      {item.sourceFiles.map((file, fi) => (
+                        <div key={fi} className="border-b pb-1 last:border-0">
+                          <span className="font-bold text-indigo-600 uppercase">{file.extension}:</span> {file.fileSizeMb}MB
+                          {file.width && ` (${file.width}x${file.height})`}
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <label className="block border border-gray-200 rounded-lg p-2 bg-white min-h-[100px] cursor-text focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all">
+                      {/* 태그(키워드) 목록 */}
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {item.keywords.map((tag, ti) => (
+                          <span
+                            key={ti}
+                            className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-xs border border-indigo-100 flex items-center font-medium"
+                            // 태그 자체를 클릭했을 때 input으로 포커스가 튀지 않게 하려면 클릭 이벤트 전파 방지 가능 (선택 사항)
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault(); // label 클릭 이벤트 방지
+                                e.stopPropagation(); // 버블링 방지
+                                setItems(prev => prev.map((it, i) =>
+                                  i === idx ? { ...it, keywords: it.keywords.filter((_, tIdx) => tIdx !== ti) } : it
+                                ));
+                              }}
+                              className="ml-1 text-[10px] hover:text-red-500 transition-colors"
+                            >
+                              <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
 
-                    {/* 실제 입력창 */}
-                    <input
-                      className="w-full outline-none text-sm p-1 bg-transparent"
-                      placeholder={item.keywords.length === 0 ? "키워드 입력 후 엔터..." : ""}
-                      onPaste={(e) => handlePaste(idx, e)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ',') {
-                          e.preventDefault(); // 기본 동작 막기
-                          const target = e.target as HTMLInputElement;
-                          handleAddKeyword(idx, target.value); // 키워드 추가
-                          target.value = ''; // 입력창 비우기
-                        }
-                      }}
-                    />
-                  </label>
-                </td>
-              </tr>
-            ))}
+                      {/* 실제 입력창 */}
+                      <input
+                        className="w-full outline-none text-sm p-1 bg-transparent"
+                        placeholder={item.keywords.length === 0 ? "키워드 입력 후 엔터..." : ""}
+                        onPaste={(e) => handlePaste(idx, e)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ',') {
+                            e.preventDefault(); // 기본 동작 막기
+                            const target = e.target as HTMLInputElement;
+                            handleAddKeyword(idx, target.value); // 키워드 추가
+                            target.value = ''; // 입력창 비우기
+                          }
+                        }}
+                      />
+                    </label>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
     </div>
+  );
+}
+
+// 상태 표시를 위한 소형 컴포넌트
+function StatusBadge({ label, exists, color }: { label: string; exists: boolean; color: string }) {
+  return (
+    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm transition-all ${exists
+      ? `${color} text-white`
+      : 'bg-gray-100 text-gray-300 border border-gray-200'
+      }`}>
+      {exists ? '● ' : '○ '}{label}
+    </span>
   );
 }

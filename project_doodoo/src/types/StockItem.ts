@@ -17,6 +17,8 @@ export interface StockItem {
   keywords: string[];
   previewUrl: string; // 대표 미리보기 (주로 JPG/PNG)
   thumbUrl: string;
+  previewFile?: File; 
+  thumbFile?: File;   
   // 그룹화된 파일들
   sourceFiles: FileDetail[];
 }

@@ -177,34 +177,46 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
 
   // 전송용 데이터 구조화
   const payload = items.map((item, index) => {
-    // 각 StockItem 내의 파일들을 FormData에 추가
-    item.sourceFiles.forEach((fileDetail, fileIdx) => {
-      formData.append(`file_${index}_${fileIdx}`, fileDetail.file);
-    });
-
-    // 메타데이터 구성
-    return {
-      title: item.title,
-      keywords: item.keywords,
-      // previewUrl: `${R2_API_URL}/${category}/${item.title}_preview.jpg`,
-      // thumbUrl: `${R2_API_URL}/${category}/${item.title}_thum.jpg`,
-      files: item.sourceFiles.map((f, fileIdx) => ({
-        formKey: `file_${index}_${fileIdx}`,
+    // 1. 소스 파일들 추가 (ai, psd 등)
+    const sourceFileData = item.sourceFiles.map((f, fileIdx) => {
+      const key = `file_${index}_source_${fileIdx}`;
+      formData.append(key, f.file);
+      return {
+        formKey: key,
         extension: f.extension,
         fileSizeMb: f.fileSizeMb,
         width: f.width,
         height: f.height,
         dpi: f.dpi,
-        // r2Path: `doodoo-private-originals/${category}/${item.title}_original_${f.extension}.${f.extension}`,
-      }))
+      };
+    });
+
+    // 2. 프리뷰 파일 추가 (있을 경우)
+    let previewKey = null;
+    if (item.previewFile) {
+      previewKey = `file_${index}_preview`;
+      formData.append(previewKey, item.previewFile);
+    }
+
+    // 3. 썸네일 파일 추가 (있을 경우)
+    let thumbKey = null;
+    if (item.thumbFile) {
+      thumbKey = `file_${index}_thum`;
+      formData.append(thumbKey, item.thumbFile);
+    }
+
+    return {
+      title: item.title,
+      keywords: item.keywords,
+      previewFormKey: previewKey, 
+      thumbFormKey: thumbKey,     
+      files: sourceFileData,
     };
   });
 
-  console.log(payload);
-
   formData.append('metadata', JSON.stringify(payload));
 
-  const response = await fetch(`https://doodoo.penitcontact.workers.dev/api/images/upload`, {
+  const response = await fetch(`${WORKERS_API_URL}/api/images/upload`, {
     method: 'POST',
     body: formData,
   });
@@ -276,11 +288,11 @@ export const deleteImages = async (ids: string[]) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ids }),
   });
-  
+
   if (!res.ok) {
     const errorData = await res.json();
     throw new Error(errorData.error || '삭제 작업에 실패했습니다.');
   }
-  
+
   return res.json();
 };
