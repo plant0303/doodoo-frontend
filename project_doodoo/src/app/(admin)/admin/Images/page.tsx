@@ -13,8 +13,9 @@ import {
   faSpinner // 로딩 아이콘 추가
 } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
-import { fetchImages, deleteImages, ImageItem } from '@/lib/api'; // API 함수 임포트
+import { fetchImages, ImageItem, deleteFullStock } from '@/lib/api'; // API 함수 임포트
 import { useRouter } from 'next/navigation';
+import { StockItem } from '@/types/StockItem';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -23,6 +24,7 @@ export default function Images() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [stocks, setStocks] = useState<StockItem[]>([]);
   const router = useRouter();
 
   // 데이터 로드 함수
@@ -69,19 +71,19 @@ export default function Images() {
     });
   }, []);
 
-  const handleBulkDelete = async () => {
-    if (selectedItems.size === 0) return alert('선택된 항목이 없습니다.');
-    if (!window.confirm(`선택된 ${selectedItems.size}개의 이미지를 삭제하시겠습니까?`)) return;
+  // const handleBulkDelete = async () => {
+  //   if (selectedItems.size === 0) return alert('선택된 항목이 없습니다.');
+  //   if (!window.confirm(`선택된 ${selectedItems.size}개의 이미지를 삭제하시겠습니까?`)) return;
 
-    try {
-      await deleteImages(Array.from(selectedItems));
-      alert('성공적으로 삭제되었습니다.');
-      setSelectedItems(new Set());
-      loadData(); // 목록 새로고침
-    } catch (error) {
-      alert('삭제 작업 중 오류가 발생했습니다.');
-    }
-  };
+  //   try {
+  //     await deleteImages(Array.from(selectedItems));
+  //     alert('성공적으로 삭제되었습니다.');
+  //     setSelectedItems(new Set());
+  //     loadData(); // 목록 새로고침
+  //   } catch (error) {
+  //     alert('삭제 작업 중 오류가 발생했습니다.');
+  //   }
+  // };
 
   const handlePrev = () => setCurrentPage(prev => Math.max(prev - 1, 1));
   const handleNext = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
@@ -89,6 +91,19 @@ export default function Images() {
 
   const handleEditClick = (id: string) => {
     router.push(`/admin/Images/edit/${id}`);
+  };
+
+  const handleDeleteClick = async (id: string, title: string) => {
+    if (!confirm(`[${title}] 스톡을 삭제하시겠습니까?\n연결된 모든 원본 파일과 DB 정보가 영구 삭제됩니다.`)) return;
+
+    try {
+      await deleteFullStock(id);
+      alert('삭제되었습니다.');
+      // 현재 목록에서 삭제된 아이템 제외 (상태 업데이트)
+      setStocks(prev => prev.filter(item => item.id !== id));
+    } catch (err) {
+      alert('삭제 처리 중 오류가 발생했습니다.');
+    }
   };
 
   return (
@@ -109,7 +124,7 @@ export default function Images() {
       <div className="flex justify-between items-center mb-4">
         <div className="flex space-x-3">
           <button
-            onClick={handleBulkDelete}
+            // onClick={handleBulkDelete}
             disabled={selectedItems.size === 0 || loading}
             className="flex items-center text-sm px-4 py-2 border border-red-400 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition-colors cursor-pointer"
           >
@@ -195,7 +210,7 @@ export default function Images() {
                   </button>
                   <button
                     className="cursor-pointer text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
-                    onClick={() => console.log(`삭제: ${image.id}`)}
+                    onClick={() => handleDeleteClick(image.id, image.title)}
                     title="개별 삭제"
                   >
                     <FontAwesomeIcon icon={faTrashAlt} className="w-4 h-4" />
