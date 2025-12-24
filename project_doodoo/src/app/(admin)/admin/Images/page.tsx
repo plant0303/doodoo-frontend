@@ -20,8 +20,11 @@ import { StockItem } from '@/types/StockItem';
 const ITEMS_PER_PAGE = 10;
 
 export default function Images() {
+  const CATEGORIES = ['all', 'photo', 'illustration', 'template', 'icon', 'sticker'];
+
   const [images, setImages] = useState<ImageItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -46,14 +49,24 @@ export default function Images() {
   }, [loadData]);
 
   const filteredImages = useMemo(() => {
-    const term = searchTerm.toLowerCase().trim();
-    if (!term) return images; // 검색어가 없으면 전체 목록 반환
+    let result = [...images];
 
-    return images.filter(img =>
-      img.title.toLowerCase().includes(term) ||
-      img.id.toLowerCase().includes(term)
-    );
-  }, [searchTerm, images]);
+    // 1. 카테고리 필터링
+    if (selectedCategory !== 'all') {
+      result = result.filter(img => img.category === selectedCategory);
+    }
+
+    // 2. 검색어 필터링
+    const term = searchTerm.toLowerCase().trim();
+    if (term) {
+      result = result.filter(img =>
+        img.title.toLowerCase().includes(term) ||
+        img.id.toLowerCase().includes(term)
+      );
+    }
+
+    return result;
+  }, [searchTerm, selectedCategory, images]);
 
   const totalPages = Math.ceil(filteredImages.length / ITEMS_PER_PAGE);
 
@@ -177,6 +190,17 @@ export default function Images() {
           >
             <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 mr-2" /> 일괄 삭제 ({selectedItems.size})
           </button>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+          >
+            {CATEGORIES.map(cat => (
+              <option key={cat} value={cat}>
+                {cat === 'all' ? '전체 카테고리' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </option>
+            ))}
+          </select>
         </div>
         <input
           type="text"
