@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { StockItem, FileDetail } from '../../../../../types/StockItem';
+import { StockItem } from '../../../../../types/StockItem';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt, faArrowLeft, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useFileGrouper } from '@/hooks/useFileGrouper';

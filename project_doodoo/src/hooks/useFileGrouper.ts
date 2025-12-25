@@ -47,8 +47,8 @@ export const useFileGrouper = () => {
           title: groupKey,
           category: "",
           keywords: [],
-          previewUrl: "", // 초기값 빈 문자열 (또는 null)
-          thumbUrl: "",   // 초기값 빈 문자열 (또는 null)
+          previewUrl: "",
+          thumbUrl: "",
           sourceFiles: [],
         });
       }

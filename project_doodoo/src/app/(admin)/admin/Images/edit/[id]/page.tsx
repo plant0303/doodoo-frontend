@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faPlus, faTrashAlt, faArrowLeft, faCloudUploadAlt, faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faTrashAlt, faArrowLeft, faCloudUploadAlt, faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { getStockDetail, updateStockMetadata, deleteStockFile, addStockFile } from '@/lib/api';
 import { useParams } from 'next/navigation';

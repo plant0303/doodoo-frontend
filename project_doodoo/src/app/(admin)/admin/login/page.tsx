@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
       }
 
       // 2. 분리한 API 함수로 관리자 권한 검증
-      const { isAdmin, error: adminError } = await verifyAdminRole(data.session.access_token);
+      const { isAdmin, error: adminError } = await verifyAdminRole();
 
       if (isAdmin) {
         // 3. 검증 성공 시 이동

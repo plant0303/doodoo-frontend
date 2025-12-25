@@ -1,10 +1,8 @@
 // src/app/(admin)/layout.tsx
 
 // 필요한 Supabase 클라이언트 및 Hooks Import
-import AdminLoadingScreen from '@/components/admin/AdminLoadingScreen';
 import React from 'react'
 import "./globals.css";
-import AdminSidebar from '@/components/admin/AdminSidebar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
 

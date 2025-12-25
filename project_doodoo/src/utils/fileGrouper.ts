@@ -1,5 +1,5 @@
 // utils/fileGrouper.ts
-import { StockItem, StockFile } from '@/types/StockItem';
+import { StockItem } from '@/types/StockItem';
 
 export const groupFilesByName = (files: File[]): Partial<StockItem>[] => {
   const groupMap: Record<string, { files: File[] }> = {};

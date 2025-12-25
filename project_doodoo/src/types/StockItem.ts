@@ -6,7 +6,7 @@ export interface FileDetail {
   fileSizeMb: string;
   width: number | null; 
   height: number | null;
-  dpi?: number;
+  dpi?: number | null;
   r2Path: string;
 }
 

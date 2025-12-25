@@ -1,9 +1,7 @@
 import { StockItem } from "@/types/StockItem";
-import { UploadResponse } from "@/types/UploadResponse";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
-const R2_API_URL = process.env.NEXT_PUBLIC_R2_URL;
 
 export interface ImageItem {
   id: string;
