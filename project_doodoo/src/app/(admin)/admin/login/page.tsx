@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignInAlt, faLock, faEnvelope, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { verifyAdminRole } from '@/lib/api';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -12,78 +13,49 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 클라이언트 측 Supabase 인스턴스
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
   const router = useRouter();
-
-  
-  // Workers API URL (환경 변수 사용 권장)
-  const WORKERS_URL = process.env.NEXT_PUBLIC_WORKERS_URL || 'http://127.0.0.1:8787';
-
-  // ----------------------------------------------------
-  // Workers API 호출 함수 (권한 검증)
-  // ----------------------------------------------------
-  const verifyAdminRole = async (token: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`${WORKERS_URL}/api/admin/auth`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.status === 200) {
-        const data = await response.json();
-        return data.isAdmin === true;
-      }
-
-      // 401 (토큰 유효하지 않음) 또는 403 (권한 없음)
-      const errorData = await response.json();
-      setError(errorData.error || '권한 검증 중 알 수 없는 오류 발생');
-      return false;
-
-    } catch (e) {
-      setError('서버 연결 오류가 발생했습니다.');
-      return false;
-    }
-  };
 
   // ----------------------------------------------------
   // 로그인 처리 핸들러
   // ----------------------------------------------------
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // 1. Supabase Auth로 로그인 시도
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      // 1. Supabase Auth 로그인
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (authError || !data.session) {
-      setError('로그인 실패: 이메일 또는 비밀번호를 확인해주세요.');
+      if (authError || !data.session) {
+        throw new Error('로그인 실패: 이메일 또는 비밀번호를 확인해주세요.');
+      }
+
+      // 2. 분리한 API 함수로 관리자 권한 검증
+      const { isAdmin, error: adminError } = await verifyAdminRole(data.session.access_token);
+
+      if (isAdmin) {
+        // 3. 검증 성공 시 이동
+        router.push('/admin/Images');
+      } else {
+        // 관리자가 아니면 로그아웃 처리 후 에러 표시
+        await supabase.auth.signOut();
+        throw new Error(adminError || '관리자 권한이 없습니다.');
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // 2. Workers를 통한 관리자 권한 검증
-    const isAdmin = await verifyAdminRole(data.session.access_token);
-
-    if (isAdmin) {
-      router.push('/admin'); // 3. 검증 성공 시 대시보드로 이동
-    } else {
-      await supabase.auth.signOut(); // 세션 강제 종료
-    }
-
-    setLoading(false);
   };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-2xl border border-gray-200">

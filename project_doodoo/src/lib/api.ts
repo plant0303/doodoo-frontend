@@ -1,5 +1,6 @@
 import { StockItem } from "@/types/StockItem";
 import { UploadResponse } from "@/types/UploadResponse";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
 const R2_API_URL = process.env.NEXT_PUBLIC_R2_URL;
@@ -52,6 +53,9 @@ export interface DetailedImageItem extends ImageItem {
   description: string;
 }
 
+// 
+// --- 사용자 API ---
+// 
 
 // 검색
 export async function searchImages({
@@ -140,35 +144,61 @@ export async function getSimilarImages(id: string) {
   return res.json();
 }
 
+// 
+// --- 관리자 API ---
+// 
+const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 // 관리자 인증
 export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean; error: string | null }> {
   try {
-    const response = await fetch(`${WORKERS_API_URL}/api/admin/auth`, {
+    const response = await fetch(`http://127.0.0.1:8787/admin/auth`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`,
       },
     });
 
-    // 200 OK: 권한 확인 성공
-    if (response.status === 200) {
+    if (response.ok) {
       const data = await response.json();
       return { isAdmin: data.isAdmin === true, error: null };
     }
 
-    // 401, 403 등 오류 응답 처리
-    const errorData = await response.json();
-    const errorMessage = errorData.error || `권한 검증 실패: HTTP ${response.status}`;
-
-    return { isAdmin: false, error: errorMessage };
+    // 에러 상태 처리 (401, 403 등)
+    const errorData = await response.json().catch(() => ({}));
+    return {
+      isAdmin: false,
+      error: errorData.error || `권한 검증 실패 (상태 코드: ${response.status})`
+    };
 
   } catch (e) {
-    // 네트워크 오류, CORS 오류 등이 발생했을 경우
-    console.error("Workers API 연결 오류:", e);
-    return { isAdmin: false, error: '서버 연결 오류가 발생했습니다. (Workers API)' };
+    console.error('Verify Admin Error:', e);
+    return { isAdmin: false, error: '서버 연결 오류가 발생했습니다.' };
   }
 }
+
+// 관리자 로그아웃
+export async function logout(): Promise<void> {
+  try {
+    // 1. 백엔드 로그아웃 API 호출 (로그 기록이나 세션 무효화 처리를 위해)
+    await fetch(`http://127.0.0.1:8787/admin/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error) {
+    console.error('Logout API error:', error);
+  } finally {
+    await supabase.auth.signOut();
+    window.location.href = '/admin/login'; // 관리자 로그인 페이지로 리다이렉트
+  }
+}
+
 
 // 관리자 이미지 업로드
 export const uploadBulkImages = async (category: string, items: StockItem[]) => {
@@ -208,15 +238,15 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
     return {
       title: item.title,
       keywords: item.keywords,
-      previewFormKey: previewKey, 
-      thumbFormKey: thumbKey,     
+      previewFormKey: previewKey,
+      thumbFormKey: thumbKey,
       files: sourceFileData,
     };
   });
 
   formData.append('metadata', JSON.stringify(payload));
 
-  const response = await fetch(`${WORKERS_API_URL}/api/images/upload`, {
+  const response = await fetch(`${WORKERS_API_URL}/admin/images/upload`, {
     method: 'POST',
     body: formData,
   });
@@ -224,10 +254,18 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
   return await response.json();
 };
 
-
+// 관리자 이미지 리스트 불러오기
 export const fetchImages = async (): Promise<ImageItem[]> => {
-  const response = await fetch(`${WORKERS_API_URL}/api/images`, {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  
+  const response = await fetch(`http://127.0.0.1:8787/admin/images`, {
     cache: 'no-store',
+    headers: {
+      'Authorization': `Bearer ${token}`, // 이 부분이 반드시 있어야 합니다!
+      'Content-Type': 'application/json',
+    },
   });
 
   if (!response.ok) {
@@ -236,23 +274,21 @@ export const fetchImages = async (): Promise<ImageItem[]> => {
 
   const result = await response.json();
 
-  // result가 { data: [...] } 구조이므로 result.data를 반환합니다.
   return result.data || [];
 };
 
 // 
 // admin 스톡 개별수정
-// 
 // 데이터 불러오기
 export const getStockDetail = async (id: string) => {
 
-  const res = await fetch(`${WORKERS_API_URL}/api/images/edit/${id}`);
+  const res = await fetch(`${WORKERS_API_URL}/admin/images/edit/${id}`);
   return res.json();
 };
 
 // 메타데이터(제목, 키워드) 저장
 export const updateStockMetadata = async (id: string, title: string, keywords: string[]) => {
-  const res = await fetch(`${WORKERS_API_URL}/api/images/edit/${id}`, {
+  const res = await fetch(`${WORKERS_API_URL}/admin/images/edit/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title, keywords }),
@@ -262,7 +298,7 @@ export const updateStockMetadata = async (id: string, title: string, keywords: s
 
 // 파일 삭제
 export const deleteStockFile = async (stockId: string, fileId: string, r2Path: string, file_type_id: string) => {
-  const res = await fetch(`${WORKERS_API_URL}/api/images/edit/${stockId}?fileId=${fileId}&r2Path=${encodeURIComponent(r2Path)}&fileType=${file_type_id}`, {
+  const res = await fetch(`${WORKERS_API_URL}/admin/images/edit/${stockId}?fileId=${fileId}&r2Path=${encodeURIComponent(r2Path)}&fileType=${file_type_id}`, {
     method: 'DELETE',
   });
   return res.json();
@@ -270,7 +306,7 @@ export const deleteStockFile = async (stockId: string, fileId: string, r2Path: s
 
 // 새 파일 추가
 export const addStockFile = async (stockId: string, formData: FormData) => {
-  const res = await fetch(`${WORKERS_API_URL}/api/images/edit/${stockId}`, {
+  const res = await fetch(`${WORKERS_API_URL}/admin/images/edit/${stockId}`, {
     method: 'POST',
     body: formData,
   });
@@ -279,11 +315,10 @@ export const addStockFile = async (stockId: string, formData: FormData) => {
 
 // 
 // 
-// 
 
-// admin 스톡 개별삭제
+// admin 스톡 삭제
 export const deleteImages = async (ids: string[]) => {
-  const res = await fetch(`${WORKERS_API_URL}/api/images/delete`, {
+  const res = await fetch(`${WORKERS_API_URL}/admin/images/delete`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ids }),
