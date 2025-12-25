@@ -25,7 +25,6 @@ export default function StockEditPage() {
   const [files, setFiles] = useState<any[]>([]);
   const router = useRouter();
 
-  console.log(files);
   // 1. 데이터 로드 함수
   const fetchStockData = useCallback(async () => {
     try {
