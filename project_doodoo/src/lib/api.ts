@@ -152,16 +152,41 @@ const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+/**
+ * 관리자 API 전용 공통 fetcher
+ */
+async function adminFetch(endpoint: string, options: RequestInit = {}) {
+  // 1. 현재 세션에서 토큰 가져오기
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  const headers: Record<string, string> = {
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...Object.fromEntries(Object.entries(options.headers || {})),
+  };
+
+  // 2. 기본 헤더 설정
+  if (options.body instanceof FormData || headers['Content-Type'] === '') {
+    delete headers['Content-Type'];
+  } else if (!headers['Content-Type']) {
+    // 기본값은 JSON
+    headers['Content-Type'] = 'application/json';
+  }
+
+  // 3. fetch 실행
+  const response = await fetch(`${WORKERS_API_URL}${endpoint}`, {
+    ...options,
+    headers,
+  });
+
+  return response;
+}
+
+
 // 관리자 인증
-export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean; error: string | null }> {
+export async function verifyAdminRole(): Promise<{ isAdmin: boolean; error: string | null }> {
   try {
-    const response = await fetch(`http://127.0.0.1:8787/admin/auth`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    const response = await adminFetch('/admin/auth', { method: 'POST' });
 
     if (response.ok) {
       const data = await response.json();
@@ -176,7 +201,6 @@ export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean
     };
 
   } catch (e) {
-    console.error('Verify Admin Error:', e);
     return { isAdmin: false, error: '서버 연결 오류가 발생했습니다.' };
   }
 }
@@ -185,12 +209,7 @@ export async function verifyAdminRole(token: string): Promise<{ isAdmin: boolean
 export async function logout(): Promise<void> {
   try {
     // 1. 백엔드 로그아웃 API 호출 (로그 기록이나 세션 무효화 처리를 위해)
-    await fetch(`http://127.0.0.1:8787/admin/logout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    await adminFetch('/admin/logout', { method: 'POST' });
   } catch (error) {
     console.error('Logout API error:', error);
   } finally {
@@ -201,6 +220,9 @@ export async function logout(): Promise<void> {
 
 
 // 관리자 이미지 업로드
+/**
+ * 이미지 벌크 업로드 (R2 + DB 저장)
+ */
 export const uploadBulkImages = async (category: string, items: StockItem[]) => {
   const formData = new FormData();
   formData.append('category', category);
@@ -221,14 +243,14 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
       };
     });
 
-    // 2. 프리뷰 파일 추가 (있을 경우)
+    // 2. 프리뷰 파일 추가
     let previewKey = null;
     if (item.previewFile) {
       previewKey = `file_${index}_preview`;
       formData.append(previewKey, item.previewFile);
     }
 
-    // 3. 썸네일 파일 추가 (있을 경우)
+    // 3. 썸네일 파일 추가
     let thumbKey = null;
     if (item.thumbFile) {
       thumbKey = `file_${index}_thum`;
@@ -246,27 +268,30 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
 
   formData.append('metadata', JSON.stringify(payload));
 
-  const response = await fetch(`${WORKERS_API_URL}/admin/images/upload`, {
+  // ----------------------------------------------------
+  // adminFetch 사용
+  // ----------------------------------------------------
+  const response = await adminFetch('/admin/images/upload', {
     method: 'POST',
     body: formData,
+    // Note: adminFetch 내부 로직에 의해 Content-Type은 자동으로 제거됩니다.
   });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || '업로드에 실패했습니다.');
+  }
 
   return await response.json();
 };
+
 
 // 관리자 이미지 리스트 불러오기
 export const fetchImages = async (): Promise<ImageItem[]> => {
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
 
-  
-  const response = await fetch(`http://127.0.0.1:8787/admin/images`, {
-    cache: 'no-store',
-    headers: {
-      'Authorization': `Bearer ${token}`, // 이 부분이 반드시 있어야 합니다!
-      'Content-Type': 'application/json',
-    },
-  });
+  const response = await adminFetch('/admin/images', { method: 'GET' });
 
   if (!response.ok) {
     throw new Error('이미지 목록을 불러오는데 실패했습니다.');
@@ -281,16 +306,14 @@ export const fetchImages = async (): Promise<ImageItem[]> => {
 // admin 스톡 개별수정
 // 데이터 불러오기
 export const getStockDetail = async (id: string) => {
-
-  const res = await fetch(`${WORKERS_API_URL}/admin/images/edit/${id}`);
+  const res = await adminFetch(`/admin/images/edit/${id}`);
   return res.json();
 };
 
 // 메타데이터(제목, 키워드) 저장
 export const updateStockMetadata = async (id: string, title: string, keywords: string[]) => {
-  const res = await fetch(`${WORKERS_API_URL}/admin/images/edit/${id}`, {
+  const res = await adminFetch(`/admin/images/edit/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title, keywords }),
   });
   return res.json();
@@ -298,7 +321,13 @@ export const updateStockMetadata = async (id: string, title: string, keywords: s
 
 // 파일 삭제
 export const deleteStockFile = async (stockId: string, fileId: string, r2Path: string, file_type_id: string) => {
-  const res = await fetch(`${WORKERS_API_URL}/admin/images/edit/${stockId}?fileId=${fileId}&r2Path=${encodeURIComponent(r2Path)}&fileType=${file_type_id}`, {
+  const query = new URLSearchParams({
+    fileId,
+    r2Path,
+    fileType: file_type_id
+  }).toString();
+
+  const res = await adminFetch(`/admin/images/edit/${stockId}?${query}`, {
     method: 'DELETE',
   });
   return res.json();
@@ -306,9 +335,14 @@ export const deleteStockFile = async (stockId: string, fileId: string, r2Path: s
 
 // 새 파일 추가
 export const addStockFile = async (stockId: string, formData: FormData) => {
-  const res = await fetch(`${WORKERS_API_URL}/admin/images/edit/${stockId}`, {
+  // FormData는 Content-Type을 명시하지 않아야 브라우저가 boundary를 자동으로 설정함
+  const res = await adminFetch(`/admin/images/edit/${stockId}`, {
     method: 'POST',
     body: formData,
+    headers: {
+      // adminFetch 내부의 기본 'Content-Type': 'application/json'을 제거
+      'Content-Type': '',
+    },
   });
   return res.json();
 };
@@ -318,14 +352,13 @@ export const addStockFile = async (stockId: string, formData: FormData) => {
 
 // admin 스톡 삭제
 export const deleteImages = async (ids: string[]) => {
-  const res = await fetch(`${WORKERS_API_URL}/admin/images/delete`, {
+  const res = await adminFetch(`/admin/images/delete`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ids }),
   });
 
   if (!res.ok) {
-    const errorData = await res.json();
+    const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.error || '삭제 작업에 실패했습니다.');
   }
 
