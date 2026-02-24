@@ -46,7 +46,7 @@ export default function DownloadDropdown({ imageId, options, defaultLabel }: Pro
       {/* 메인 버튼 */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full text-center py-3 rounded-full font-semibold bg-[var(--sub-color)] text-[var(--primary-color)] hover:bg-[var(--sub-hover)] transition-all duration-200 shadow-md hover:shadow-lg"
+        className="cursor-pointer w-full text-center py-3 rounded-full font-semibold bg-[var(--sub-color)] text-[var(--primary-color)] hover:bg-[var(--sub-hover)] transition-all duration-200 shadow-md hover:shadow-lg"
       >
         Download
         <span className="ml-2">▼</span>

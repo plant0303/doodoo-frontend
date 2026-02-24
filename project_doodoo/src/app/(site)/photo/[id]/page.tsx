@@ -169,6 +169,46 @@ export default async function Page({
             {/* {item?.download_options[0].width} * {item?.height} | {item?.dpi}dpi | {item?.file_size_mb}mb */}
           </section>
 
+          {/* Adobe Express Promotion Section */}
+          <div className="flex flex-col gap-2 mt-auto mb-4 p-4 rounded-2xl bg-pink-50 border border-pink-100 shadow-sm">
+
+            {/* 홍보 문구: 블루 포인트 컬러 사용 */}
+            <div className="flex items-center gap-2 mb-1">
+              <span className="">✨</span>
+              <p className="text-sm font-bold text-[var(--primary-color)]"> {/* 블루 포인트 */}
+                클릭 한 번으로 나만의 디자인 완성!
+              </p>
+            </div>
+
+            <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+              어도비 익스프레스로 문구를 수정하거나 <br />
+              다양한 필터를 무료로 적용해보세요.
+            </p>
+
+            {/* Adobe Express 버튼: 핑크 배경 + 블루 텍스트/보더 */}
+            <a
+              href={`https://new.express.adobe.com/static/edit.html?src=${item?.preview_url}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full py-3 px-4 
+               bg-[#FFD1DC] hover:bg-[#ffc1cf] /* 우리 사이트 핑크 */
+               text-[var(--primary-color)] /* 블루 포인트 텍스트 */
+               border-2 border-[var(--primary-color)] /* 블루 보더 */
+               rounded-xl transition-all font-black text-sm
+               shadow-[4px_4px_0px_0px_rgba(var(--primary-rgb),1)] /* 블루 네오브루탈리즘 그림자 */
+               active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-5 h-5 fill-[var(--primary-color)]"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M13.961 2l8.039 19.333h-5.263l-2.618-6.444h-6.22l6.062-12.889zM2 2l8.039 19.333h-5.263l-2.776-6.689h-0z" />
+              </svg>
+              ADOBE EXPRESS로 편집하기
+            </a>
+          </div>
+
           {/* Download button */}
           {item.download_options.length > 0 && (
             <DownloadDropdown
