@@ -312,7 +312,7 @@ export const getStockDetail = async (id: string) => {
 };
 
 // 메타데이터(제목, 키워드) 저장
-export const updateStockMetadata = async (id: string, title: string, keywords: string[]) => {
+export const updateStockMetadata = async (id: string, title: string, keywords: string[], adobeUrl: string) => {
   const res = await adminFetch(`/admin/images/edit/${id}`, {
     method: 'PATCH',
     body: JSON.stringify({ title, keywords }),

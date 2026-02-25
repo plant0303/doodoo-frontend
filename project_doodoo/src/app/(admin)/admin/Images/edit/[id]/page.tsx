@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faTrashAlt, faArrowLeft, faCloudUploadAlt, faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faTrashAlt, faArrowLeft, faCloudUploadAlt, faTimes, faSpinner, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import { getStockDetail, updateStockMetadata, deleteStockFile, addStockFile } from '@/lib/api';
 import { useParams } from 'next/navigation';
@@ -12,7 +12,7 @@ interface Props {
 
 export default function StockEditPage() {
   const params = useParams();
-  const stockId = params.id as string; 
+  const stockId = params.id as string;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -21,6 +21,7 @@ export default function StockEditPage() {
   // 수정할 상태값들
   const [title, setTitle] = useState('');
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [adobeUrl, setAdobeUrl] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
   const [files, setFiles] = useState<any[]>([]);
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function StockEditPage() {
       setTitle(data.title);
       setKeywords(data.keywords || []);
       setFiles(data.stock_files || []);
+      setAdobeUrl(data.adobe_url || '');
     } catch (error) {
       alert('데이터를 불러오는데 실패했습니다.');
     } finally {
@@ -60,11 +62,11 @@ export default function StockEditPage() {
     setKeywords(keywords.filter(tag => tag !== tagToRemove));
   };
 
-  // 메타데이터 저장 (제목, 키워드)
+  // 메타데이터 수정 (제목, 키워드, 링크)
   const handleSaveMetadata = async () => {
     try {
       setSaving(true);
-      await updateStockMetadata(stockId, title, keywords);
+      await updateStockMetadata(stockId, title, keywords, adobeUrl);
       alert('정보가 성공적으로 수정되었습니다.');
     } catch (error) {
       alert('저장 중 오류가 발생했습니다.');
@@ -175,6 +177,32 @@ export default function StockEditPage() {
                     className="flex-1 bg-transparent outline-none text-sm font-medium min-w-[120px]"
                     placeholder="키워드 입력 후 Enter..."
                   />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1.5 ml-1 flex items-center gap-2">
+                  Adobe Express URL
+                  <span className="text-[10px] bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-full uppercase">Optional</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={adobeUrl}
+                    onChange={(e) => setAdobeUrl(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-medium text-gray-900 bg-gray-50/50"
+                    placeholder="adobe express link"
+                  />
+                  {adobeUrl && (
+                    <a
+                      href={adobeUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+                      title="링크 바로가기"
+                    >
+                      <FontAwesomeIcon icon={faExternalLinkAlt} />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
