@@ -32,7 +32,7 @@ export default function DownloadDropdown({ imageId, options, defaultLabel }: Pro
     try {
       // 1. Worker에게 Signed URL 생성을 요청 (JSON 응답을 받음)
       const response = await fetch(
-        `http://${WORKERS_API_URL}/api/download?id=${imageId}&type_id=${option.file_type_id}`
+        `${WORKERS_API_URL}/api/download?id=${imageId}&type_id=${option.file_type_id}`
       );
 
       if (!response.ok) {

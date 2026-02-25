@@ -21,22 +21,22 @@ function HeroSection() {
   const sampleImages = [
     {
       id: "7ae37435-ad0a-4d91-a587-792ad8ae76cb",
-      url: "https://doodoostock.com/photo/pinkmhuly15_thum.jpg",
+      url: "https://img.doodoostock.com/photo/pinkmhuly15_thum.jpg",
       title: "Pink Muhly Grass Autumn Field",
     },
     {
       id: "df38850a-dde1-4a88-80dd-6fb0b7a7cdfb",
-      url: "https://doodoostock.com/photo/pinkmhuly19_thum.jpg",
+      url: "https://img.doodoostock.com/photo/pinkmhuly19_thum.jpg",
       title: "Pink Muhly Grass 19",
     },
     {
       id: "f8fff30b-1897-4d13-9522-3833dee6d671",
-      url: "https://doodoostock.com/photo/pinkmhuly1_thum.jpg",
+      url: "https://img.doodoostock.com/photo/pinkmhuly1_thum.jpg",
       title: "Pink Muhly Grass 1",
     },
     {
       id: "5585b366-2dc6-48c2-98f3-1adef6d2d174",
-      url: "https://doodoostock.com/photo/pinkmhuly2_thum.jpg",
+      url: "https://img.doodoostock.com/photo/pinkmhuly2_thum.jpg",
       title: "Pink Muhly Grass 2",
     },
   ];
