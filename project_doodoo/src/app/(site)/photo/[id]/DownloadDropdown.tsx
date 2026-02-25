@@ -6,7 +6,7 @@ import { FileDownloadOption } from '@/lib/api';
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
 
 interface Props {
-  imageId: string; 
+  imageId: string;
   options: FileDownloadOption[];
   defaultLabel: string;
 }
@@ -26,17 +26,31 @@ export default function DownloadDropdown({ imageId, options, defaultLabel }: Pro
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleDownloadClick = (option: FileDownloadOption) => {
-    setOpen(false); // 드롭다운 닫기
+  const handleDownloadClick = async (option: FileDownloadOption) => {
+    setOpen(false);
 
-    if (!WORKERS_API_URL) {
-      console.error("Workers API URL is not set for download.");
-      return;
+    try {
+      // 1. Worker에게 Signed URL 생성을 요청 (JSON 응답을 받음)
+      const response = await fetch(
+        `http://127.0.0.1:8787/api/download?id=${imageId}&type_id=${option.file_type_id}`
+      );
+
+      if (!response.ok) {
+        throw new Error("다운로드 권한을 가져오는데 실패했습니다.");
+      }
+
+      const data = await response.json();
+
+      // 2. 서버가 보내준 downloadUrl이 있는지 확인
+      if (data.downloadUrl) {
+        window.location.href = data.downloadUrl;
+      } else {
+        throw new Error("유효한 다운로드 주소가 없습니다.");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("다운로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
-
-    const downloadUrl = `${WORKERS_API_URL}/api/download?id=${imageId}&type_id=${option.file_type_id}`;
-
-    window.open(downloadUrl, '_blank');
   };
 
   const primaryOption = options[0];
@@ -77,21 +91,21 @@ export default function DownloadDropdown({ imageId, options, defaultLabel }: Pro
 }
 
 function DropdownItem({
-    label,
-    size,
-    onClick,
+  label,
+  size,
+  onClick,
 }: {
-    label: string;
-    size: string;
-    onClick: () => void;
+  label: string;
+  size: string;
+  onClick: () => void;
 }) {
-    return (
-        <div
-            onClick={onClick}
-            className="block px-5 py-3 text-sm flex justify-between items-center cursor-pointer hover:bg-blue-50 transition-colors duration-200"
-        >
-            <span className="font-medium text-gray-700">{label}</span>
-            {size && <span className="text-xs text-gray-400">{size}</span>}
-        </div>
-    );
+  return (
+    <div
+      onClick={onClick}
+      className="block px-5 py-3 text-sm flex justify-between items-center cursor-pointer hover:bg-blue-50 transition-colors duration-200"
+    >
+      <span className="font-medium text-gray-700">{label}</span>
+      {size && <span className="text-xs text-gray-400">{size}</span>}
+    </div>
+  );
 }
