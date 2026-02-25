@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { StockItem } from '../../../../../types/StockItem';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCloudUploadAlt, faArrowLeft, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -7,6 +7,39 @@ import { useFileGrouper } from '@/hooks/useFileGrouper';
 
 export default function FileUploader({ onUpload, onBack }: { onUpload: (items: StockItem[]) => void; onBack: () => void }) {
   const { groupFiles, isProcessing } = useFileGrouper();
+  const [isDragging, setIsDragging] = useState(false);
+
+  // 2. 공통 파일 처리 함수
+  const processFiles = useCallback(async (files: File[]) => {
+    if (files.length === 0) return;
+    const groupedItems = await groupFiles(files);
+    onUpload(groupedItems);
+  }, [groupFiles, onUpload]);
+
+  // 3. 드래그 이벤트 핸들러
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isProcessing) setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (isProcessing) return;
+
+    // 드롭된 파일 리스트 추출
+    const files = Array.from(e.dataTransfer.files);
+    await processFiles(files);
+  };
 
   const getImageDimensions = (file: File): Promise<{ w: number; h: number }> => {
     return new Promise((resolve) => {
@@ -31,8 +64,24 @@ export default function FileUploader({ onUpload, onBack }: { onUpload: (items: S
       <button onClick={onBack} className="mb-6 text-gray-500 hover:text-indigo-600">
         <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> 카테고리 다시 선택
       </button>
-      <div className={`border-4 border-dashed border-gray-200 rounded-3xl p-20 text-center bg-gray-50 ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}>
-        <input type="file" id="files" multiple hidden onChange={handleFileChange} />
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`
+          relative border-4 border-dashed rounded-3xl p-20 text-center transition-all duration-200
+          ${isDragging ? 'border-indigo-500 bg-indigo-50 scale-[1.01]' : 'border-gray-200 bg-gray-50'}
+          ${isProcessing ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}
+        `}
+      >
+        <input
+          type="file"
+          id="files"
+          multiple
+          hidden
+          onChange={handleFileChange}
+          disabled={isProcessing}
+        />
         <label htmlFor="files" className="cursor-pointer block">
           <FontAwesomeIcon
             icon={isProcessing ? faSpinner : faCloudUploadAlt}

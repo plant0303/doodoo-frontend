@@ -238,7 +238,7 @@ export default function Images() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentImages.map((image) => (
-              <tr key={image.id} className={`hover:bg-indigo-50/20 ${selectedItems.has(image.id) ? 'bg-indigo-50' : ''}`}>
+              <tr key={image.id} onClick={() => handleEditClick(image.id)} className={`cursor-pointer hover:bg-indigo-50/20 ${selectedItems.has(image.id) ? 'bg-indigo-50' : ''}`}>
                 <td className="px-3 py-4 w-10">
                   <button onClick={() => toggleSelectItem(image.id)} className="p-1 text-gray-700 hover:text-indigo-600 cursor-pointer">
                     <FontAwesomeIcon
@@ -250,7 +250,7 @@ export default function Images() {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
                     <img
-                      src={image.thumb_url} // thumbUrl -> thumb_url 로 수정
+                      src={image.thumb_url}
                       alt={image.title}
                       className="object-cover w-full h-full"
                     />

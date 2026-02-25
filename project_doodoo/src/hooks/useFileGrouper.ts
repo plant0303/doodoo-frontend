@@ -47,6 +47,7 @@ export const useFileGrouper = () => {
           title: groupKey,
           category: "",
           keywords: [],
+          adobeUrl: '',
           previewUrl: "",
           thumbUrl: "",
           sourceFiles: [],

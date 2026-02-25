@@ -68,10 +68,10 @@ export default function MetadataEditor({ items, setItems, category, onBack }: Pr
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-bold text-gray-800">상세 정보 입력 ({items.length}건)</h2>
         <div className="space-x-4">
-          <button onClick={onBack} className="px-6 py-2 text-gray-500 font-medium">이전 단계</button>
+          <button onClick={onBack} className="cursor-pointer px-6 py-2 text-gray-500 font-medium">이전 단계</button>
           <button
             onClick={handleSave}
-            className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-indigo-700 disabled:bg-gray-400"
+            className="cursor-pointer bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-indigo-700 disabled:bg-gray-400"
             disabled={loading}
           >
             {loading ? '서버 전송 중...' : '최종 등록 완료'}
@@ -85,8 +85,9 @@ export default function MetadataEditor({ items, setItems, category, onBack }: Pr
             <tr>
               <th className="p-4 w-32">미리보기</th>
               <th className="p-4 w-1/4">제목</th>
-              <th className="p-4 w-1/4">규격 및 용량</th>
-              <th className="p-4 w-1/2">키워드 (복사/붙여넣기 가능)</th>
+              <th className="p-4 w-1/6">규격 및 용량</th>
+              <th className="p-4 w-1/4">키워드 (복사/붙여넣기 가능)</th>
+              <th className="p-4 w-1/5"> Adobe Express</th>
             </tr>
           </thead>
 
@@ -187,6 +188,24 @@ export default function MetadataEditor({ items, setItems, category, onBack }: Pr
                         }}
                       />
                     </label>
+                  </td>
+                  <td className="p-4">
+                    {/* 어도비 익스프레스 주소 (선택 사항) */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="어도비 익스프레스 주소 (선택)"
+                        // item.adobeUrl이 없을 경우를 대비해 빈 문자열 처리
+                        value={item.adobeUrl || ''}
+                        onChange={(e) => {
+                          const newUrl = e.target.value;
+                          setItems(prev => prev.map((it, i) =>
+                            i === idx ? { ...it, adobeUrl: newUrl } : it
+                          ));
+                        }}
+                        className="w-full p-1 text-xs border-b border-gray-200 focus:border-indigo-400 outline-none bg-transparent"
+                      />
+                    </div>
                   </td>
                 </tr>
               );

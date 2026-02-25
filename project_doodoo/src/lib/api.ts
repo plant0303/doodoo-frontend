@@ -255,9 +255,12 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
       formData.append(thumbKey, item.thumbFile);
     }
 
+    console.log("item.adobeUrl ", item.adobeUrl);
+
     return {
       title: item.title,
       keywords: item.keywords,
+      adobeUrl: item.adobeUrl || null,
       previewFormKey: previewKey,
       thumbFormKey: thumbKey,
       files: sourceFileData,
