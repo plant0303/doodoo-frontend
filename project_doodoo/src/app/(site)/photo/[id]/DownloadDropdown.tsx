@@ -26,11 +26,15 @@ export default function DownloadDropdown({ imageId, options, defaultLabel }: Pro
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleDownloadClick = async (option: FileDownloadOption) => {
+  const handleDownloadClick = async (e: React.MouseEvent, option: FileDownloadOption) => {
+    // 1. 이벤트 전파 및 기본 동작 방지 (배포 환경에서 페이지 전환 방지 핵심)
+    e.preventDefault();
+    e.stopPropagation();
+
     setOpen(false);
 
     try {
-      // 1. Worker에게 Signed URL 생성을 요청 (JSON 응답을 받음)
+      // Worker에게 Signed URL 생성을 요청 (JSON 응답을 받음)
       const response = await fetch(
         `${WORKERS_API_URL}/api/download?id=${imageId}&type_id=${option.file_type_id}`
       );
@@ -41,9 +45,20 @@ export default function DownloadDropdown({ imageId, options, defaultLabel }: Pro
 
       const data = await response.json();
 
-      // 2. 서버가 보내준 downloadUrl이 있는지 확인
+      // 서버가 보내준 downloadUrl이 있는지 확인
       if (data.downloadUrl) {
-        window.location.href = data.downloadUrl;
+        const link = document.createElement('a');
+        link.href = data.downloadUrl;
+
+        // R2에서 내려준 파일명 정책을 따르거나 강제 지정
+        link.setAttribute('download', '');
+
+        // 실제 DOM에 추가해야 일부 브라우저에서 정상 작동
+        document.body.appendChild(link);
+        link.click();
+
+        // 클릭 후 바로 제거
+        document.body.removeChild(link);
       } else {
         throw new Error("유효한 다운로드 주소가 없습니다.");
       }
@@ -70,7 +85,7 @@ export default function DownloadDropdown({ imageId, options, defaultLabel }: Pro
       {options.length > 0 && (
         <div
           className={`
-                        absolute left-0 right-0 mt-2 rounded-xl overflow-hidden z-30 border
+                        cursor-pointer absolute left-0 right-0 mt-2 rounded-xl overflow-hidden z-30 border
                         bg-white shadow-xl 
                         transform transition-all duration-200 origin-top
                         ${open ? "scale-100 opacity-100" : "scale-95 opacity-0 pointer-events-none"}
@@ -81,7 +96,7 @@ export default function DownloadDropdown({ imageId, options, defaultLabel }: Pro
               key={option.file_type_id}
               label={`${option.label} (${option.extension.toUpperCase()})`}
               size={`${option.width}x${option.height} / ${option.file_size_mb}MB`}
-              onClick={() => handleDownloadClick(option)}
+              onClick={(e) => handleDownloadClick(e, option)}
             />
           ))}
         </div>
@@ -97,7 +112,7 @@ function DropdownItem({
 }: {
   label: string;
   size: string;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
 }) {
   return (
     <div
