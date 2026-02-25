@@ -167,32 +167,38 @@ export default function Images() {
 
   return (
     <div className="min-h-full rounded-xl p-6 md:p-8">
-      <header className="mb-6 flex justify-between items-center border-b pb-4">
-        <h1 className="text-3xl font-bold text-gray-800 flex items-center">
-          <FontAwesomeIcon icon={faCog} className="w-6 h-6 mr-3 text-indigo-600" />
+      <header className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+          <FontAwesomeIcon icon={faCog} className="w-5 h-5 md:w-6 md:h-6 mr-3 text-indigo-600" />
           이미지 관리
         </h1>
         <Link
           href="/admin/Images/new"
-          className="cursor-pointer flex items-center bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-md"
+          className="w-full md:w-auto flex justify-center items-center bg-indigo-600 text-white px-5 py-3 md:py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-all shadow-md active:scale-95"
         >
           <FontAwesomeIcon icon={faPlus} className="w-3 h-3 mr-2" /> 새 이미지 등록
         </Link>
       </header>
 
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex space-x-3">
+      {/* 일괄삭제, 카테고리, 검색 영역 */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+
+        {/* 왼쪽 그룹: 일괄삭제 & 카테고리 선택 */}
+        <div className="flex flex-row space-x-2 w-full md:w-auto">
           <button
             onClick={handleBulkDelete}
             disabled={selectedItems.size === 0 || loading}
-            className="flex items-center text-sm px-4 py-2 border border-red-400 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition-colors cursor-pointer"
+            className="flex-1 md:flex-none flex items-center justify-center text-sm px-4 py-2.5 md:py-2 border border-red-400 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition-colors cursor-pointer"
           >
-            <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 mr-2" /> 일괄 삭제 ({selectedItems.size})
+            <FontAwesomeIcon icon={faTrashAlt} className="w-3 h-3 mr-2" />
+            <span>삭제 <span className="md:inline hidden">({selectedItems.size})</span></span>
+            <span className="md:hidden ml-1">({selectedItems.size})</span>
           </button>
+
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+            className="flex-1 md:flex-none px-3 py-2.5 md:py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 bg-white outline-none"
           >
             {CATEGORIES.map(cat => (
               <option key={cat} value={cat}>
@@ -201,13 +207,22 @@ export default function Images() {
             ))}
           </select>
         </div>
-        <input
-          type="text"
-          placeholder="제목 또는 UUID 검색..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-80 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
-        />
+
+        {/* 오른쪽 그룹: 검색창 */}
+        <div className="relative w-full md:w-80">
+          <input
+            type="text"
+            placeholder="제목 또는 UUID 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2.5 md:py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm bg-white relative">

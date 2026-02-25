@@ -65,29 +65,55 @@ export default function MetadataEditor({ items, setItems, category, onBack }: Pr
 
   return (
     <div className="animate-fadeIn">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800">상세 정보 입력 ({items.length}건)</h2>
-        <div className="space-x-4">
-          <button onClick={onBack} className="cursor-pointer px-6 py-2 text-gray-500 font-medium">이전 단계</button>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+        {/* 제목 영역: 모바일에서는 중앙 정렬 또는 왼쪽 정렬 유지 */}
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center md:text-left">
+          상세 정보 입력 <span className="text-indigo-600">({items.length}건)</span>
+        </h2>
+
+        {/* 버튼 그룹: 모바일에서는 꽉 차게, PC에서는 나란히 */}
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button
+            onClick={onBack}
+            className="flex-1 md:flex-none cursor-pointer px-4 md:px-6 py-3 md:py-2 text-gray-500 font-medium hover:bg-gray-100 rounded-xl transition-colors text-sm md:text-base"
+          >
+            이전 단계
+          </button>
+
           <button
             onClick={handleSave}
-            className="cursor-pointer bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-indigo-700 disabled:bg-gray-400"
+            className="flex-[2] md:flex-none cursor-pointer bg-indigo-600 text-white px-6 md:px-8 py-3 md:py-3 rounded-xl font-bold shadow-lg hover:bg-indigo-700 disabled:bg-gray-400 transition-all active:scale-95 text-sm md:text-base"
             disabled={loading}
           >
-            {loading ? '서버 전송 중...' : '최종 등록 완료'}
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-4 w-4 mr-2 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                전송 중...
+              </span>
+            ) : '최종 등록 완료'}
           </button>
         </div>
       </div>
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-gray-200 table-fixed">
+          <colgroup>
+            <col className="w-32" />    
+            <col className="w-1/4" />   
+            <col className="w-1/6" />   
+            <col className="w-auto" />  
+            <col className="w-1/5" />   
+          </colgroup>
+          <thead className="bg-gray-50 text-xs uppercase font-semibold text-gray-600">
             <tr>
-              <th className="p-4 w-32">미리보기</th>
-              <th className="p-4 w-1/4">제목</th>
-              <th className="p-4 w-1/6">규격 및 용량</th>
-              <th className="p-4 w-1/4">키워드 (복사/붙여넣기 가능)</th>
-              <th className="p-4 w-1/5"> Adobe Express</th>
+              <th className="p-4 text-left">미리보기</th>
+              <th className="p-4 text-left">제목</th>
+              <th className="p-4 text-left">규격 및 용량</th>
+              <th className="p-4 text-left">키워드</th>
+              <th className="p-4 text-left">Adobe Express</th>
             </tr>
           </thead>
 
