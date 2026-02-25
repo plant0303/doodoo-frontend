@@ -43,6 +43,7 @@ export interface FileDownloadOption {
 }
 
 export interface DetailedImageItem extends ImageItem {
+  adobe_express: string | undefined;
   full_url: any;
   category: string;
   preview_url: string;
