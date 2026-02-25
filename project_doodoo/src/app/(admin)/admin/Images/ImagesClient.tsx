@@ -34,6 +34,8 @@ export default function Images() {
     setLoading(true);
     try {
       const data = await fetchImages();
+
+
       setImages(data);
     } catch (error) {
       console.error(error);
@@ -253,7 +255,7 @@ export default function Images() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {currentImages.map((image) => (
-              <tr key={image.id} onClick={() => handleEditClick(image.id)} className={`cursor-pointer hover:bg-indigo-50/20 ${selectedItems.has(image.id) ? 'bg-indigo-50' : ''}`}>
+              <tr key={image.id} className={`cursor-pointer hover:bg-indigo-50/20 ${selectedItems.has(image.id) ? 'bg-indigo-50' : ''}`}>
                 <td className="px-3 py-4 w-10">
                   <button onClick={() => toggleSelectItem(image.id)} className="p-1 text-gray-700 hover:text-indigo-600 cursor-pointer">
                     <FontAwesomeIcon
@@ -271,7 +273,7 @@ export default function Images() {
                     />
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4" onClick={() => handleEditClick(image.id)}>
                   <div className="text-sm font-semibold text-gray-900">{image.title}</div>
                   <div className="text-xs text-gray-500 truncate w-48">{image.id}</div>
                 </td>

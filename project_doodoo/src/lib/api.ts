@@ -2,7 +2,6 @@ import { StockItem } from "@/types/StockItem";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
-
 export interface ImageItem {
   id: string;
   thumb_url: string;
@@ -133,7 +132,6 @@ export async function getImageById(id: string): Promise<DetailedImageItem | null
 
 // 유사이미지 출력
 export async function getSimilarImages(id: string) {
-  console.log(id);
   const url = `${WORKERS_API_URL}/api/similar?id=${id}`;
 
   const res = await fetch(url, { cache: 'no-store' });
@@ -256,7 +254,6 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
       formData.append(thumbKey, item.thumbFile);
     }
 
-    console.log("item.adobeUrl ", item.adobeUrl);
 
     return {
       title: item.title,
@@ -276,7 +273,6 @@ export const uploadBulkImages = async (category: string, items: StockItem[]) => 
   const response = await adminFetch('/admin/images/upload', {
     method: 'POST',
     body: formData,
-    // Note: adminFetch 내부 로직에 의해 Content-Type은 자동으로 제거됩니다.
   });
 
   if (!response.ok) {
@@ -316,7 +312,7 @@ export const getStockDetail = async (id: string) => {
 export const updateStockMetadata = async (id: string, title: string, keywords: string[], adobeUrl: string) => {
   const res = await adminFetch(`/admin/images/edit/${id}`, {
     method: 'PATCH',
-    body: JSON.stringify({ title, keywords }),
+    body: JSON.stringify({ title, keywords, adobeUrl }),
   });
   return res.json();
 };

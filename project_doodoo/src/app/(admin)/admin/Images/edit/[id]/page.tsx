@@ -35,7 +35,7 @@ export default function StockEditPage() {
       setTitle(data.title);
       setKeywords(data.keywords || []);
       setFiles(data.stock_files || []);
-      setAdobeUrl(data.adobe_url || '');
+      setAdobeUrl(data.adobe_express || '');
     } catch (error) {
       alert('데이터를 불러오는데 실패했습니다.');
     } finally {
