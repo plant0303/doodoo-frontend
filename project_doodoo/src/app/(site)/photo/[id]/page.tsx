@@ -36,29 +36,39 @@ export async function generateMetadata({
     `High-quality free image related to ${baseTitle}. Keywords: ${item.keywords?.join(", ") || "photo, background, stock image"
     }`;
 
-  // Base keywords for all image detail pages
-  const baseKeywords = [
-    "free image",
-    "stock image",
-    "commercially usable",
-    "high quality photo",
-  ];
 
   // Combine base keywords with specific item keywords
-  const keywords = item.keywords
-    ? [...baseKeywords, ...item.keywords]
-    : baseKeywords;
+  const combinedKeywords = [
+    ...(item.keywords?.slice(0, 15) || []), // DB 키워드 중 앞부분 15개만
+    "free image", "stock photo", "doodoo", "무료이미지"
+  ];
 
   return {
     title,
     description,
-    keywords,
+    keywords: combinedKeywords,
+    alternates: {
+      canonical: `https://www.doodoostock.com/photo/${id}`,
+    },
     openGraph: {
       title,
       description,
-      // Use the full_url for the Open Graph image preview
-      images: item.full_url ? [{ url: item.full_url }] : undefined,
-      type: "article", // 'article' is suitable for specific content pages
+      url: `https://www.doodoostock.com/photo/${id}`,
+      images: item.preview_url ? [
+        {
+          url: item.preview_url,
+          width: 1200,
+          height: 630,
+          alt: item.title || "Free stock image from doodoo",
+        }
+      ] : [],
+      type: "website",
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [item.preview_url || ''],
     },
   };
 }

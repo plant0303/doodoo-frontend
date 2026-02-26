@@ -112,7 +112,7 @@ export async function generateMetadata({
     const category = params.category ?? "";
 
     const siteName = "doodoo";
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://doodoo.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.doodoostock.com/'
 
     const finalSearchTerm = query || category;
 

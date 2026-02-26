@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Unlimited Free Images - doodoo',
     description: 'Discover inspiring free images at doodoo and bring your projects to life!',
-    // url: 'https://your-domain.com', // **Remember to uncomment and update this line with your actual domain**
+    url: 'https://www.doodoostock.com/',
     type: 'website',
   },
 
