@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin', '/api'], // 관리자 페이지와 API는 제외
     },
-    sitemap: 'https://doodoostock.com/sitemap.xml', 
+    sitemap: 'https://www.doodoostock.com/sitemap.xml', 
   }
-}
+} 
