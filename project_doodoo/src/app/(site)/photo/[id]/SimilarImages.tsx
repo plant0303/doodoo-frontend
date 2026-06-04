@@ -45,6 +45,7 @@ export default function SimilarImages({ imageId }: { imageId: string }) {
               src={img.thumb_url}
               alt={img.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
             />
           </div>
           <p className="text-xs mt-2 text-gray-600 line-clamp-2">
