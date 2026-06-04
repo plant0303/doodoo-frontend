@@ -134,7 +134,9 @@ export async function getImageById(id: string): Promise<DetailedImageItem | null
 export async function getSimilarImages(id: string) {
   const url = `${WORKERS_API_URL}/api/similar?id=${id}`;
 
-  const res = await fetch(url, { cache: 'no-store' });
+  const res = await fetch(url, {
+    next: { revalidate: 86400 } // 24시간 캐시 유지
+  });
 
   if (!res.ok) return null;
 
