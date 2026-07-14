@@ -1,0 +1,9 @@
+{
+  "hero": {
+    "logoAlt": "두두 로고",
+    "title": "오늘 무엇을 만들고 싶으신가요?",
+    "searchPlaceholder": "디자인 아이디어를 설명해 주세요...",
+    "popularCategories": "인기 카테고리",
+    "loadMore": "더 보기"
+  }
+}
