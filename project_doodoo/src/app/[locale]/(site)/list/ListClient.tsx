@@ -180,7 +180,7 @@ export default function ListClient({
     <>
       {/* 현재 검색어 및 페이지 정보 표시 */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-6">
+        <h2 className="hidden text-2xl font-bold mb-6">
           "{initialQuery}"에 대한 {isCategory ? '카테고리' : '검색'} 결과
         </h2>
         {
