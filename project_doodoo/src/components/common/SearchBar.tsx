@@ -34,7 +34,7 @@ function SearchBarForm({ defaultQuery, category }: { defaultQuery: string; categ
     <form
       role="search"
       method="get"
-      className="flex w-full justify-end sm:text-base"
+      className="flex items-end w-full sm:text-base"
       onSubmit={handleSearch}
     >
       <div className="relative w-full">

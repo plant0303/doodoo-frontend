@@ -57,22 +57,23 @@ function HeroSection() {
       <div className="max-w-7xl mx-auto w-full px-6 md:px-12 pt-16 flex-1">
 
         {/* 헤더 섹션: 로고 & 검색창 */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between mb-16 relative z-10 gap-4">
+        <header className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-4">
           {/* 심볼 로고 (DooDoo) */}
-          <a href='/' className="flex items-center pr-0 lg:pr-70 gap-1 md:flex justify-center">
-            <img src="/logo/doodoo_logo.png" alt={t("logoAlt")} className="w-[110px] sm:w-[120px]" />
+          <a href='/' className="flex items-center pr-0 gap-1 md:flex justify-center">
+            <img src="/logo/doodoo_logo.png" alt={t("logoAlt")} className="w-[90px] sm:w-[100px]" />
           </a>
-
-          {/* 비전 검색창 */}
-          <SearchBar />
         </header>
 
         {/* 메인 타이틀 히어로 */}
-        <section className="mb-16 relative z-10">
-          <h1 className="text-4xl md:text-5xl font-light tracking-tight leading-tight max-w-xl">
-            <span>What Doo you want to</span> <br />
-            <span className="text-blue-700 font-normal">create</span> today?
+        <section className="grid mt-10 mb-10 md:grid-cols-[2fr_1fr]">
+          <h1
+            className="text-4xl mb-10 font-light tracking-tight leading-tight max-w-xl text-center md:text-left mx-auto md:mx-0 md:mb-0"
+          >
+            <span>What Doo you want <br /> to</span>
+            <span className="text-blue-700 font-normal"> create</span> today?
           </h1>
+          {/* 비전 검색창 */}
+          <SearchBar />
         </section>
 
         {/* 카테고리 탭 섹션 */}

@@ -1,241 +1,238 @@
-import DownloadDropdown from './DownloadDropdown';
-import { getImageById } from '@/lib/api';
+"use client";
 import { notFound } from 'next/navigation';
+import React, { useState } from "react";
+import {
+  Paintbrush,
+  Type,
+  Palette,
+  Boxes,
+  Copy,
+  Share2,
+  Heart,
+  ArrowUpRight
+} from "lucide-react";
 import SimilarImages from './SimilarImages';
-import KeywordList from './KeywordList';
-import LicenseInfo from './LicenseInfo';
 
-// 캐싱 유지: 24시간
-export const revalidate = 86400;
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  // NOTE: Assuming 'getImageById' is a function defined elsewhere that fetches image data.
-  const item = await getImageById(id);
-
-  if (!item) {
-    return {
-      title: "Image Not Found",
-      description: "The image you requested could not be found.",
-    };
-  }
-
-  // Set default title if item.title is missing
-  const baseTitle = item.title || "Image Details";
-
-  // Format the title for the specific image page
-  const title = `${baseTitle} | Unlimited Free Images - doodoo`;
-
-  // Set the description, using keywords if available
-  const description =
-    item.description ||
-    `High-quality free image related to ${baseTitle}. Keywords: ${item.keywords?.join(", ") || "photo, background, stock image"
-    }`;
-
-
-  // Combine base keywords with specific item keywords
-  const combinedKeywords = [
-    ...(item.keywords?.slice(0, 15) || []), // DB 키워드 중 앞부분 15개만
-    "free image", "stock photo", "doodoo", "무료이미지"
-  ];
-
-  return {
-    title,
-    description,
-    keywords: combinedKeywords,
-    alternates: {
-      canonical: `https://www.doodoostock.com/photo/${id}`,
-    },
-    openGraph: {
-      title,
-      description,
-      url: `https://www.doodoostock.com/photo/${id}`,
-      images: item.preview_url ? [
-        {
-          url: item.preview_url,
-          width: 1200,
-          height: 630,
-          alt: item.title || "Free stock image from doodoo",
-        }
-      ] : [],
-      type: "website",
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [item.preview_url || ''],
-    },
-  };
+interface PromptState {
+  style: string;
+  typography: string;
+  colorPalette: string;
+  objects: string;
 }
+
+
 export default async function Page({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  // const { id } = await params;
 
-  const item = await getImageById(id);
+  // 상태 관리를 통해 Quick Modify와 Final Prompt 실시간 연동
+  const [prompt, setPrompt] = useState<PromptState>({
+    style: "Glassmorphism, futuristic, modern SaaS",
+    typography: "Geist Sans, Inter, clean sans-serif",
+    colorPalette: "Deep blue, Electric purple, Frost white",
+    objects: "Floating cards, pill buttons, sidebars",
+  });
 
-  if (!item) {
-    return notFound();
-  }
+  const [copied, setCopied] = useState(false);
+  const [liked, setLiked] = useState(false);
 
-  const baseInfo = item.download_options?.[0];
+  // 클립보드 복사 핸들러
+  const handleCopy = () => {
+    const jsonString = JSON.stringify({
+      style: prompt.style,
+      theme: "Futuristic SaaS",
+      palette: prompt.colorPalette.split(", ").map(c => c.trim()),
+      details: prompt.objects
+    }, null, 2);
+
+    navigator.clipboard.writeText(jsonString);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
-    <div className='container xl:w-[1200px]'>
-      {/* 이미지 영역 */}
-      <section className="mx-auto py-10 flex flex-col md:flex-row gap-10">
+    <div className="min-h-screen bg-slate-50 text-slate-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="container max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        {/* 왼쪽: 이미지 */}
-        <div className="flex-1 flex space-between">
-          <img
-            src={item?.preview_url}
-            alt={item?.title || "이미지 상세"}
-            className="w-full h-auto object-contain max-h-[80vh] rounded-xl shadow-2xl"
-          />
-        </div>
+        {/* LEFT PANEL: Hero Image & Information (7/12 cols) */}
+        <section className="lg:col-span-7 space-y-6">
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+              Futuristic Glassmorphism UI
+            </h1>
+            <p className="mt-3 text-lg text-slate-500">
+              A sleek, semi-transparent user interface with vibrant gradients and frosted glass effects.
+            </p>
+          </div>
 
-        {/* 오른쪽: 설명 영역 */}
-        <div className="w-full md:w-1/3 flex flex-col flex-space-between gap-6">
+          {/* Hero Image Container */}
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 shadow-xl flex items-center justify-center p-8">
+            {/* 실제 UI 데모를 모방한 내부 글래스모피즘 박스 */}
 
-          {/* Title */}
-          <h1 className="text-2xl text-lg font-bold text-[var(--primary-color)]">
-            {item?.title}
-          </h1>
+          </div>
 
-          {/* License */}
-          <section className="mb-6">
-            {/* License Header: 이미지처럼 크게, 메인 색상으로 강조 */}
-            <h2 className="font-bold text-md mb-4 text-[var(--primary-color)]">
-              License
-            </h2>
-
-            {/* Allowed / Not Allowed 그리드 레이아웃 */}
-            <div className="grid grid-cols-2">
-
-              {/* 왼쪽: Allowed (허용) */}
-              <div className="flex flex-col">
-                {/* Allowed Checkbox Header */}
-                <div className="flex items-center mb-2">
-                  {/* 체크 아이콘 (Styled as checkbox checked) */}
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 mr-1 text-gray-500">
-                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.052-.143Z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-gray-500 font-semibold">Allowed</span>
-                </div>
-
-                {/* Allowed 상세 내용 */}
-                <p className="text-gray-500 font-medium">
-                  Commercial use
-                </p>
+          {/* Engagement bar (Creators, Likes, Share) */}
+          <div className="flex items-center justify-between bg-white px-6 py-4 rounded-2xl shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="flex -space-x-2">
+                <div className="w-8 h-8 rounded-full bg-indigo-400 border-2 border-white" />
+                <div className="w-8 h-8 rounded-full bg-pink-400 border-2 border-white" />
+                <div className="w-8 h-8 rounded-full bg-emerald-400 border-2 border-white" />
               </div>
+              <span className="text-sm font-medium text-slate-600">Used by 1.2k creators</span>
+            </div>
 
-              {/* 오른쪽: Not Allowed (금지) */}
-              <div className="flex flex-col">
-                {/* Not Allowed Checkbox Header */}
-                <div className="flex items-center mb-2">
-                  {/* 빈 체크박스 아이콘 (Styled as checkbox unchecked) */}
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 mr-1 text-gray-400">
-                    <path fillRule="evenodd" d="M3.75 3A2.75 2.75 0 0 0 1 5.75v8.5A2.75 2.75 0 0 0 3.75 17h8.5a2.75 2.75 0 0 0 2.75-2.75v-8.5A2.75 2.75 0 0 0 12.25 3h-8.5Zm0 1.5h8.5c.69 0 1.25.56 1.25 1.25v8.5c0 .69-.56 1.25-1.25 1.25h-8.5c-.69 0-1.25-.56-1.25-1.25v-8.5c0-.69.56-1.25 1.25-1.25Z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-gray-500 font-semibold">Not Allowed</span>
-                </div>
+            {/* <div className="flex items-center gap-2">
+            <button
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${liked ? "bg-pink-50 text-pink-600 border border-pink-100" : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                }`}
+            >
+              <Heart className={`w-4 h-4 ${liked ? "fill-pink-600 text-pink-600" : ""}`} />
+              <span>{liked ? "125" : "124"}</span>
+            </button>
+            <button className="p-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors">
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div> */}
+          </div>
+        </section>
 
-                {/* Not Allowed 상세 목록 (회색 톤의 점 목록) */}
-                <ul className="text-gray-500 text-sm space-y-1">
-                  <li className="flex items-start">
-                    <span className="mr-1 mt-0.5 text-gray-500">•</span>
-                    Resell or redistribute the file
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-1 mt-0.5 text-gray-500">•</span>
-                    Upload to other stock platforms
-                  </li>
-                  <li className="flex items-start">
-                    <span className="mr-1 mt-0.5 text-gray-500">•</span>
-                    Use for trademarks/logos (as is)
-                  </li>
-                </ul>
+        {/* RIGHT PANEL: Prompt Builder (5/12 cols) */}
+        <section className="lg:col-span-5 bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-lg space-y-8">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Prompt Builder</h2>
+          </div>
+
+          {/* 1. Prompt Parts & Quick Modify */}
+          <div className="space-y-6">
+
+            {/* Style Block */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 tracking-wider uppercase">
+                <Paintbrush className="w-3.5 h-3.5" />
+                <span>Style</span>
+              </div>
+              <input
+                type="text"
+                value={prompt.style}
+                onChange={(e) => setPrompt({ ...prompt, style: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+              />
+              {/* Quick Modify Chips */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {["Minimalist", "Cyberpunk", "Neo-Brutalism"].map((style) => (
+                  <button
+                    key={style}
+                    onClick={() => setPrompt({ ...prompt, style: `${style}, modern SaaS` })}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+                  >
+                    {style}
+                  </button>
+                ))}
               </div>
             </div>
-          </section>
 
-          {/* Info */}
-          <section>
-            <h2 className="font-semibold text-md mb-1 text-[var(--primary-color)]">Info</h2>
-
-            {item.download_options.map((i, index) => (
-              <p key={`extension${index}`} className="text-gray-600 text-sm">
-                {i.extension} | {i.width} * {i.height} | {i.dpi}dpi | {i.file_size_mb}MB
-              </p>
-            ))}
-            {/* {item?.download_options[0].width} * {item?.height} | {item?.dpi}dpi | {item?.file_size_mb}mb */}
-          </section>
-
-          {/* Adobe Express Promotion Section */}
-          {item?.adobe_express && (
-            <div className="flex flex-col gap-2 mt-auto mb-4 p-4 rounded-2xl bg-pink-50 border border-pink-100 shadow-sm">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="">✨</span>
-                <p className="text-sm font-bold text-[var(--primary-color)]"> {/* 블루 포인트 */}
-                  클릭 한 번으로 나만의 디자인 완성!
-                </p>
+            {/* Typography Block */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 tracking-wider uppercase">
+                <Type className="w-3.5 h-3.5" />
+                <span>Typography</span>
               </div>
+              <input
+                type="text"
+                value={prompt.typography}
+                onChange={(e) => setPrompt({ ...prompt, typography: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+              />
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {["Monospace", "Clean Sans", "Serif"].map((typo) => (
+                  <button
+                    key={typo}
+                    onClick={() => setPrompt({ ...prompt, typography: `${typo}, clean composition` })}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+                  >
+                    {typo}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-              <p className="text-xs text-gray-500 mb-3 leading-relaxed">
-                어도비 익스프레스로 문구를 수정하거나 <br />
-                다양한 필터를 무료로 적용해보세요.
-              </p>
+            {/* Color Palette Block */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 tracking-wider uppercase">
+                <Palette className="w-3.5 h-3.5" />
+                <span>Color Palette</span>
+              </div>
+              <input
+                type="text"
+                value={prompt.colorPalette}
+                onChange={(e) => setPrompt({ ...prompt, colorPalette: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+              />
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {["Electric Blue", "Monochrome", "Pastel"].map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setPrompt({ ...prompt, colorPalette: `${color}, Frost white` })}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-              <a
-                href={item?.adobe_express}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3 px-4 
-               bg-[#FFD1DC] hover:bg-[#ffc1cf] /* 우리 사이트 핑크 */
-               text-[var(--primary-color)] /* 블루 포인트 텍스트 */
-               border-2 border-[var(--primary-color)] /* 블루 보더 */
-               rounded-xl transition-all font-black text-sm
-               shadow-[4px_4px_0px_0px_rgba(var(--primary-rgb),1)] /* 블루 네오브루탈리즘 그림자 */
-               active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+            {/* Object Elements Block */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-indigo-600 tracking-wider uppercase">
+                <Boxes className="w-3.5 h-3.5" />
+                <span>Object Elements</span>
+              </div>
+              <input
+                type="text"
+                value={prompt.objects}
+                onChange={(e) => setPrompt({ ...prompt, objects: e.target.value })}
+                className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+              />
+            </div>
+          </div>
+
+          {/* 2. Final Prompt (JSON Block) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-400 tracking-wider uppercase">Prompt JSON</span>
+              <button
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors"
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-5 h-5 fill-[var(--primary-color)]"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M13.961 2l8.039 19.333h-5.263l-2.618-6.444h-6.22l6.062-12.889zM2 2l8.039 19.333h-5.263l-2.776-6.689h-0z" />
-                </svg>
-                ADOBE EXPRESS로 편집하기
-              </a>
+                <Copy className="w-3.5 h-3.5" />
+                {/* <span>{copied ? "Copied!" : "Copy"}</span> */}
+              </button>
             </div>
-          )}
-          {/* Download button */}
-          {item.download_options.length > 0 && (
-            <DownloadDropdown
-              imageId={item.id}
-              options={item.download_options}
-              defaultLabel={baseInfo?.label || 'Download'}
-            />
-          )}
-        </div>
-      </section>
-      <KeywordList keywords={item.keywords ?? []} />
-      {/* 추가이미지 */}
-      <section>
-        <h2 className='py-4 text-lg text-[var(--primary-color)]'>
-          Similar
-        </h2>
-        <SimilarImages imageId={id} />
-      </section>
 
-      <LicenseInfo />
+            <div className="bg-slate-900 text-slate-300 rounded-2xl p-5 font-mono text-xs overflow-x-auto leading-relaxed shadow-inner">
+              {/* <pre>{`{
+  "style": "${prompt.style}",
+  "theme": "Futuristic SaaS",
+  "palette": [
+    "${prompt.colorPalette.split(", ").join('",\n    "')}"
+  ],
+  "details": "${prompt.objects}"
+}`}</pre> */}
+            </div>
+          </div>
+
+          {/* 3. Call to Action Button */}
+          <button className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-100 transition-all hover:-translate-y-0.5 active:translate-y-0">
+            <span>Go to ChatGPT</span>
+            <ArrowUpRight className="w-5 h-5" />
+          </button>
+        </section>
+
+      </div>
+      <SimilarImages imageId="1" />
     </div>
   );
 }

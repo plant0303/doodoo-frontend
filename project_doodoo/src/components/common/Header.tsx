@@ -17,12 +17,12 @@ const SEARCH_CATEGORIES = [
   { label: "마케팅", value: "마케팅" },
 ];
 
-export default function Header() {
+export default function Header({ showCategoryNav = true }: { showCategoryNav?: boolean}) {
   const locale = useLocale();
 
   return (
     <header className="w-full border-b border-gray-200 bg-white">
-      <div className="container xl:max-w-[1200px] py-4 flex flex-col gap-4">
+      <div className="container xl:max-w-[1280px] py-4 flex flex-col gap-4">
         <h1 className="flex justify-center leading-none text-center">
           <Link href={`/${locale}`}>
             <img
@@ -37,9 +37,11 @@ export default function Header() {
           <SearchBar />
         </Suspense>
 
-        <Suspense>
-          <CategoryNav locale={locale} />
-        </Suspense>
+        {showCategoryNav && (
+          <Suspense>
+            <CategoryNav locale={locale} />
+          </Suspense>
+        )}
       </div>
     </header>
   );
@@ -63,8 +65,8 @@ function CategoryNav({ locale }: { locale: string }) {
                 href={`/${locale}/list?${params.toString()}`}
                 aria-current={isSelected ? "page" : undefined}
                 className={`block rounded-md px-4 py-2 text-sm font-medium transition-colors ${isSelected
-                    ? "bg-[var(--sub-color)] text-[var(--primary-color)]"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-[var(--sub-color)] text-[var(--primary-color)]"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
                 {category.label}
