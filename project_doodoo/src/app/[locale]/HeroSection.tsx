@@ -9,13 +9,14 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from "next-intl";
+import SearchBar from '@/components/common/SearchBar';
 
 
 function HeroSection() {
   const router = useRouter();
 
   const t = useTranslations("hero");
-  
+
   // 1. Popular Categories 데이터 정의
   const CATEGORIES = [
     { name: 'Modern Minimalist', active: true },
@@ -56,25 +57,14 @@ function HeroSection() {
       <div className="max-w-7xl mx-auto w-full px-6 md:px-12 pt-16 flex-1">
 
         {/* 헤더 섹션: 로고 & 검색창 */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16 relative z-10">
+        <header className="flex flex-col md:flex-row md:items-center justify-between mb-16 relative z-10 gap-4">
           {/* 심볼 로고 (DooDoo) */}
-          <a href='/' className="flex items-center gap-1">
+          <a href='/' className="flex items-center pr-0 lg:pr-70 gap-1 md:flex justify-center">
             <img src="/logo/doodoo_logo.png" alt={t("logoAlt")} className="w-[110px] sm:w-[120px]" />
           </a>
 
           {/* 비전 검색창 */}
-          <div className="relative w-full md:max-w-md">
-            <input
-              type="text"
-              placeholder={t("searchPlaceholder")}
-              className="w-full pl-6 pr-12 py-3.5 bg-white border border-gray-200 rounded-full shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all placeholder-gray-400"
-            />
-            <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
-            </button>
-          </div>
+          <SearchBar />
         </header>
 
         {/* 메인 타이틀 히어로 */}

@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { useTranslations } from "next-intl";
 
 export default function SearchBar() {
+  const t = useTranslations("hero");
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -34,34 +37,25 @@ export default function SearchBar() {
     <form
       role="search"
       method="get"
-      className="flex items-center w-full sm:flex-1 bg-white px-3 sm:px-4 py-2 border-3 border-[var(--sub-color)] rounded-full text-sm sm:text-base"
+      className="flex justify-end w-full sm:text-sm sm:text-base max-w"
       onSubmit={handleSearch}
     >
-      <select
-        defaultValue="all"
-        className="mr-2 sm:mr-3 bg-transparent text-gray-700 outline-none"
-        onChange={(e) => setFilter(e.target.value)}
-      >
-        <option value="all">All</option>
-        <option value="photo">Photo</option>
-        <option value="illustration">Illustration</option>
-        <option value="template">Template</option>
-        <option value="icon">Icon</option>
-        <option value="sticker">Sticker</option>
-      </select>
+      <div className="relative w-full relative w-full">
+        <input
+          type="text"
+          aria-label="search"
+          placeholder={t("searchPlaceholder")}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full sm:flex-1 pl-6 pr-12 py-3.5 bg-white border border-[var(--sub-color)] rounded-full shadow-sm text-sm focus:outline-none focus:border-[var(--sub-color)] focus:ring-2 focus:ring-[var(--sub-color)] transition-all placeholder-gray-400"
+        />
+        <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+          <FontAwesomeIcon icon={faSearch} className="w-5 y-5 text-[var(--primary-color)]" />
+        </button>
+      </div>
 
-      <input
-        type="text"
-        placeholder="Search..."
-        aria-label="search"
-        className="w-full px-2 border-none outline-none placeholder-white/60 text-gray-800"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-
-      <button type="submit">
-        <FontAwesomeIcon icon={faSearch} className="w-5 y-5 text-[var(--primary-color)]" />
-      </button>
     </form>
+
+
   );
 }
