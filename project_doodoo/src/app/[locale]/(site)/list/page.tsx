@@ -1,164 +1,77 @@
-// src/app/list/page.tsx (SSR 렌더)
+// src/app/list/page.tsx (SSR 렌더 - 프롬프트 스펙 반영)
 export const revalidate = 300; // 캐시 만료시간 5분 (300초) 
 
 import React, { Suspense } from 'react';
 import ListClient from './ListClient';
-import { searchImages } from '@/lib/api';
+import { searchPrompts } from '@/lib/api'; // searchImages에서 searchPrompts로 변경
+import { SearchResponse } from '@/types/prompt';
 
 const DEFAULT_PER_PAGE = 30;
 
-
-interface ImageItem {
-    id: string;
-    thumb_url: string;
-    title: string;
-}
-
-interface SearchResponse {
-    images: ImageItem[];
-    total_count: number;
-    limit: number;
-}
-
-async function fetchImages({
-    query,
-    category,
-    page,
-    perPage
-}: {
-    query?: string;
-    category?: string;
-    page: number;
-    perPage: number;
-}): Promise<SearchResponse> {
-    const response = await searchImages({ query, category, page, perPage }) as SearchResponse;
-    return response;
-}
-
 type SearchParamsType = {
-    q?: string;
-    category?: string;
-    p?: string;
+  q?: string;
+  category?: string;
+  p?: string;
 };
 
 type PageProps = {
-    searchParams: Promise<SearchParamsType>;
+  searchParams: Promise<SearchParamsType>;
 };
 
 export default async function Page({ searchParams }: PageProps) {
-    const params = await searchParams;
+  const params = await searchParams;
 
-    const query = params.q ?? "";
-    const category = params.category ?? "";
-    const page = parseInt(params.p ?? "1", 10);
+  const query = params.q ?? "";
+  const category = params.category ?? "";
+  const page = parseInt(params.p ?? "1", 10);
 
-    let initialImages: ImageItem[] = [];
-    let initialPage = page;
-    let initialTotalPages = 1;
-    let perPage = DEFAULT_PER_PAGE;
-    let totalCount = 0;
+  // 새로운 타입 규격에 따른 초기값 세팅
+  let initialData: SearchResponse = {
+    query: query || category,
+    prompts: [],
+    total_count: 0
+  };
 
-    if (query || category) {
-        try {
-            const response = await fetchImages({
-                query,
-                category,
-                page: initialPage,
-                perPage: DEFAULT_PER_PAGE
-            });
+  let initialPage = page;
+  let initialTotalPages = 1;
+  let perPage = DEFAULT_PER_PAGE;
 
-            initialImages = response.images;
-            totalCount = response.total_count;
-            perPage = response.limit;
-            initialTotalPages = Math.ceil(totalCount / (perPage || 1));
-        } catch (error) {
-            console.error("Error fetching images: ", error);
-        }
+  // 검색어나 카테고리가 있을 때만 데이터 패칭 진행
+  if (query || category) {
+    try {
+      const response = await searchPrompts({
+        query: query || undefined,
+        category: category || undefined,
+        page: initialPage,
+        perPage: DEFAULT_PER_PAGE
+      });
+
+      initialData = response;
+      const totalCount = response.total_count;
+      initialTotalPages = Math.ceil(totalCount / perPage);
+    } catch (error) {
+      console.error("Error fetching prompts during SSR: ", error);
     }
+  }
 
-    const finalQueryOrCategory = query || category;
-    const isCategorySearch = !!category && !query;
+  const finalQueryOrCategory = query || category;
+  const isCategorySearch = !!category && !query;
 
-    return (
-        <>
-            <div className="container xl:max-w-[1200px] min-h-screen mx-auto px-4 py-4">
-
-                <Suspense fallback={<div>검색 결과를 불러오는 중...</div>}>
-                    <ListClient
-                        initialImages={initialImages}
-                        initialQuery={finalQueryOrCategory}
-                        initialPage={initialPage}
-                        initialTotalPages={initialTotalPages}
-                        perPage={perPage}
-                        isCategorySearch={isCategorySearch}
-                    />
-                </Suspense>
-            </div>
-        </>
-    );
-}
-
-
-//  Metadata 생성
-export async function generateMetadata({
-    searchParams,
-}: {
-    searchParams: Promise<SearchParamsType>;
-}) {
-    const params = await searchParams;
-
-    const query = params.q ?? "";
-    const page = params.p ?? "1";
-    const category = params.category ?? "";
-
-    const siteName = "doodoo";
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.doodoostock.com/'
-
-    const finalSearchTerm = query || category;
-
-    const title = finalSearchTerm
-        ? `Free Image Search Results for ${finalSearchTerm} | ${siteName}`
-        : `High-Quality Free Image Search and Download | ${siteName}`;
-
-
-    const description = finalSearchTerm
-        ? `Download high-resolution free images for "${finalSearchTerm}". Providing copyright-free photos available for commercial use.`
-        : `Search and download millions of high-quality images for free on doodoo. Available for commercial use.`;
-
-    const canonicalUrl = `${baseUrl}/list${query || category ? `?${query ? `q=${encodeURIComponent(query)}` : ''}${category ? `${query ? '&' : ''}category=${encodeURIComponent(category)}` : ''}&p=${page}` : ''}`;
-
-    const baseKeywords = [
-        'free images',
-        'stock photos',
-        'high resolution',
-        'commercial use',
-        'doodoo'
-    ];
-
-    const keywords = finalSearchTerm
-        ? [finalSearchTerm, ...baseKeywords]
-        : baseKeywords;
-
-    return {
-        title: title,
-        description: description,
-        keywords: keywords,
-        openGraph: {
-            title: title,
-            description: description,
-            url: canonicalUrl,
-            siteName: siteName,
-            type: 'website',
-        },
-        alternates: {
-            canonical: canonicalUrl,
-        },
-        robots: {
-            index: true,
-            follow: true,
-        },
-        icons: {
-            icon: '/favicon.ico',
-        },
-    };
+  return (
+    <div className="container xl:max-w-[1280px] min-h-screen mx-auto px-4 py-4">
+      {/* 초기 뼈대는 즉시 서버에서 완성된 HTML로 전달하고, 
+        클라이언트 마운트 시 부드럽게 화면을 채우기 위해 Suspense로 감싸줍니다. 
+      */}
+      <Suspense fallback={<div className="text-center py-24 text-gray-500">검색 결과를 불러오는 중...</div>}>
+        <ListClient
+          initialData={initialData}
+          initialQuery={finalQueryOrCategory}
+          initialPage={initialPage}
+          initialTotalPages={initialTotalPages}
+          perPage={perPage}
+          isCategorySearch={isCategorySearch}
+        />
+      </Suspense>
+    </div>
+  );
 }

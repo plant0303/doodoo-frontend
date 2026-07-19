@@ -8,13 +8,12 @@ import SearchBar from "./SearchBar";
 
 const SEARCH_CATEGORIES = [
   { label: "전체", value: "all" },
-  { label: "카드뉴스", value: "카드뉴스" },
-  { label: "인포그래픽", value: "인포그래픽" },
-  { label: "광고/포스터", value: "광고/포스터" },
-  { label: "템플릿", value: "템플릿" },
+  { label: "마케팅/디자인", value: "마케팅디자인" },
+  { label: "브랜딩/목업", value: "브랜딩목업" },
+  { label: "타이포그래피", value: "타이포그래피" },
+  { label: "사진/실사", value: "사진실사" },
   { label: "SNS", value: "SNS" },
-  { label: "브랜딩", value: "브랜딩" },
-  { label: "마케팅", value: "마케팅" },
+  { label: "일러스트레이션", value: "일러스트레이션" }
 ];
 
 export default function Header({ showCategoryNav = true }: { showCategoryNav?: boolean}) {

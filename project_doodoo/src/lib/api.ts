@@ -1,5 +1,6 @@
 import { StockItem } from "@/types/StockItem";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { SearchResponse } from '../types/prompt';
 
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
 export interface ImageItem {
@@ -55,53 +56,48 @@ export interface DetailedImageItem extends ImageItem {
 // --- 사용자 API ---
 // 
 
-// 검색
-export async function searchImages({
-  query,
-  category,
+// 프롬프트 검색 및 카테고리 필터링 API 호출 함수
+export async function searchPrompts({
   page,
   perPage,
+  query,
+  category,
 }: {
-  query?: string;
-  category?: string;
   page: number;
   perPage: number;
+  query?: string;
+  category?: string;
 }): Promise<SearchResponse> {
-  if (!WORKERS_API_URL) {
-    console.error("NEXT_PUBLIC_WORKERS_API_URL is not set.");
-    return { images: [], total_count: 0, page: page, limit: perPage };
-  }
-
-  const params = new URLSearchParams();
+  const params = new URLSearchParams({
+    page: page.toString(),
+    perPage: perPage.toString(),
+  });
 
   if (query) {
-    params.set("q", query);
+    params.set('q', query);
+  }
+  if (category) {
+    params.set('category', category);
   }
 
-  if (category && category !== "all") {
-    params.set("category", category);
+  // Cloudflare Workers API 주소 (실제 배포 환경에선 env나 NEXT_PUBLIC_API_URL 사용)
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
+
+  const response = await fetch(`${baseUrl}/api/search?${params.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    // SEO와 서버 부담 절감을 위해 캐시 제어 (Next.js App Router 기준)
+    next: { revalidate: 60 }, // 1분간 SSR 캐싱 유지
+  });
+
+  if (!response.ok) {
+    throw new Error(`API request failed with status ${response.status}`);
   }
 
-  params.set("p", page.toString());
-  params.set("limit", perPage.toString());
-
-  const url = `${WORKERS_API_URL}/api/search?${params.toString()}`;
-
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result: SearchResponse = await response.json();
-    return result;
-  } catch (error) {
-    console.error("Error fetching images:", error);
-    return { images: [], total_count: 0, page: page, limit: perPage };
-  }
+  return response.json();
 }
-
 // 상세 이미지 보기
 export async function getImageById(id: string): Promise<DetailedImageItem | null> {
   if (!WORKERS_API_URL) {

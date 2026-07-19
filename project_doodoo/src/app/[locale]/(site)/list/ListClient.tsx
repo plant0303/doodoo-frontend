@@ -1,40 +1,31 @@
-"use client";
+'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link'; 
-import { searchImages } from '@/lib/api';
+import Link from 'next/link';
+import { PromptItem, SearchResponse } from '../../../../types/prompt';
+import { searchPrompts } from '../../../../lib/api';
 
-interface ImageItem {
-  id: string;
-  title: string;
-  thumb_url: string;
-}
-interface SearchResponse {
-  images: ImageItem[];
-  total_count: number;
-  page: number;
-  limit: number;
-}
-
+// R2 퍼블릭 에셋 주소 (Cloudflare CDN 연동용)
+const PUBLIC_ASSETS_URL = process.env.NEXT_PUBLIC_ASSETS_URL || 'https://pub-assets.doodoo.com';
 
 const Pagination = ({ page, totalPages, setPage }: { page: number, totalPages: number, setPage: (p: number) => void }) => {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex justify-center mt-8 space-x-2">
+    <div className="flex justify-center mt-12 space-x-2">
       <button 
         onClick={() => setPage(page - 1)} 
         disabled={page === 1}
-        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg disabled:bg-gray-400"
+        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
       >
         이전
       </button>
-      <span className="px-4 py-2 text-sm text-gray-700">페이지 {page} / {totalPages}</span>
+      <span className="px-4 py-2 text-sm text-gray-700 font-medium">페이지 {page} / {totalPages}</span>
       <button 
         onClick={() => setPage(page + 1)} 
         disabled={page === totalPages}
-        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg disabled:bg-gray-400"
+        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
       >
         다음
       </button>
@@ -42,10 +33,11 @@ const Pagination = ({ page, totalPages, setPage }: { page: number, totalPages: n
   );
 };
 
-const imagesCache: { [key: string]: ImageItem[] } = {};
+// 클라이언트 메모리 캐시 저장소
+const promptsCache: { [key: string]: PromptItem[] } = {};
 
 interface ListClientProps {
-  initialImages: ImageItem[] | { images: ImageItem[], total_count: number, page: number, limit: number };
+  initialData: SearchResponse;
   initialQuery: string;
   initialPage: number;
   initialTotalPages: number;
@@ -53,18 +45,8 @@ interface ListClientProps {
   isCategorySearch: boolean;
 }
 
-const extractImages = (data: ListClientProps['initialImages']): ImageItem[] => {
-  if (Array.isArray(data)) {
-    return data;
-  }
-  if (typeof data === 'object' && data !== null && 'images' in data && Array.isArray(data.images)) {
-    return data.images;
-  }
-  return [];
-};
-
 export default function ListClient({
-  initialImages: rawInitialImages,
+  initialData,
   initialQuery,
   initialPage,
   initialTotalPages,
@@ -73,38 +55,37 @@ export default function ListClient({
 }: ListClientProps) {
   const router = useRouter();
 
-  const safeInitialImages = extractImages(rawInitialImages);
+  const safeInitialPrompts = initialData?.prompts || [];
 
   // 클라이언트 상태 관리
-  const [images, setImages] = useState<ImageItem[]>(safeInitialImages); 
+  const [prompts, setPrompts] = useState<PromptItem[]>(safeInitialPrompts); 
   const [currentTerm, setCurrentTerm] = useState(initialQuery);
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
   const [isCategory, setIsCategory] = useState(isCategorySearch);
 
-  // 서버에서 받은 초기 데이터를 캐시에 저장하여 재요청 막기
+  // 서버에서 빌드/SSR 시점에 가져온 초기 데이터를 클라이언트 캐시에 주입해 불필요한 재요청 방지
   useEffect(() => {
     const keyPrefix = isCategorySearch ? 'category' : 'q';
     const initialKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
-    if (safeInitialImages.length > 0 && !imagesCache[initialKey]) {
-      imagesCache[initialKey] = safeInitialImages;
+    if (safeInitialPrompts.length > 0 && !promptsCache[initialKey]) {
+      promptsCache[initialKey] = safeInitialPrompts;
     }
-  }, [safeInitialImages, initialPage, initialQuery, isCategorySearch]);
+  }, [safeInitialPrompts, initialPage, initialQuery, isCategorySearch]);
 
-  const fetchImages = useCallback(async (newPage: number, term: string, isCategorySearch: boolean) => {
+  const fetchPrompts = useCallback(async (newPage: number, term: string, isCategorySearch: boolean) => {
     const keyPrefix = isCategorySearch ? 'category' : 'q';
     const cacheKey = `${keyPrefix}=${term}&p=${newPage}`;
 
-    if (imagesCache[cacheKey]) {
-      console.log(`[Cache Hit] Data loaded from cache for ${cacheKey}`);
-      setImages(imagesCache[cacheKey]!);
+    if (promptsCache[cacheKey]) {
+      console.log(`[Cache Hit] Loaded from cache: ${cacheKey}`);
+      setPrompts(promptsCache[cacheKey]!);
       setPage(newPage);
       setLoading(false);
       return;
     }
 
-    // 캐시 Miss
-    console.log(`[Cache Miss] Calling API for ${cacheKey}`);
+    console.log(`[Cache Miss] Calling Search API: ${cacheKey}`);
     setLoading(true);
 
     try {
@@ -119,29 +100,26 @@ export default function ListClient({
         apiParams.query = term;
       }
 
-      const newImagesResponse = await searchImages(apiParams);
+      const response = await searchPrompts(apiParams);
 
-      imagesCache[cacheKey] = newImagesResponse.images;
-
-      setImages(newImagesResponse.images);
+      promptsCache[cacheKey] = response.prompts;
+      setPrompts(response.prompts);
       setPage(newPage);
-
     } catch (error) {
-      console.error("Failed to fetch and cache images:", error);
-      setImages([]);
+      console.error("Failed to fetch prompts:", error);
+      setPrompts([]);
     } finally {
       setLoading(false);
     }
-
   }, [perPage]);
 
 
-  // SSR Props 변경 감지 및 상태 동기화
+  // SSR로 수신된 Props 동기화 및 라우팅 이탈 대응
   useEffect(() => {
-    const newImages = extractImages(rawInitialImages);
+    const newPrompts = initialData?.prompts || [];
 
     if (initialQuery !== currentTerm || initialPage !== page || isCategorySearch !== isCategory) {
-      setImages(newImages);
+      setPrompts(newPrompts);
       setPage(initialPage);
       setCurrentTerm(initialQuery);
       setIsCategory(isCategorySearch);
@@ -149,15 +127,15 @@ export default function ListClient({
 
       const keyPrefix = isCategorySearch ? 'category' : 'q';
       const newKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
-      if (newImages.length > 0) {
-        imagesCache[newKey] = newImages;
+      if (newPrompts.length > 0) {
+        promptsCache[newKey] = newPrompts;
       }
     }
-  }, [initialQuery, initialPage, rawInitialImages, currentTerm, page, isCategorySearch, isCategory]);
+  }, [initialQuery, initialPage, initialData, currentTerm, page, isCategorySearch, isCategory]);
 
   const handleSetPage = useCallback((newPage: number) => {
     if (newPage !== page) {
-      fetchImages(newPage, currentTerm, isCategory);
+      fetchPrompts(newPage, currentTerm, isCategory);
 
       const params = new URLSearchParams();
       if (isCategory) {
@@ -165,78 +143,76 @@ export default function ListClient({
       } else {
         params.set('q', currentTerm);
       }
-
       params.set('p', newPage.toString());
 
       router.push(`/list?${params.toString()}`);
     }
-  }, [page, currentTerm, isCategory, fetchImages, router]);
+  }, [page, currentTerm, isCategory, fetchPrompts, router]);
 
-
-  const showNoResults = images.length === 0 && !loading;
-
+  const showNoResults = prompts.length === 0 && !loading;
 
   return (
-    <>
-      {/* 현재 검색어 및 페이지 정보 표시 */}
-      <div className="mb-6">
-        <h2 className="hidden text-2xl font-bold mb-6">
-          "{initialQuery}"에 대한 {isCategory ? '카테고리' : '검색'} 결과
-        </h2>
-        {
-          loading && (
-            <p className="text-sm text-gray-500 mt-1">
-              현재 페이지: {initialPage} / {initialTotalPages}
-            </p>
-          )
-        }
+    <div className="max-w-7xl mx-auto py-8">
+      {/* 검색 결과 헤더 정보 (SEO 및 사용자 인지용) */}
+      <div className="hidden mb-8">
+        {initialQuery && (
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            "{initialQuery}" {isCategory ? '카테고리' : '검색'} 결과
+            <span className="text-sm font-normal text-gray-500 ml-2">
+              (총 {initialData.total_count}개)
+            </span>
+          </h1>
+        )}
       </div>
 
+      {loading && (
+        <div className="flex justify-center items-center py-24">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500" />
+        </div>
+      )}
 
       {!loading && showNoResults && (
-        <div className="block w-full text-center py-16 text-lg text-gray-600">
+        <div className="text-center py-24 text-lg text-gray-500">
           "{currentTerm}"에 대한 검색 결과가 없습니다.
         </div>
       )}
-      <div className="columns-2 sm:columns-3 md:columns-3 lg:columns-4 gap-4">
-        {loading && (
-          <div className="text-center w-full col-span-full py-16 text-lg text-blue-500 animate-pulse">
-            데이터 로딩 중...
-          </div>
-        )}
 
-        {!loading && !showNoResults && (
-          images.map((img: ImageItem) => (
-            <Link
-              key={img.id}
-              href={`/photo/${img.id}`}
-              className="group block mb-4 break-inside-avoid shadow-lg rounded-xl overflow-hidden transition duration-300 transform hover:scale-[1.01] hover:shadow-2xl"
-            >
-              <div className="relative overflow-hidden">
-                {/* 이미지 표시 */}
-                <img
-                  src={img.thumb_url}
-                  alt={img.title || `Image ${img.id}`}
-                  className="w-full h-auto object-cover transition duration-300 group-hover:opacity-80"
-                  loading="lazy"
-                  // 이미지 로드 실패 시 대체 이미지
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = `https://placehold.co/400x300/e5e7eb/7f7f7f?text=No+Image`;
-                  }}
-                />
-                {/* 이미지 위에 제목 오버레이 */}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent pt-8 pb-2 px-3 opacity-0 group-hover:opacity-100 transition duration-300">
-                  <p className="text-white text-xs font-semibold truncate">
-                    {img.title}
-                  </p>
-                </div>
+      {/* 핀터레스트 스타일 Masonry 그리드 렌더링 */}
+      {!loading && !showNoResults && (
+        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 space-y-6">
+          {prompts.map((prompt) => {
+            // R2 저장소 풀 주소 조립
+            return (
+              <div
+                key={prompt.id}
+                className="break-inside-avoid bg-white border border-gray-100 shadow-md hover:shadow-xl rounded-lg overflow-hidden transition-all duration-300 transform hover:-translate-y-1 group"
+              >
+                <Link href={`/prompts/${prompt.slug}`}>
+                  <div className="relative overflow-hidden bg-gray-100">
+                    <img
+                      src={prompt.imageThumbnailKey}
+                      alt={prompt.imageAlt || prompt.title}
+                      className="w-full h-auto object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `https://placehold.co/600x900/f3f4f6/9ca3af?text=No+Image`;
+                      }}
+                    />
+                    
+                    {/* 카테고리 태그 오버레이 */}
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white bg-black/60 backdrop-blur-md rounded-full uppercase">
+                        {prompt.category.name}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
               </div>
-            </Link>
-          ))
-        )
-        }
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {initialQuery && !loading && !showNoResults && (
         <Pagination
@@ -245,6 +221,6 @@ export default function ListClient({
           setPage={handleSetPage}
         />
       )}
-    </>
+    </div>
   );
 }
