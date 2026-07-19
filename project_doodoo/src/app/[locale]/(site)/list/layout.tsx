@@ -11,7 +11,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         showCategoryNav={true}
       />
       <main>{children}</main>
-      <Footer />
     </>
   )
 }

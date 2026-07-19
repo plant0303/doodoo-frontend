@@ -27,7 +27,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   // 새로운 타입 규격에 따른 초기값 세팅
   let initialData: SearchResponse = {
-    query: query || category,
+    query: query || category || "", // 💡 string 타입이므로 undefined 방지용 fallback 처리
     prompts: [],
     total_count: 0
   };
@@ -57,6 +57,7 @@ export default async function Page({ searchParams }: PageProps) {
   const finalQueryOrCategory = query || category;
   const isCategorySearch = !!category && !query;
 
+  
   return (
     <div className="container xl:max-w-[1280px] min-h-screen mx-auto px-4 py-4">
       {/* 초기 뼈대는 즉시 서버에서 완성된 HTML로 전달하고, 

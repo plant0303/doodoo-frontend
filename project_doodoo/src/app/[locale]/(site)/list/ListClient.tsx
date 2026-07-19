@@ -14,16 +14,16 @@ const Pagination = ({ page, totalPages, setPage }: { page: number, totalPages: n
 
   return (
     <div className="flex justify-center mt-12 space-x-2">
-      <button 
-        onClick={() => setPage(page - 1)} 
+      <button
+        onClick={() => setPage(page - 1)}
         disabled={page === 1}
         className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
       >
         이전
       </button>
       <span className="px-4 py-2 text-sm text-gray-700 font-medium">페이지 {page} / {totalPages}</span>
-      <button 
-        onClick={() => setPage(page + 1)} 
+      <button
+        onClick={() => setPage(page + 1)}
         disabled={page === totalPages}
         className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
       >
@@ -58,7 +58,7 @@ export default function ListClient({
   const safeInitialPrompts = initialData?.prompts || [];
 
   // 클라이언트 상태 관리
-  const [prompts, setPrompts] = useState<PromptItem[]>(safeInitialPrompts); 
+  const [prompts, setPrompts] = useState<PromptItem[]>(safeInitialPrompts);
   const [currentTerm, setCurrentTerm] = useState(initialQuery);
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
@@ -115,23 +115,22 @@ export default function ListClient({
 
 
   // SSR로 수신된 Props 동기화 및 라우팅 이탈 대응
+  // ListClient.tsx 내부 로직 흐름
   useEffect(() => {
     const newPrompts = initialData?.prompts || [];
 
-    if (initialQuery !== currentTerm || initialPage !== page || isCategorySearch !== isCategory) {
-      setPrompts(newPrompts);
-      setPage(initialPage);
-      setCurrentTerm(initialQuery);
-      setIsCategory(isCategorySearch);
-      setLoading(false);
+    setPrompts(newPrompts);
+    setPage(initialPage);
+    setCurrentTerm(initialQuery);
+    setIsCategory(isCategorySearch);
+    setLoading(false);
 
-      const keyPrefix = isCategorySearch ? 'category' : 'q';
-      const newKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
-      if (newPrompts.length > 0) {
-        promptsCache[newKey] = newPrompts;
-      }
+    const keyPrefix = isCategorySearch ? 'category' : 'q';
+    const newKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
+    if (newPrompts.length > 0) {
+      promptsCache[newKey] = newPrompts;
     }
-  }, [initialQuery, initialPage, initialData, currentTerm, page, isCategorySearch, isCategory]);
+  }, [initialData, initialQuery, initialPage, isCategorySearch]);
 
   const handleSetPage = useCallback((newPage: number) => {
     if (newPage !== page) {
@@ -199,7 +198,7 @@ export default function ListClient({
                         e.currentTarget.src = `https://placehold.co/600x900/f3f4f6/9ca3af?text=No+Image`;
                       }}
                     />
-                    
+
                     {/* 카테고리 태그 오버레이 */}
                     <div className="absolute top-3 left-3">
                       <span className="px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white bg-black/60 backdrop-blur-md rounded-full uppercase">

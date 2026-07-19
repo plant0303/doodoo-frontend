@@ -24,6 +24,6 @@ export interface PromptItem {
 
 export interface SearchResponse {
   query: string;
-  prompts: PromptItem[]; // 기존 images에서 prompts로 변경됨!
+  prompts: PromptItem[];
   total_count: number;
 }

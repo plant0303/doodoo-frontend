@@ -8,15 +8,15 @@ import SearchBar from "./SearchBar";
 
 const SEARCH_CATEGORIES = [
   { label: "전체", value: "all" },
-  { label: "마케팅/디자인", value: "마케팅디자인" },
-  { label: "브랜딩/목업", value: "브랜딩목업" },
-  { label: "타이포그래피", value: "타이포그래피" },
-  { label: "사진/실사", value: "사진실사" },
-  { label: "SNS", value: "SNS" },
-  { label: "일러스트레이션", value: "일러스트레이션" }
+  { label: "마케팅/디자인", value: "marketing" },
+  { label: "브랜딩/목업", value: "branding-mockups" },
+  { label: "타이포그래피", value: "typography" },
+  { label: "사진/실사", value: "photography" },
+  { label: "SNS", value: "sns" },
+  { label: "일러스트레이션", value: "illustration" }
 ];
 
-export default function Header({ showCategoryNav = true }: { showCategoryNav?: boolean}) {
+export default function Header({ showCategoryNav = true }: { showCategoryNav?: boolean }) {
   const locale = useLocale();
 
   return (
@@ -55,8 +55,14 @@ function CategoryNav({ locale }: { locale: string }) {
       <ul className="flex min-w-max gap-2 pb-1">
         {SEARCH_CATEGORIES.map((category) => {
           const isSelected = selectedCategory === category.value;
-          const params = new URLSearchParams();
-          params.set("category", category.value);
+          const params = new URLSearchParams(searchParams.toString());
+
+          if (category.value === "all") {
+            params.delete("category"); // '전체'면 카테고리 파라미터 제거
+          } else {
+            params.set("category", category.value); // 'typography' 같은 영어 slug 할당
+          }
+          params.set("p", "1"); // 카테고리가 바뀌면 무조건 1페이지로 리셋
 
           return (
             <li key={category.value}>
