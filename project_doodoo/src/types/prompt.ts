@@ -22,6 +22,12 @@ export interface PromptItem {
   tags: Tag[];
 }
 
+export interface SubOption {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export interface PromptDetailResponse {
   id: string;
   slug: string;
@@ -29,10 +35,11 @@ export interface PromptDetailResponse {
   summary: string;
   base_prompt: string;
   edit_fields: Array<{
-    label: string;
     key: string;
-    options: string[];
+    type: string;
+    label: string;
     default: string;
+    options?: string[];
   }>;
   image_preview_url: string;
   image_thumbnail_url: string;
@@ -42,6 +49,7 @@ export interface PromptDetailResponse {
     slug: string;
     name: string;
   };
+  sub_option?: SubOption | null;
   tags: Array<{
     id: string;
     slug: string;

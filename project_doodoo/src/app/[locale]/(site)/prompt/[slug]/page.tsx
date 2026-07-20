@@ -3,20 +3,19 @@ import SimilarImages from './SimilarImages';
 import PromptBuilder from './PromptBuilder';
 import { getPromptDetail } from '@/lib/api';
 import Image from 'next/image';
+import { PromptDetailResponse } from '@/types/prompt';
 
 interface PageProps {
   params: Promise<{
     locale: string;
-    slug: string; // 💡 폴더명이 [slug]이므로 Key도 slug입니다.
+    slug: string;
   }>;
 }
 
 export default async function Page({ params }: PageProps) {
-  // const { id } = await params;
-
   const { locale, slug: slug } = await params;
 
-  const promptData = await getPromptDetail(slug, locale);
+  const promptData: PromptDetailResponse | null = await getPromptDetail(slug, locale);
 
   if (!promptData) {
     notFound();
@@ -59,7 +58,7 @@ export default async function Page({ params }: PageProps) {
         </section>
 
         {/* RIGHT PANEL: Prompt Builder (5/12 cols) */}
-        <PromptBuilder />
+        <PromptBuilder promptData={promptData}/>
       </div>
       {/* <SimilarImages imageId="1" /> */}
     </div>
