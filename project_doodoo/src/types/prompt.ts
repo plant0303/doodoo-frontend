@@ -22,6 +22,36 @@ export interface PromptItem {
   tags: Tag[];
 }
 
+export interface PromptDetailResponse {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  base_prompt: string;
+  edit_fields: Array<{
+    label: string;
+    key: string;
+    options: string[];
+    default: string;
+  }>;
+  image_preview_url: string;
+  image_thumbnail_url: string;
+  image_alt: string;
+  category: {
+    id: string;
+    slug: string;
+    name: string;
+  };
+  tags: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    group_name: string;
+  }>;
+  created_at: string;
+}
+
+
 export interface SearchResponse {
   query: string;
   prompts: PromptItem[];

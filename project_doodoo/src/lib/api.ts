@@ -1,6 +1,6 @@
 import { StockItem } from "@/types/StockItem";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
-import { SearchResponse } from '../types/prompt';
+import { PromptDetailResponse, SearchResponse } from '../types/prompt';
 
 const WORKERS_API_URL = process.env.NEXT_PUBLIC_WORKERS_API_URL;
 export interface ImageItem {
@@ -99,29 +99,28 @@ export async function searchPrompts({
   return response.json();
 }
 // 상세 이미지 보기
-export async function getImageById(id: string): Promise<DetailedImageItem | null> {
-  if (!WORKERS_API_URL) {
-    console.error("NEXT_PUBLIC_WORKERS_API_URL is not set.");
-    return null;
-  }
-
-  const url = `${WORKERS_API_URL}/api/photo?id=${id}`;
+export async function getPromptDetail(slug: string, lang: string = 'ko'): Promise<PromptDetailResponse | null> {
+  // const url = `${WORKERS_API_URL}/api/similar?id=${id}`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
 
   try {
-    const response = await fetch(url, {
-      next: { revalidate: 86400 } // 24시간 캐시 유지
+    const response = await fetch(`${baseUrl}/api/prompts/${slug}?lang=${lang}`, {
+      method: 'GET',
+      next: { revalidate: 86400 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store', // 상세 정보 실시간 연동
     });
 
     if (!response.ok) {
-      console.error(`Failed to fetch image detail for ID ${id}. Status: ${response.status}`);
-      return null;
+      if (response.status === 404) return null;
+      throw new Error(`Failed to fetch prompt: ${response.status}`);
     }
 
-
-    const data: DetailedImageItem = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error(`Error fetching image detail for ID ${id}:`, error);
+    console.error('🚨 Error fetching prompt detail:', error);
     return null;
   }
 }
