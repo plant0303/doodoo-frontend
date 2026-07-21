@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from "next-intl";
 import SearchBar from '@/components/common/SearchBar';
+import TypewriterText from './TypewriterText';
 
 
 function HeroSection() {
@@ -25,6 +26,15 @@ function HeroSection() {
     { name: 'Retro Futurism', active: false },
     { name: 'High Contrast B&W', active: false },
     { name: 'Abstract Organic', active: false },
+  ];
+
+  const KEYWORDS = [
+    'designs?',
+    '3D Assets?',
+    'Icons?',
+    'Posters?',
+    'Graphics?',
+    'Illustrations?',
   ];
 
   // 2. 이미지 그리드 영역을 위한 가상 카드 데이터 (높이와 비율 다양화)
@@ -52,19 +62,19 @@ function HeroSection() {
     <div className="relative min-h-screen bg-white text-gray-900 overflow-x-hidden flex flex-col justify-between">
 
       {/* 3. 상단 무드 그라데이션 백그라운드 블러 (요청 색상 반영) */}
-      <div className="absolute top-[-180px] left-1/2 w-[700px] h-[450px] pointer-events-none z-0">
+      <div className="z-0 absolute top-[-180px] left-1/2 w-[700px] h-[450px] pointer-events-none z-0">
         {/* 핑크 오로라 (#FF7BCA) */}
         <div
-          className="absolute w-[500px] h-[350px] rounded-full blur-[90px] opacity-50 bg-[#FF7BCA] animate-aurora-pink mix-blend-multiply"
+          className="z-0 absolute w-[500px] h-[350px] rounded-full blur-[90px] opacity-50 bg-[#FF7BCA] animate-aurora-pink mix-blend-multiply"
         />
 
         {/* 오렌지 오로라 (#FFC56F) */}
         <div
-          className="absolute w-[500px] h-[350px] rounded-full blur-[90px] opacity-60 bg-[#FFC56F] animate-aurora-orange mix-blend-multiply"
+          className="z-0 absolute w-[500px] h-[350px] rounded-full blur-[90px] opacity-60 bg-[#FFC56F] animate-aurora-orange mix-blend-multiply"
         />
       </div>
 
-      <div className="max-w-7xl mx-auto w-full px-6 md:px-12 pt-16 flex-1">
+      <div className="z-40 max-w-7xl mx-auto w-full px-6 md:px-12 pt-16 flex-1">
 
         {/* 헤더 섹션: 로고 & 검색창 */}
         <header className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-4">
@@ -75,13 +85,15 @@ function HeroSection() {
         </header>
 
         {/* 메인 타이틀 히어로 */}
-        <section className="grid mt-10 mb-10 md:grid-cols-[2fr_1fr]">
-          <h1
-            className="text-4xl mb-10 font-light tracking-tight leading-tight max-w-xl text-center md:text-left mx-auto md:mx-0 md:mb-0"
-          >
-            <span>What Doo you want <br /> to</span>
-            <span className="text-blue-700 font-normal"> create</span> today?
+        <section className="grid mt-10 mb-10 md:grid-cols-[2fr_1fr] items-center">
+          <h1 className="text-3xl h-[92px] sm:text-4xl mb-10 font-light tracking-tight leading-snug max-w-xl text-center md:text-left mx-auto md:mx-0 md:mb-0">
+            <span>Ready To Make<br />Amazing </span>
+            {/* 타이포 애니메이션 영역 */}
+            <div className="inline-flex items-center justify-center md:justify-start min-h-[1.3em]">
+              <TypewriterText words={KEYWORDS} />
+            </div>
           </h1>
+
           {/* 비전 검색창 */}
           <SearchBar />
         </section>
