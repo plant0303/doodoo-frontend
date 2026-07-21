@@ -52,7 +52,17 @@ function HeroSection() {
     <div className="relative min-h-screen bg-white text-gray-900 overflow-x-hidden flex flex-col justify-between">
 
       {/* 3. 상단 무드 그라데이션 백그라운드 블러 (요청 색상 반영) */}
-      <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full blur-[120px] opacity-40 pointer-events-none bg-gradient-to-tr from-[#FF7BCA] to-[#FFC56F]" />
+      <div className="absolute top-[-180px] left-1/2 w-[700px] h-[450px] pointer-events-none z-0">
+        {/* 핑크 오로라 (#FF7BCA) */}
+        <div
+          className="absolute w-[500px] h-[350px] rounded-full blur-[90px] opacity-50 bg-[#FF7BCA] animate-aurora-pink mix-blend-multiply"
+        />
+
+        {/* 오렌지 오로라 (#FFC56F) */}
+        <div
+          className="absolute w-[500px] h-[350px] rounded-full blur-[90px] opacity-60 bg-[#FFC56F] animate-aurora-orange mix-blend-multiply"
+        />
+      </div>
 
       <div className="max-w-7xl mx-auto w-full px-6 md:px-12 pt-16 flex-1">
 
