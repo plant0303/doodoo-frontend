@@ -1,9 +1,11 @@
-import { notFound } from 'next/navigation';
+import { notFound, useSearchParams } from 'next/navigation';
 import SimilarImages from './SimilarImages';
 import PromptBuilder from './PromptBuilder';
 import { getPromptDetail } from '@/lib/api';
 import Image from 'next/image';
 import { PromptDetailResponse } from '@/types/prompt';
+import { Link } from 'lucide-react';
+import DetailBreadcrumb from '@/components/common/DetailBreadcrumb';
 
 interface PageProps {
   params: Promise<{
@@ -11,6 +13,7 @@ interface PageProps {
     slug: string;
   }>;
 }
+
 
 export default async function Page({ params }: PageProps) {
   const { locale, slug: slug } = await params;
@@ -23,6 +26,11 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <div className="container min-h-screen py-8 sm:px-6 lg:px-8">
+
+      <DetailBreadcrumb
+        title={promptData.title}
+        categoryName={promptData.category}
+      />
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
         {/* LEFT PANEL: Hero Image & Information (7/12 cols) */}
@@ -58,7 +66,7 @@ export default async function Page({ params }: PageProps) {
         </section>
 
         {/* RIGHT PANEL: Prompt Builder (5/12 cols) */}
-        <PromptBuilder promptData={promptData}/>
+        <PromptBuilder promptData={promptData} />
       </div>
       {/* <SimilarImages imageId="1" /> */}
     </div>

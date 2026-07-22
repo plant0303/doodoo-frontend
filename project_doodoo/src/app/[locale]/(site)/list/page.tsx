@@ -5,6 +5,7 @@ import React, { Suspense } from 'react';
 import ListClient from './ListClient';
 import { searchPrompts } from '@/lib/api'; // searchImages에서 searchPrompts로 변경
 import { SearchResponse } from '@/types/prompt';
+import { init } from 'next/dist/compiled/webpack/webpack';
 
 const DEFAULT_PER_PAGE = 30;
 
@@ -57,12 +58,29 @@ export default async function Page({ searchParams }: PageProps) {
   const finalQueryOrCategory = query || category;
   const isCategorySearch = !!category && !query;
 
-  
+
   return (
     <div className="container xl:max-w-[1280px] min-h-screen mx-auto px-4 py-4">
-      {/* 초기 뼈대는 즉시 서버에서 완성된 HTML로 전달하고, 
-        클라이언트 마운트 시 부드럽게 화면을 채우기 위해 Suspense로 감싸줍니다. 
-      */}
+      <div className="flex items-center gap-2 text-sm text-gray-500 ">
+        <a href="/" className="hover:text-blue-700 transition-colors">홈</a>
+
+        <span className="text-gray-300">/</span>
+
+        {isCategorySearch && (
+          <>
+            <a href="/categories" className="hover:text-blue-700 transition-colors">카테고리</a>
+            <span className="text-gray-300">/</span>
+          </>
+        )}
+
+        {/* 현재 위치: 검색어 강조 */}
+        <span className="font-medium text-gray-900">
+          '{query}'' 검색 결과
+          <span className="text-gray-400 font-normal ml-1">
+            ({initialData?.total_count.toLocaleString()}개)
+          </span>
+        </span>
+      </div>
       <Suspense fallback={<div className="text-center py-24 text-gray-500">검색 결과를 불러오는 중...</div>}>
         <ListClient
           initialData={initialData}

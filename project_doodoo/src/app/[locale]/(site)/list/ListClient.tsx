@@ -57,99 +57,93 @@ export default function ListClient({
 
   const safeInitialPrompts = initialData?.prompts || [];
 
-  // 클라이언트 상태 관리
   const [prompts, setPrompts] = useState<PromptItem[]>(safeInitialPrompts);
   const [currentTerm, setCurrentTerm] = useState(initialQuery);
   const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(false);
   const [isCategory, setIsCategory] = useState(isCategorySearch);
 
-  // 서버에서 빌드/SSR 시점에 가져온 초기 데이터를 클라이언트 캐시에 주입해 불필요한 재요청 방지
+  // 서버 데이터 캐시 등록 및 URL(Props) 변경 시에만 동기화
   useEffect(() => {
     const keyPrefix = isCategorySearch ? 'category' : 'q';
-    const initialKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
-    if (safeInitialPrompts.length > 0 && !promptsCache[initialKey]) {
-      promptsCache[initialKey] = safeInitialPrompts;
-    }
-  }, [safeInitialPrompts, initialPage, initialQuery, isCategorySearch]);
+    const cacheKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
 
-  const fetchPrompts = useCallback(async (newPage: number, term: string, isCategorySearch: boolean) => {
-    const keyPrefix = isCategorySearch ? 'category' : 'q';
-    const cacheKey = `${keyPrefix}=${term}&p=${newPage}`;
-
-    if (promptsCache[cacheKey]) {
-      console.log(`[Cache Hit] Loaded from cache: ${cacheKey}`);
-      setPrompts(promptsCache[cacheKey]!);
-      setPage(newPage);
-      setLoading(false);
-      return;
+    // 서버 데이터를 캐시에 즉시 보관
+    if (safeInitialPrompts.length > 0 && !promptsCache[cacheKey]) {
+      promptsCache[cacheKey] = safeInitialPrompts;
     }
 
-    console.log(`[Cache Miss] Calling Search API: ${cacheKey}`);
-    setLoading(true);
-
-    try {
-      const apiParams: { page: number, perPage: number, category?: string, query?: string } = {
-        page: newPage,
-        perPage: perPage
-      };
-
-      if (isCategorySearch) {
-        apiParams.category = term;
-      } else {
-        apiParams.query = term;
-      }
-
-      const response = await searchPrompts(apiParams);
-
-      promptsCache[cacheKey] = response.prompts;
-      setPrompts(response.prompts);
-      setPage(newPage);
-    } catch (error) {
-      console.error("Failed to fetch prompts:", error);
-      setPrompts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [perPage]);
-
-
-  // SSR로 수신된 Props 동기화 및 라우팅 이탈 대응
-  // ListClient.tsx 내부 로직 흐름
-  useEffect(() => {
-    const newPrompts = initialData?.prompts || [];
-
-    setPrompts(newPrompts);
+    // 뒤로가기/앞으로가기나 URL direct input으로 Props가 바뀔 때만 State 업데이트
+    setPrompts(safeInitialPrompts);
     setPage(initialPage);
     setCurrentTerm(initialQuery);
     setIsCategory(isCategorySearch);
     setLoading(false);
-
-    const keyPrefix = isCategorySearch ? 'category' : 'q';
-    const newKey = `${keyPrefix}=${initialQuery}&p=${initialPage}`;
-    if (newPrompts.length > 0) {
-      promptsCache[newKey] = newPrompts;
-    }
   }, [initialData, initialQuery, initialPage, isCategorySearch]);
 
-  const handleSetPage = useCallback((newPage: number) => {
-    if (newPage !== page) {
-      fetchPrompts(newPage, currentTerm, isCategory);
+  // 3. 페이지네이션 버튼 클릭 시 호출되는 API (캐시 확인 후 없으면만 패칭)
+  const fetchPrompts = useCallback(
+    async (newPage: number, term: string, isCategorySearch: boolean) => {
+      const keyPrefix = isCategorySearch ? 'category' : 'q';
+      const cacheKey = `${keyPrefix}=${term}&p=${newPage}`;
 
-      const params = new URLSearchParams();
-      if (isCategory) {
-        params.set('category', currentTerm);
-      } else {
-        params.set('q', currentTerm);
+      // [Cache Hit] 캐시에 있으면 API 요청 안 함!
+      if (promptsCache[cacheKey]) {
+        console.log(`[Cache Hit] Loaded from cache: ${cacheKey}`);
+        setPrompts(promptsCache[cacheKey]!);
+        setPage(newPage);
+        setLoading(false);
+        return;
       }
-      params.set('p', newPage.toString());
 
-      router.push(`/list?${params.toString()}`);
-    }
-  }, [page, currentTerm, isCategory, fetchPrompts, router]);
+      // [Cache Miss] API 호출
+      console.log(`[Cache Miss] Calling Search API: ${cacheKey}`);
+      setLoading(true);
+
+      try {
+        const apiParams = {
+          page: newPage,
+          perPage,
+          ...(isCategorySearch ? { category: term } : { query: term }),
+        };
+
+        const response = await searchPrompts(apiParams);
+
+        promptsCache[cacheKey] = response.prompts;
+        setPrompts(response.prompts);
+        setPage(newPage);
+      } catch (error) {
+        console.error('Failed to fetch prompts:', error);
+        setPrompts([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [perPage]
+  );
+
+  const handleSetPage = useCallback(
+    (newPage: number) => {
+      if (newPage !== page) {
+        // 클라이언트에서 먼저 캐시/패칭으로 데이터를 즉시 렌더링
+        fetchPrompts(newPage, currentTerm, isCategory);
+
+        // URL 쿼리 파라미터 업데이트 (뒤로가기 및 공유 가능한 주소 유지)
+        const params = new URLSearchParams();
+        if (isCategory) {
+          params.set('category', currentTerm);
+        } else {
+          params.set('q', currentTerm);
+        }
+        params.set('p', newPage.toString());
+
+        router.push(`/list?${params.toString()}`, { scroll: false });
+      }
+    },
+    [page, currentTerm, isCategory, fetchPrompts, router]
+  );
 
   const showNoResults = prompts.length === 0 && !loading;
-
   return (
     <div className="max-w-7xl mx-auto py-8">
       {/* 검색 결과 헤더 정보 (SEO 및 사용자 인지용) */}
@@ -178,6 +172,7 @@ export default function ListClient({
 
       {/* 핀터레스트 스타일 Masonry 그리드 렌더링 */}
       {!loading && !showNoResults && (
+        
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 space-y-6">
           {prompts.map((prompt) => {
             // R2 저장소 풀 주소 조립
