@@ -99,10 +99,8 @@ export default function PromptBuilder({ promptData }: PromptBuilderProps) {
 
 
   return (
-    <section className="lg:col-span-6 bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 shadow-lg space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900">Prompt Builder</h2>
-      </div>
+    <section className="lg:col-span-6 bg-white border border-slate-200 rounded-xl p-6 mb-2 sm:p-8 space-y-8">
+        <h2 className="text-[25px]">Prompt Builder</h2>
 
       {/* 1. Quick Modify (가변 필드 폼) */}
       <div className="space-y-5">

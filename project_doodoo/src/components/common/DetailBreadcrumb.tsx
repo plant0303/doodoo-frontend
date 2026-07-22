@@ -27,7 +27,7 @@ export default function DetailBreadcrumb({ title, categoryName }: DetailBreadcru
   const categorySlug = typeof categoryName === 'object' ? categoryName.slug : categoryName;
   
   return (
-    <nav className="flex lg:justify-end items-center gap-2 text-xs sm:text-sm text-gray-500 mb-6 py-3  overflow-x-auto whitespace-nowrap md:justify-start ">
+    <nav className="flex lg:justify-end items-center gap-2 text-xs sm:text-sm text-gray-500 mb-2 py-3  overflow-x-auto whitespace-nowrap md:justify-start ">
       <Link href="/" className="hover:text-blue-700 transition-colors flex-shrink-0">
         홈
       </Link>

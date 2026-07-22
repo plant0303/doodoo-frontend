@@ -36,7 +36,7 @@ export default async function Page({ params }: PageProps) {
         {/* LEFT PANEL: Hero Image & Information (7/12 cols) */}
         <section className="lg:col-span-6 space-y-6">
           <div>
-            <h1 className="font-extrabold text-[40px] tracking-tight">
+            <h1 className="text-[32px] font-medium  tracking-tight">
               {promptData.title}
             </h1>
             <p className="mt-3 text-[17px] text-slate-500">
