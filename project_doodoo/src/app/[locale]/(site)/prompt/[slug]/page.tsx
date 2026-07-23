@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { PromptDetailResponse } from '@/types/prompt';
 import { Link } from 'lucide-react';
 import DetailBreadcrumb from '@/components/common/DetailBreadcrumb';
+import { spawn } from 'child_process';
 
 interface PageProps {
   params: Promise<{
@@ -68,7 +69,27 @@ export default async function Page({ params }: PageProps) {
         {/* RIGHT PANEL: Prompt Builder (5/12 cols) */}
         <PromptBuilder promptData={promptData} />
       </div>
-      {/* <SimilarImages imageId="1" /> */}
+      <div className="mt-12 pt-8 border-t border-gray-100">
+        {/* 헤더 섹션: 태그 뱃지 + 타이틀 문구 */}
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          <div className="flex flex-wrap gap-1.5 items-center">
+            {promptData.tags.map((tag) => (
+              <span
+                key={tag.id || tag.slug || tag.name}
+                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[var(--sub-color)] text-[var(--primary-color)] "
+              >
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+          <span className="text-base sm:text-lg font-bold text-gray-900 ml-0.5">
+            와(과) 유사한 추천 이미지
+          </span>
+        </div>
+
+        {/* 유사 이미지 컴포넌트 */}
+        <SimilarImages imageId={promptData.id} />
+      </div>
     </div>
   );
 }

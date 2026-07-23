@@ -59,9 +59,17 @@ export interface PromptDetailResponse {
   created_at: string;
 }
 
-
 export interface SearchResponse {
   query: string;
   prompts: PromptItem[];
   total_count: number;
+}
+
+export interface SimilarImageItem {
+  id: string;
+  slug: string;
+  title: string;
+  images: {
+    thumbnail_url: string;
+  }
 }

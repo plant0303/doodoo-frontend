@@ -126,16 +126,32 @@ export async function getPromptDetail(slug: string, lang: string = 'ko'): Promis
 }
 
 // 유사이미지 출력
-export async function getSimilarImages(id: string) {
-  const url = `${WORKERS_API_URL}/api/similar?id=${id}`;
+export async function getSimilarImages(id: string, lang: string = 'ko') {
+  try {
+    // const url = `${WORKERS_API_URL}/api/similar?id=${id}?lang=${lang}`;
+    const url = `http://localhost:8787/api/similar?id=${id}&lang=${lang}`;
 
-  const res = await fetch(url, {
-    next: { revalidate: 86400 } // 24시간 캐시 유지
-  });
+    const res = await fetch(url, {
+      next: { revalidate: 86400 } // 24시간 캐시 유지
+    });
 
-  if (!res.ok) return null;
+    if (!res.ok) {
+      console.error('API Error:', res.status);
+      return [];
+    }
 
-  return res.json();
+    const json = await res.json();
+
+    if (json.success && Array.isArray(json.data)) {
+      return json.data;
+    }
+
+    return [];
+
+  } catch (error) {
+    console.error('Failed to fetch similar images:', error);
+    return [];
+  }
 }
 
 // 

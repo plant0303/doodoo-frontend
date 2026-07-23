@@ -2,13 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getSimilarImages } from "@/lib/api";
+import { SimilarImageItem } from "@/types/prompt";
 
-interface SimilarImageItem {
-  id: string;
-  title: string;
-  thumb_url: string;
-  category: string;
-}
 
 export default function SimilarImages({ imageId }: { imageId: string }) {
   const [items, setItems] = useState<SimilarImageItem[]>([]);
@@ -19,8 +14,8 @@ export default function SimilarImages({ imageId }: { imageId: string }) {
       setLoading(true);
       const result = await getSimilarImages(imageId);
 
-      if (result?.similar) {
-        setItems(result.similar);
+      if (result) {
+        setItems(result);
       }
 
       setLoading(false);
@@ -33,16 +28,16 @@ export default function SimilarImages({ imageId }: { imageId: string }) {
   if (!items.length) return <p className="text-gray-500">No similar images found</p>;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5 mb-10">
       {items.map((img) => (
         <a
           key={img.id}
           href={`/photo/${img.id}`}
           className="block group"
         >
-          <div className="aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
+          <div className="aspect-[4/3] overflow-hidden rounded-xl border border-gray-200">
             <img
-              src={img.thumb_url}
+              src={img.images?.thumbnail_url}
               alt={img.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               loading="lazy"
