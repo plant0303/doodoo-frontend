@@ -179,7 +179,7 @@ export default function ListClient({
             return (
               <div
                 key={prompt.id}
-                className="break-inside-avoid bg-white border border-gray-100 shadow-md hover:shadow-xl rounded-lg overflow-hidden transition-all duration-300 transform hover:-translate-y-1 group"
+                className="break-inside-avoid bg-white border border-gray-100  hover:shadow-xl rounded-lg overflow-hidden transition-all duration-300 transform hover:-translate-y-1 group"
               >
                 <Link href={`prompt/${prompt.slug}`} target='_blank'>
                   <div className="relative overflow-hidden bg-gray-100">

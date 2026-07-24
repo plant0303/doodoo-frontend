@@ -233,10 +233,10 @@ export default function PromptBuilder({ promptData }: PromptBuilderProps) {
       </div>
 
 
-      {/* 3. Call to Action Button */}
+      {/* Call to Action Button */}
       <button
         onClick={handleCopy}
-        className="cursor-pointer w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-100 transition-all hover:-translate-y-0.5 active:translate-y-0"
+        className="cursor-pointer w-full py-4 bg-[var(--primary-color)]  hover:bg-[var(--primary-hover)] text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0"
       >
         <span>{copied ? '복사되었습니다!' : '프롬프트 복사하기'}</span>
         <ArrowUpRight className="w-5 h-5" />
