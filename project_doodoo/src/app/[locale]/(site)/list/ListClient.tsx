@@ -3,11 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { PromptItem, SearchResponse } from '../../../../types/prompt';
+import { PromptItem, SearchResponse,  } from '../../../../types/prompt';
 import { searchPrompts } from '../../../../lib/api';
-
-// R2 퍼블릭 에셋 주소 (Cloudflare CDN 연동용)
-const PUBLIC_ASSETS_URL = process.env.NEXT_PUBLIC_ASSETS_URL || 'https://pub-assets.doodoo.com';
 
 const Pagination = ({ page, totalPages, setPage }: { page: number, totalPages: number, setPage: (p: number) => void }) => {
   if (totalPages <= 1) return null;
@@ -107,10 +104,12 @@ export default function ListClient({
           ...(isCategorySearch ? { category: term } : { query: term }),
         };
 
-        const response = await searchPrompts(apiParams);
+        const response: SearchResponse = await searchPrompts(apiParams);
 
-        promptsCache[cacheKey] = response.prompts;
-        setPrompts(response.prompts);
+        const fetchedPrompts = response.prompts || [];
+
+        promptsCache[cacheKey] = fetchedPrompts;
+        setPrompts(fetchedPrompts);
         setPage(newPage);
       } catch (error) {
         console.error('Failed to fetch prompts:', error);
@@ -172,7 +171,7 @@ export default function ListClient({
 
       {/* 핀터레스트 스타일 Masonry 그리드 렌더링 */}
       {!loading && !showNoResults && (
-        
+
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 space-y-6">
           {prompts.map((prompt) => {
             // R2 저장소 풀 주소 조립

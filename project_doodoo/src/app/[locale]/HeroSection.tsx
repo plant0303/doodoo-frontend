@@ -108,7 +108,7 @@ function HeroSection() {
             {CATEGORIES.map((category) => (
               <button
                 key={category.key}
-                className={`cursor-pointer px-4 py-2 rounded-sm text-xs font-medium transition-all ${category.active
+                className={`cursor-pointer px-4 py-2 rounded-sm text-xs font-medium transition-all ${category.value
                   ? 'bg-blue-100 text-blue-800'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}

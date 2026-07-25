@@ -1,0 +1,40 @@
+name: Playwright E2E Tests on Vercel Preview
+
+on:
+  deployment_status: # Vercel이 배포 상태를 업데이트할 때 감지합니다.
+
+jobs:
+  e2e-test:
+    # Vercel Preview 배포가 성공했을 때만 실행합니다.
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Preview'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        env:
+          # Vercel이 생성한 Preview URL을 환경변수로 주입합니다.
+          PLAYWRIGHT_TEST_BASE_URL: ${{ github.event.deployment_status.target_url }}
+        run: npx playwright test
+
+      - name: Upload Playwright Report
+        if: failure() # 테스트 실패 시 원인 분석용 리포트 저장
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

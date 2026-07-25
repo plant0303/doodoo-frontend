@@ -24,12 +24,6 @@ export interface UnsplashItem extends ImageItem {
   keywords: string[];
 }
 
-interface SearchResponse {
-  images: ImageItem[];
-  total_count: number;
-  page: number;
-  limit: number;
-}
 
 export interface FileDownloadOption {
   file_type_id: number;

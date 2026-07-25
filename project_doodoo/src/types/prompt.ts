@@ -10,6 +10,7 @@ export interface Tag {
   slug: string;
 }
 
+// 카드 리스트 및 검색 결과
 export interface PromptItem {
   id: string;
   title: string;
@@ -28,6 +29,7 @@ export interface SubOption {
   slug: string;
 }
 
+// 상세 페이지 응답 타입
 export interface PromptDetailResponse {
   id: string;
   slug: string;
@@ -59,10 +61,16 @@ export interface PromptDetailResponse {
   created_at: string;
 }
 
+// 검색 API 응답 타입
 export interface SearchResponse {
-  query: string;
   prompts: PromptItem[];
+  query?: string;
+  category?: string;
+  lang?: string;
   total_count: number;
+  page?: number;
+  limit?: number;
+  total_pages?: number;
 }
 
 export interface SimilarImageItem {
