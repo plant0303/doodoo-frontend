@@ -4,6 +4,17 @@
 @tailwind utilities;
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'D2Coding';
+  src: url('/fonts/D2CodingBold-Ver1.3.3.woff2')format('woff2');
+  font-weight: bold;
+}
+
+.font-d2coding {
+  font-family: 'D2CodingCustom', monospace;
+}
+
+
 :root {
   --primary-color: #2219D1;
   --primary-hover: #221c93;
@@ -11,10 +22,11 @@
   --sub-hover: #f29ad5;
 }
 
-body{
+body {
   font-family: "Pretendard", sans-serif;
   background-color: #fafaf8;
 }
+
 .container {
   width: 1280px;
   margin-left: auto;
@@ -25,30 +37,37 @@ body{
 
 
 .hide-scrollbar::-webkit-scrollbar {
-    width: 0px; /* 세로 스크롤바 너비 */
-    height: 6px; /* 가로 스크롤바 높이 */
+  width: 0px;
+  /* 세로 스크롤바 너비 */
+  height: 6px;
+  /* 가로 스크롤바 높이 */
 }
 
 /* 스크롤바 트랙(배경) */
 .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent; /* 배경을 투명하게 */
+  background: transparent;
+  /* 배경을 투명하게 */
 }
 
 /* 스크롤바 핸들(움직이는 부분) */
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2); /* 어두운 투명색 (부드러운 느낌) */
-    border-radius: 3px; /* 둥근 모서리 */
+  background: rgba(0, 0, 0, 0.2);
+  /* 어두운 투명색 (부드러운 느낌) */
+  border-radius: 3px;
+  /* 둥근 모서리 */
 }
 
 /* 스크롤바 핸들 호버 시 */
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 /* Firefox 스크롤바 스타일 */
 .custom-scrollbar {
-    scrollbar-width: thin; /* 얇게 설정 */
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent; /* thumb 색상 track 색상 */
+  scrollbar-width: thin;
+  /* 얇게 설정 */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  /* thumb 색상 track 색상 */
 }
 
 /* 그라데이션 */
@@ -62,10 +81,12 @@ body{
     transform: translate(-60%, -10%) scale(1) rotate(0deg);
     border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
   }
+
   50% {
     transform: translate(-30%, 20%) scale(1.25) rotate(180deg);
     border-radius: 70% 30% 30% 70% / 60% 30% 70% 40%;
   }
+
   100% {
     transform: translate(-60%, -10%) scale(1) rotate(360deg);
     border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
@@ -78,10 +99,12 @@ body{
     transform: translate(-30%, 10%) scale(1.1) rotate(0deg);
     border-radius: 60% 40% 30% 70% / 50% 70% 30% 50%;
   }
+
   50% {
     transform: translate(-65%, -15%) scale(0.9) rotate(-180deg);
     border-radius: 30% 70% 60% 40% / 70% 40% 60% 30%;
   }
+
   100% {
     transform: translate(-30%, 10%) scale(1.1) rotate(-360deg);
     border-radius: 60% 40% 30% 70% / 5 0% 70% 30% 50%;

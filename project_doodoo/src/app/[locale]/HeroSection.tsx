@@ -58,6 +58,8 @@ function HeroSection() {
     router.push(`/list?${params.toString()}`);
   };
 
+  
+
   return (
     <div className="relative min-h-screen bg-white text-gray-900 overflow-x-hidden flex flex-col justify-between">
 
@@ -86,7 +88,7 @@ function HeroSection() {
 
         {/* 메인 타이틀 히어로 */}
         <section className="grid mt-10 mb-10 md:grid-cols-[2fr_1fr] items-center">
-          <h1 className="text-3xl h-[92px] sm:text-4xl mb-10 font-light tracking-tight leading-snug max-w-xl text-center md:text-left mx-auto md:mx-0 md:mb-0">
+          <h1 className="font-d2coding text-3xl h-[92px] sm:text-4xl mb-10 font-light tracking-tight leading-snug max-w-xl text-center md:text-left mx-auto md:mx-0 md:mb-0">
             <span>Ready To Make<br />Amazing </span>
             {/* 타이포 애니메이션 영역 */}
             <div className="inline-flex items-center justify-center md:justify-start min-h-[1.3em]">
