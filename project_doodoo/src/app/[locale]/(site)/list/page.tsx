@@ -6,6 +6,7 @@ import ListClient from './ListClient';
 import { searchPrompts } from '@/lib/api'; // searchImages에서 searchPrompts로 변경
 import { SearchResponse } from '@/types/prompt';
 import { init } from 'next/dist/compiled/webpack/webpack';
+import ErrorState from '@/components/common/Error';
 
 const DEFAULT_PER_PAGE = 30;
 
@@ -26,9 +27,11 @@ export default async function Page({ searchParams }: PageProps) {
   const category = params.category ?? "";
   const page = parseInt(params.p ?? "1", 10);
 
+  let hasError = false;
+
   // 새로운 타입 규격에 따른 초기값 세팅
   let initialData: SearchResponse = {
-    query: query || category || "", // 💡 string 타입이므로 undefined 방지용 fallback 처리
+    query: query || category || "", // string 타입이므로 undefined 방지용 fallback 처리
     prompts: [],
     total_count: 0
   };
@@ -52,7 +55,14 @@ export default async function Page({ searchParams }: PageProps) {
       initialTotalPages = Math.ceil(totalCount / perPage);
     } catch (error) {
       console.error("Error fetching prompts during SSR: ", error);
+      hasError = true; // 에러 플래그 설정
     }
+  }
+
+  if (hasError) {
+    return (
+      <ErrorState />
+    );
   }
 
   const finalQueryOrCategory = query || category;

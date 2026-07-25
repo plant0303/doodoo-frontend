@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import SearchBar from "./SearchBar";
 
 const SEARCH_CATEGORIES = [
-  { label: "전체", value: "all" },
-  { label: "마케팅/디자인", value: "marketing" },
-  { label: "브랜딩/목업", value: "branding-mockups" },
-  { label: "타이포그래피", value: "typography" },
-  { label: "사진/실사", value: "photography" },
-  { label: "SNS", value: "sns" },
-  { label: "일러스트레이션", value: "illustration" }
-];
+  { key: "all", value: "all" },
+  { key: "marketing", value: "marketing" },
+  { key: "branding", value: "branding" },
+  { key: "mockup", value: "mockup" },
+  { key: "typography", value: "typography" },
+  { key: "photo", value: "photo" },
+  { key: "sns", value: "sns" },
+  { key: "illustration", value: "illustration" },
+] as const;
 
 export default function Header({ showCategoryNav = true }: { showCategoryNav?: boolean }) {
   const locale = useLocale();
@@ -49,6 +50,7 @@ export default function Header({ showCategoryNav = true }: { showCategoryNav?: b
 function CategoryNav({ locale }: { locale: string }) {
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get("category") || "all";
+  const tCategory = useTranslations("category");
 
   return (
     <nav aria-label="검색 카테고리" className="overflow-x-auto">
@@ -74,7 +76,7 @@ function CategoryNav({ locale }: { locale: string }) {
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
-                {category.label}
+                {tCategory(category.key)}
               </Link>
             </li>
           );

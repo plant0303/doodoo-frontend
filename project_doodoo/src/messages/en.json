@@ -1,10 +1,19 @@
 {
-
   "hero": {
     "logoAlt": "doodoo logo",
     "title": "What Doo you want to create today?",
     "searchPlaceholder": "Describe your design vision...",
     "popularCategories": "Popular categories",
     "loadMore": "Load More Designs"
+  },
+  "category": {
+    "all": "All",
+    "marketing": "Marketing",
+    "branding": "Design & Branding",
+    "mockup": "Mockup",
+    "typography": "Typography",
+    "photo": "Photography",
+    "sns": "Social Media",
+    "illustration": "Illustration"
   }
 }

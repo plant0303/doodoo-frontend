@@ -17,15 +17,18 @@ function HeroSection() {
   const router = useRouter();
 
   const t = useTranslations("hero");
+  const tCategory = useTranslations("category");
 
-  // 1. Popular Categories 데이터 정의
+  // Popular Categories 데이터 정의
   const CATEGORIES = [
-    { name: 'Modern Minimalist', active: true },
-    { name: 'Cyberpunk 2077', active: false },
-    { name: 'Pastel Aesthetic', active: false },
-    { name: 'Retro Futurism', active: false },
-    { name: 'High Contrast B&W', active: false },
-    { name: 'Abstract Organic', active: false },
+    { key: "all", value: "all" },
+    { key: "marketing", value: "marketing" },
+    { key: "branding", value: "branding" },
+    { key: "mockup", value: "mockup" },
+    { key: "typography", value: "typography" },
+    { key: "photo", value: "photo" },
+    { key: "sns", value: "sns" },
+    { key: "illustration", value: "illustration" },
   ];
 
   const KEYWORDS = [
@@ -99,18 +102,19 @@ function HeroSection() {
         </section>
 
         {/* 카테고리 탭 섹션 */}
-        <section className="mb-10">
+        <section className="mb-5">
           <h2 className="text-base font-semibold mb-4 text-gray-900">{t("popularCategories")}</h2>
           <div className="flex flex-wrap gap-2.5">
             {CATEGORIES.map((category) => (
               <button
-                key={category.name}
-                className={`cursor-pointer px-4 py-2 rounded-full text-xs font-medium transition-all ${category.active
+                key={category.key}
+                className={`cursor-pointer px-4 py-2 rounded-sm text-xs font-medium transition-all ${category.active
                   ? 'bg-blue-100 text-blue-800'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
               >
-                {category.name}
+                {/* 💡 tCategory(key)를 통해 ko/en 자동 변환 */}
+                {tCategory(category.key)}
               </button>
             ))}
           </div>

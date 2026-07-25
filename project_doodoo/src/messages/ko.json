@@ -5,5 +5,15 @@
     "searchPlaceholder": "디자인 아이디어를 설명해 주세요...",
     "popularCategories": "인기 카테고리",
     "loadMore": "더 보기"
+  },
+  "category": {
+    "all": "전체",
+    "marketing": "마케팅",
+    "branding": "디자인/브랜딩",
+    "mockup": "목업",
+    "typography": "타이포그래피",
+    "photo": "사진/실사",
+    "sns": "SNS",
+    "illustration": "일러스트레이션"
   }
 }
