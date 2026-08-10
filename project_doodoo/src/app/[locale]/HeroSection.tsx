@@ -21,14 +21,13 @@ function HeroSection() {
 
   // Popular Categories 데이터 정의
   const CATEGORIES = [
-    { key: "all", value: "all" },
-    { key: "marketing", value: "marketing" },
-    { key: "branding", value: "branding" },
-    { key: "mockup", value: "mockup" },
-    { key: "typography", value: "typography" },
-    { key: "photo", value: "photo" },
-    { key: "sns", value: "sns" },
-    { key: "illustration", value: "illustration" },
+    { key: "all", value: "전체" },
+    { key: "marketing", value: "마케팅디자인" },
+    { key: "typography", value: "타이포그래피" },
+    { key: "branding-mockup", value: "브랜딩 목업" },
+    { key: "illustration", value: "일러스트레이션" },
+    { key: "photography", value: "사진실사" },
+    { key: "meme", value: "밈" },
   ];
 
   const KEYWORDS = [

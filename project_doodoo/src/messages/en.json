@@ -8,12 +8,11 @@
   },
   "category": {
     "all": "All",
-    "marketing": "Marketing",
-    "branding": "Design & Branding",
-    "mockup": "Mockup",
+    "marketing": "Marketing Design",
     "typography": "Typography",
-    "photo": "Photography",
-    "sns": "Social Media",
-    "illustration": "Illustration"
+    "branding-mockup": "Branding & Mockup",
+    "illustration": "Illustration",
+    "photography": "Photography",
+    "meme": "Meme"
   }
 }

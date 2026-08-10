@@ -8,12 +8,11 @@
   },
   "category": {
     "all": "전체",
-    "marketing": "마케팅",
-    "branding": "디자인/브랜딩",
-    "mockup": "목업",
+    "marketing": "마케팅디자인",
     "typography": "타이포그래피",
-    "photo": "사진/실사",
-    "sns": "SNS",
-    "illustration": "일러스트레이션"
+    "branding-mockup": "브랜딩 목업",
+    "illustration": "일러스트레이션",
+    "photography": "사진실사",
+    "meme": "밈"
   }
 }
