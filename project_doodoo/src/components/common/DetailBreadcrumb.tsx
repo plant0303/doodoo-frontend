@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
@@ -25,11 +26,13 @@ export default function DetailBreadcrumb({ title, categoryName }: DetailBreadcru
 
   const categoryDisplayName = typeof categoryName === 'object' ? categoryName.name : categoryName;
   const categorySlug = typeof categoryName === 'object' ? categoryName.slug : categoryName;
-  
+
+  const t = useTranslations("promptDetail");
+
   return (
     <nav className="flex lg:justify-end items-center gap-2 text-xs sm:text-sm text-gray-500 mb-2 py-3  overflow-x-auto whitespace-nowrap md:justify-start ">
       <Link href="/" className="hover:text-blue-700 transition-colors flex-shrink-0">
-        홈
+        {t("home")}
       </Link>
 
       <span className="text-gray-300 flex-shrink-0">/</span>
@@ -42,26 +45,6 @@ export default function DetailBreadcrumb({ title, categoryName }: DetailBreadcru
           >
             '{fromQuery}' 검색 결과
           </Link>
-          <span className="text-gray-300 flex-shrink-0">/</span>
-        </>
-      ) : fromCategory ? (
-        <>
-          {/* <Link
-            href={`/list?category=${encodeURIComponent(fromCategory)}&p=${fromPage}`}
-            className="hover:text-blue-700 transition-colors flex-shrink-0"
-          > */}
-            {fromCategory}
-          {/* </Link> */}
-          <span className="text-gray-300 flex-shrink-0">/</span>
-        </>
-      ) : categoryName ? (
-        <>
-          {/* <Link
-            href={`/list?category=${encodeURIComponent(categorySlug || '')}`}
-            className="hover:text-blue-700 transition-colors flex-shrink-0"
-          > */}
-            {categoryDisplayName}
-          {/* </Link> */}
           <span className="text-gray-300 flex-shrink-0">/</span>
         </>
       ) : null}

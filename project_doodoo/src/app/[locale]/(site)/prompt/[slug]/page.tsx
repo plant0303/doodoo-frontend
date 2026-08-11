@@ -7,6 +7,7 @@ import { PromptDetailResponse } from '@/types/prompt';
 import { Link } from 'lucide-react';
 import DetailBreadcrumb from '@/components/common/DetailBreadcrumb';
 import { spawn } from 'child_process';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   params: Promise<{
@@ -24,6 +25,8 @@ export default async function Page({ params }: PageProps) {
   if (!promptData) {
     notFound();
   }
+
+  const t = await getTranslations("promptDetail");
 
   return (
     <div className="container min-h-screen py-8 sm:px-6 lg:px-8">
@@ -83,7 +86,7 @@ export default async function Page({ params }: PageProps) {
             ))}
           </div>
           <span className="text-base sm:text-lg font-bold text-gray-900 ml-0.5">
-            와(과) 유사한 추천 이미지
+            {t("tag")}
           </span>
         </div>
 

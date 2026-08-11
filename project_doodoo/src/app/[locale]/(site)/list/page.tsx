@@ -7,6 +7,8 @@ import { searchPrompts } from '@/lib/api'; // searchImages에서 searchPrompts�
 import { SearchResponse } from '@/types/prompt';
 import { init } from 'next/dist/compiled/webpack/webpack';
 import ErrorState from '@/components/common/Error';
+import { useTranslations } from "next-intl";
+import { getTranslations } from 'next-intl/server';
 
 const DEFAULT_PER_PAGE = 30;
 
@@ -22,6 +24,7 @@ type PageProps = {
 
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
+
 
   const query = params.q ?? "";
   const category = params.category ?? "";
@@ -69,10 +72,12 @@ export default async function Page({ searchParams }: PageProps) {
   const isCategorySearch = !!category && !query;
 
 
+  const t = await getTranslations("search");
+
   return (
     <div className="container xl:max-w-[1280px] min-h-screen mx-auto px-4 py-4">
       <div className="flex items-center gap-2 text-sm text-gray-500 ">
-        <a href="/" className="hover:text-blue-700 transition-colors">홈</a>
+        <a href="/" className="hover:text-blue-700 transition-colors">{t("home")}</a>
 
         <span className="text-gray-300">/</span>
 
@@ -82,12 +87,11 @@ export default async function Page({ searchParams }: PageProps) {
             <span className="text-gray-300">/</span>
           </>
         )}
-
         {/* 현재 위치: 검색어 강조 */}
         <span className="font-medium text-gray-900">
-          '{query}'' 검색 결과
+          '{query}'' {t("SearchResults")}
           <span className="text-gray-400 font-normal ml-1">
-            ({initialData?.total_count.toLocaleString()}개)
+            ({initialData?.total_count.toLocaleString()}{t("count")})
           </span>
         </span>
       </div>

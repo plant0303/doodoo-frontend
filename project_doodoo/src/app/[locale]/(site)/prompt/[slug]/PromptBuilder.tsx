@@ -14,6 +14,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { PromptDetailResponse } from '@/types/prompt';
+import { useTranslations } from 'next-intl';
 
 
 interface PromptBuilderProps {
@@ -169,6 +170,8 @@ export default function PromptBuilder({ promptData }: PromptBuilderProps) {
     }
   }, [formValues, activeKey]);
 
+  const t = useTranslations("promptDetail");
+
   return (
     <section className="lg:col-span-6 bg-white border border-slate-200 rounded-xl p-6 mb-2 sm:p-8 space-y-8">
       <h2 className="text-[25px]">Prompt Builder</h2>
@@ -193,7 +196,7 @@ export default function PromptBuilder({ promptData }: PromptBuilderProps) {
             </div>
           ))
         ) : (
-          <p className="text-sm text-slate-400">수정 가능한 가변 필드가 없습니다.</p>
+          <p className="text-sm text-slate-400">{t("blank")}</p>
         )}
       </div>
 
@@ -238,7 +241,7 @@ export default function PromptBuilder({ promptData }: PromptBuilderProps) {
         onClick={handleCopy}
         className="cursor-pointer w-full py-4 bg-[var(--primary-color)]  hover:bg-[var(--primary-hover)] text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0"
       >
-        <span>{copied ? '복사되었습니다!' : '프롬프트 복사하기'}</span>
+        <span>{copied ? t("copied") : t("copy")}</span>
         <ArrowUpRight className="w-5 h-5" />
       </button>
     </section>

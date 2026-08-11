@@ -14,5 +14,17 @@
     "illustration": "Illustration",
     "photography": "Photography",
     "meme": "Meme"
+  },
+  "search": {
+    "home": "home",
+    "SearchResults": "Search Results",
+    "count": "items"
+  },
+  "promptDetail": {
+    "home": "Home",
+    "blank": "No editable fields available.",
+    "tag": "Recommended images similar",
+    "copy": "copy prompt",
+    "copied": "Copied!"
   }
 }

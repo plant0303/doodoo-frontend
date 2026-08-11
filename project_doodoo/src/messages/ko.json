@@ -14,5 +14,17 @@
     "illustration": "일러스트레이션",
     "photography": "사진실사",
     "meme": "밈"
+  },
+  "search": {
+    "home": "홈",
+    "SearchResults": "검색 결과",
+    "count": "개"
+  },
+  "promptDetail": {
+    "home": "홈",
+    "blank": "수정 가능한 필드가 없습니다.",
+    "tag": "와(과) 유사한 추천 이미지",
+    "copy": "프롬프트 복사하기",
+    "copied": "복사되었습니다!"
   }
 }
